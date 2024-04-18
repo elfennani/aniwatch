@@ -1,5 +1,6 @@
 import {
   ActivityIndicator,
+  Button,
   GestureResponderEvent,
   Pressable,
   StyleSheet,
@@ -8,9 +9,12 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { ResizeMode, Video } from "expo-av";
+import { HlsVideoView } from "@/modules/hls-video";
+import { StatusBar } from "expo-status-bar";
+import { setVisibilityAsync } from "expo-navigation-bar";
 // import { OnProgressEventProps, VLCPlayer } from "react-native-vlc-media-player";
 
 type Params = {
@@ -40,7 +44,12 @@ const Watch = () => {
   const [seek, setSeek] = useState<number | undefined>(0);
   const [buffering, setBuffering] = useState(false);
   const [progress, setProgress] = useState<any>();
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
+  const [fullscreen, setFullscreen] = useState(false);
+
+  useEffect(() => {
+    setVisibilityAsync("hidden");
+  }, []);
 
   const onPress = ({ nativeEvent: { pageX } }: GestureResponderEvent) => {
     debounce(
@@ -60,27 +69,51 @@ const Watch = () => {
     );
   };
 
+  if (!fullscreen) {
+    return (
+      <View>
+        <Stack.Screen
+          options={{ orientation: "portrait", presentation: "modal" }}
+        />
+        <HlsVideoView
+          url={url}
+          style={{ width: "100%", aspectRatio: 16 / 9 }}
+        />
+        <Button title="Fullscreen" onPress={() => setFullscreen(true)} />
+      </View>
+    );
+  }
+
   return (
-    <View style={{ width: "100%", height: "100%", position: "relative" }}>
+    <View style={{ flex: 1, position: "relative", backgroundColor: "black" }}>
       <Stack.Screen
         options={{
           orientation: "landscape",
-          headerShown: false,
-          navigationBarHidden: true,
           presentation: "fullScreenModal",
-          statusBarHidden: true,
+          headerShown: false,
         }}
       />
-      <Pressable onPress={onPress}>
-        <Video
-          source={{ uri: url }}
-          useNativeControls
-          resizeMode={ResizeMode.CONTAIN}
-          isLooping
-          // onPlaybackStatusUpdate={status => setStatus(() => status)}
-          style={{ width: "100%", height: "100%" }}
-        />
-        {/* <VLCPlayer
+      <HlsVideoView url={url} style={{ width: "100%", height: "100%" }} />
+      <View style={{ position: "absolute", top: 32, right: 32 }}>
+        <Button title="Exit" onPress={() => setFullscreen(false)} />
+      </View>
+    </View>
+  );
+
+  return (
+    <View
+      style={{
+        width,
+        height,
+        position: "relative",
+        backgroundColor: "black",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {/* <Pressable onPress={onPress}> */}
+      <HlsVideoView url={url} style={{ width: "100%", height: "100%" }} />
+      {/* <VLCPlayer
           source={{ uri: url }}
           style={{ width: "100%", height: "100%" }}
           paused={paused}
@@ -93,10 +126,11 @@ const Watch = () => {
           onBuffering={() => setBuffering(true)}
           onLoad={() => setBuffering(false)}
         /> */}
-        <View style={styles.overlay}>
+      {/* <View style={styles.overlay}>
           {buffering && <ActivityIndicator color="white" size={"large"} />}
         </View>
-      </Pressable>
+      </Pressable> */}
+      <StatusBar hidden={true} />
     </View>
   );
 };
