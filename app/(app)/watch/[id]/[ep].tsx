@@ -24,10 +24,17 @@ const WatchByEp = (props: Props) => {
         options={{
           navigationBarHidden: true,
           orientation: "landscape",
-          // presentation: "fullScreenModal",
         }}
       />
-      <PlayerLoader allAnimeId={media.allanimeId} episode={Number(ep)} />
+      <PlayerLoader
+        allAnimeId={media.allanimeId}
+        episode={Number(ep)}
+        dubbed={
+          media.episodes?.some(
+            (episode) => episode.number == Number(ep) && episode.dub
+          ) ?? false
+        }
+      />
     </>
   );
 };

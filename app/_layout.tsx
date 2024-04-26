@@ -1,12 +1,7 @@
-import { StyleSheet, Text, View } from "react-native";
-import {
-  DarkTheme,
-  DefaultTheme,
-  Theme,
-  ThemeProvider,
-} from "@react-navigation/native";
+import { StyleSheet, View } from "react-native";
+import { DarkTheme, Theme, ThemeProvider } from "@react-navigation/native";
 import React, { useEffect } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 import { Slot, SplashScreen } from "expo-router";
 import { SessionProvider } from "@/ctx/session";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -18,12 +13,31 @@ import {
 } from "@expo-google-fonts/manrope";
 import zinc from "@/utils/zinc";
 import { StatusBar } from "expo-status-bar";
-type Props = {};
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
+import { storage } from "@/utils/mmkv";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { gcTime: Infinity },
   },
+});
+
+const clientStorage = {
+  setItem: (key: string, value: string) => {
+    storage.set(key, value);
+  },
+  getItem: (key: string) => {
+    const value = storage.getString(key);
+    return value === undefined ? null : value;
+  },
+  removeItem: (key: string) => {
+    storage.delete(key);
+  },
+};
+
+const asyncStoragePersister = createSyncStoragePersister({
+  storage: clientStorage,
 });
 
 export {
@@ -60,7 +74,7 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 
-const RootLayoutNav = (props: Props) => {
+const RootLayoutNav = () => {
   const darkThemeOverrides: Theme = {
     ...DarkTheme,
     colors: {
@@ -73,12 +87,15 @@ const RootLayoutNav = (props: Props) => {
   return (
     <View style={[StyleSheet.absoluteFill, { backgroundColor: zinc[900] }]}>
       <ThemeProvider value={darkThemeOverrides}>
-        <QueryClientProvider client={queryClient}>
+        <PersistQueryClientProvider
+          client={queryClient}
+          persistOptions={{ persister: asyncStoragePersister }}
+        >
           <SessionProvider>
             <StatusBar hidden={false} style="light" />
             <Slot />
           </SessionProvider>
-        </QueryClientProvider>
+        </PersistQueryClientProvider>
       </ThemeProvider>
     </View>
   );

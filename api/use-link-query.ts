@@ -2,6 +2,8 @@ import useAllAnimeClient from "@/hooks/use-allanime-client";
 import dycrept from "@/utils/decrypt";
 import { useQuery } from "@tanstack/react-query";
 import { GraphQLClient } from "graphql-request";
+import { parse } from "hls-parser";
+import { MasterPlaylist } from "hls-parser/types";
 import { retry } from "ts-retry-promise";
 
 interface Params {
@@ -60,7 +62,19 @@ const fetchLink = async ({ allAnimeId, episode, type }: Params, client: GraphQLC
     return link
   }, { retries: 3 });
 
-  return link as string
+  const hlsRes = await fetch(link)
+  const hls = parse(await hlsRes.text()) as MasterPlaylist
+
+  const urlStart = link.split("/").slice(0, -1).join("/") + "/";
+
+  return [...hls.variants.map((variant) => ({
+    name: `${variant.resolution?.height}p`,
+    url: urlStart + variant.uri,
+  })), {
+    name: "auto" as const,
+    url: link as string
+  }];
+
 }
 
 

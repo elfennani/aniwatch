@@ -37,10 +37,11 @@ const EpsiodeItem = React.forwardRef(
         {thumbnail ? (
           <Image
             source={{
-              uri: thumbnail + "?w=124",
+              uri: thumbnail,
               width: 124,
               height: 124 * (9 / 16),
             }}
+            contentFit="cover"
             style={styles.image}
           />
         ) : (
@@ -75,7 +76,6 @@ const styles = StyleSheet.create({
   image: {
     borderRadius: 4,
     aspectRatio: 16 / 9,
-    resizeMode: "cover",
     width: 124,
     backgroundColor: zinc[800],
     alignItems: "center",

@@ -1,17 +1,12 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Media from "@/interfaces/Media";
 import React from "react";
-import {
-  Image,
-  ImageBackground,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import zinc from "@/utils/zinc";
 import { Link } from "expo-router";
 import purple from "@/utils/purple";
 import Text from "./text";
+import { Image, ImageBackground } from "expo-image";
 
 interface Props {
   canContinue?: boolean;
@@ -28,7 +23,11 @@ const MediaItem = ({
     return (
       <Link href={`/media/${id}` as any} asChild>
         <TouchableOpacity activeOpacity={0.8}>
-          <ImageBackground source={{ uri: cover }} style={styles.gridThumbnail}>
+          <ImageBackground
+            source={{ uri: cover }}
+            style={styles.gridThumbnail}
+            contentFit="cover"
+          >
             <View style={styles.gridInfo}>
               <Text numberOfLines={3} style={styles.gridTitle}>
                 {title}
@@ -49,7 +48,11 @@ const MediaItem = ({
     <Link href={`/media/${id}` as any} asChild>
       <TouchableOpacity activeOpacity={0.8}>
         <View style={styles.container}>
-          <Image source={{ uri: cover }} style={styles.thumbnail} />
+          <Image
+            source={{ uri: cover }}
+            contentFit="cover"
+            style={styles.thumbnail}
+          />
           <View style={styles.info}>
             <Text style={styles.title}>{title}</Text>
             <View style={styles.progress}>
@@ -82,7 +85,6 @@ const styles = StyleSheet.create({
     height: 192,
     borderRadius: 6,
     overflow: "hidden",
-    resizeMode: "cover",
     justifyContent: "flex-end",
   },
   title: {

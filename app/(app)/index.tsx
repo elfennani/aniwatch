@@ -4,21 +4,17 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import React, { Suspense } from "react";
+import React from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import useViewerQuery from "@/api/use-viewer-query";
 import MediaListingGrid from "@/components/media-listing-grid";
 import SectionTitle from "@/components/section-title";
-import Text from "@/components/text";
-import zinc from "@/utils/zinc";
-import AntDesign from "@expo/vector-icons/AntDesign";
 
 type Props = {};
 
 const HomePage = (props: Props) => {
-  const { top, bottom } = useSafeAreaInsets();
-  const { data: viewer, isError, isPending, refetch } = useViewerQuery();
-  const { width } = useWindowDimensions();
+  const { top } = useSafeAreaInsets();
+  const { data: viewer, isError, isPending } = useViewerQuery();
 
   if (isPending) {
     return <View></View>;
@@ -29,7 +25,7 @@ const HomePage = (props: Props) => {
   }
 
   return (
-    <View style={{ flex: 1, paddingTop: top + 16 }}>
+    <ScrollView contentContainerStyle={{ paddingTop: top + 16 }}>
       <SectionTitle style={{ paddingHorizontal: 16 }}>
         Currently Watching
       </SectionTitle>
@@ -49,7 +45,7 @@ const HomePage = (props: Props) => {
         viewerId={viewer.id}
         contentContainerStyle={{ padding: 16 }}
       />
-    </View>
+    </ScrollView>
   );
 };
 
