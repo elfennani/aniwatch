@@ -48,7 +48,7 @@ const MediaById = (props: Props) => {
     >
       <ImageBackground
         source={{ uri: media.banner ?? undefined }}
-        resizeMode="cover"
+        contentFit="cover"
       >
         <LinearGradient
           colors={["rgba(39, 39, 42, 0)", zinc[900]]}
@@ -56,7 +56,11 @@ const MediaById = (props: Props) => {
           style={[styles.gradient, { paddingTop: 32 + top }]}
         >
           <View style={styles.header}>
-            <Image style={styles.cover} source={{ uri: media.cover }} />
+            <Image
+              style={styles.cover}
+              source={{ uri: media.cover }}
+              contentFit="cover"
+            />
             <View style={styles.info}>
               <Text style={{ fontSize: 18 }}>{media.title}</Text>
               <Text style={{ fontSize: 12, color: zinc[300] }}>
@@ -141,7 +145,6 @@ const styles = StyleSheet.create({
     aspectRatio: 0.69,
     width: 128,
     borderRadius: 4,
-    resizeMode: "cover",
   },
   genreContainer: {
     flexDirection: "row",

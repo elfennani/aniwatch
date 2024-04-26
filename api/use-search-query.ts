@@ -1,6 +1,6 @@
 import useAniListClient from "@/hooks/use-anilist-client";
 import Media from "@/interfaces/Media";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { graphql, readFragment } from "gql.tada";
 import { GraphQLClient } from "graphql-request";
 
@@ -11,19 +11,21 @@ interface Params {
 const useSearchQuery = (params: Params) => {
   const client = useAniListClient();
 
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ["show", "search", params.query],
-    queryFn: () => fetchShowsBySearch(params, client)
+    queryFn: ({ pageParam }) => fetchShowsBySearch(params, pageParam, client),
+    initialPageParam: 1,
+    getNextPageParam: (_, __, param) => param + 1
   })
 }
 
 export default useSearchQuery;
 
-const fetchShowsBySearch = async ({ query }: Params, client: GraphQLClient) => {
+const fetchShowsBySearch = async ({ query }: Params, page: number, client: GraphQLClient) => {
   if (!query)
     throw new Error("`query` can't be empty")
 
-  const result = await client.request(search_query, { query })
+  const result = await client.request(search_query, { query, page })
   const media: Media[] = result.anime?.media?.map(show => {
     return ({
       id: show?.id!,
@@ -38,8 +40,8 @@ const fetchShowsBySearch = async ({ query }: Params, client: GraphQLClient) => {
 }
 
 const search_query = graphql(`
-  query SeachQuery($query: String) {
-    anime: Page(perPage: 8) {
+  query SeachQuery($query: String!, $page: Int!) {
+    anime: Page(perPage: 8, page: $page) {
       media(
         type: ANIME,
         search: $query,
