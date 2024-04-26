@@ -17,6 +17,7 @@ import {
   Manrope_600SemiBold,
 } from "@expo-google-fonts/manrope";
 import zinc from "@/utils/zinc";
+import { StatusBar } from "expo-status-bar";
 type Props = {};
 
 const queryClient = new QueryClient({
@@ -74,6 +75,7 @@ const RootLayoutNav = (props: Props) => {
       <ThemeProvider value={darkThemeOverrides}>
         <QueryClientProvider client={queryClient}>
           <SessionProvider>
+            <StatusBar hidden={false} style="light" />
             <Slot />
           </SessionProvider>
         </QueryClientProvider>

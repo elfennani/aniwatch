@@ -1,28 +1,48 @@
-import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
-import React from "react";
-import { Link } from "expo-router";
+import {
+  StyleSheet,
+  TouchableOpacity,
+  TouchableOpacityProps,
+  View,
+} from "react-native";
+import React, { ForwardedRef } from "react";
+import { Link, router } from "expo-router";
 import { Episode } from "@/interfaces/Episode";
 import secondsToHms from "@/utils/seconds-to-hms";
 import zinc from "@/utils/zinc";
 import Text from "./text";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { Image } from "expo-image";
 
 type Props = {
+  mediaId: number;
   episode: Episode;
-};
+} & TouchableOpacityProps;
 
-const EpsiodeItem = ({
-  episode: { dub, id, number, thumbnail, duration, resolution },
-}: Props) => {
-  return (
-    <Link
-      style={styles.container}
-      href={`/watch/${id}/${number}` as any}
-      asChild
-    >
-      <TouchableOpacity activeOpacity={0.8}>
+const EpsiodeItem = React.forwardRef(
+  (
+    {
+      episode: { dub, id, number, thumbnail, duration, resolution },
+      mediaId,
+      ...props
+    }: Props,
+    ref: ForwardedRef<TouchableOpacity>
+  ) => {
+    return (
+      <TouchableOpacity
+        ref={ref}
+        activeOpacity={0.8}
+        {...props}
+        style={styles.container}
+      >
         {thumbnail ? (
-          <Image source={{ uri: thumbnail }} style={styles.image} />
+          <Image
+            source={{
+              uri: thumbnail + "?w=124",
+              width: 124,
+              height: 124 * (9 / 16),
+            }}
+            style={styles.image}
+          />
         ) : (
           <View style={styles.image}>
             <AntDesign name="meho" color={zinc[600]} size={24} />
@@ -40,9 +60,9 @@ const EpsiodeItem = ({
           </Text>
         </View>
       </TouchableOpacity>
-    </Link>
-  );
-};
+    );
+  }
+);
 
 export default EpsiodeItem;
 

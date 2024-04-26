@@ -22,6 +22,8 @@ const useLinkQuery = (params: Params) => {
   })
 }
 
+export default useLinkQuery
+
 const fetchLink = async ({ allAnimeId, episode, type }: Params, client: GraphQLClient) => {
 
   const response: QueryEpisode = await retry(
@@ -58,7 +60,7 @@ const fetchLink = async ({ allAnimeId, episode, type }: Params, client: GraphQLC
     return link
   }, { retries: 3 });
 
-  return Response.json({ link })
+  return link as string
 }
 
 

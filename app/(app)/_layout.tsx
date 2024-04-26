@@ -25,7 +25,6 @@ const AppLayout = () => {
         contentStyle: { backgroundColor: zinc[900] },
         orientation: "portrait",
         navigationBarColor: "transparent",
-        statusBarTranslucent: true,
         headerShown: false,
       }}
     >

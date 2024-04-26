@@ -1,6 +1,4 @@
 import {
-  Image,
-  ImageBackground,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -17,6 +15,8 @@ import RenderHtml from "react-native-render-html";
 import { LinearGradient } from "expo-linear-gradient";
 import zinc from "@/utils/zinc";
 import EpsiodeItem from "@/components/epsiode-item";
+import { Link } from "expo-router";
+import { Image, ImageBackground } from "expo-image";
 
 type Props = {};
 
@@ -27,10 +27,13 @@ const MediaById = (props: Props) => {
     data: media,
     refetch,
     isRefetching,
+    isPending,
+    isError,
   } = useShowQuery({ id: Number(id) });
   const { width } = useWindowDimensions();
 
-  if (!media) return <Text>Loading...</Text>;
+  if (isPending) return <Text>Loading...</Text>;
+  if (isError) return <Text>Error</Text>;
 
   return (
     <ScrollView
@@ -103,7 +106,13 @@ const MediaById = (props: Props) => {
             {media.episodes
               .sort((a, b) => a.number - b.number)
               .map((ep) => (
-                <EpsiodeItem key={ep.id} episode={ep} />
+                <Link
+                  key={ep.id}
+                  href={`/watch/${media.id}/${ep.number}` as any}
+                  asChild
+                >
+                  <EpsiodeItem episode={ep} mediaId={media.id} />
+                </Link>
               ))}
           </View>
         </View>
