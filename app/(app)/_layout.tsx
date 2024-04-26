@@ -2,6 +2,7 @@ import { StyleSheet } from "react-native";
 import React, { useEffect } from "react";
 import { Redirect, SplashScreen, Stack } from "expo-router";
 import { useSession } from "@/ctx/session";
+import zinc from "@/utils/zinc";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -21,8 +22,11 @@ const AppLayout = () => {
   return (
     <Stack
       screenOptions={{
-        contentStyle: { backgroundColor: "white" },
+        contentStyle: { backgroundColor: zinc[900] },
         orientation: "portrait",
+        navigationBarColor: "transparent",
+        statusBarTranslucent: true,
+        headerShown: false,
       }}
     >
       <Stack.Screen
