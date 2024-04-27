@@ -68,7 +68,11 @@ export default function RootLayout() {
   }, [loaded]);
 
   if (!loaded) {
-    return null;
+    return (
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: zinc[900] }]}>
+        <StatusBar hidden={false} style="light" />
+      </View>
+    );
   }
 
   return <RootLayoutNav />;
