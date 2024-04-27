@@ -11,7 +11,7 @@ import useViewerQuery from "@/api/use-viewer-query";
 import MediaListingGrid from "@/components/media-listing-grid";
 import SectionTitle from "@/components/section-title";
 import zinc from "@/utils/zinc";
-import { AntDesign } from "@expo/vector-icons";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import Text from "@/components/text";
 import { Link } from "expo-router";
 import MediaListingList from "@/components/media-listing-list";

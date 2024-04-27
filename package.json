@@ -54,7 +54,8 @@
     "react-native-web": "~0.19.6",
     "string-to-color": "^2.2.2",
     "ts-retry-promise": "^0.8.0",
-    "react-native-reanimated": "~3.6.2"
+    "react-native-reanimated": "~3.6.2",
+    "expo-updates": "~0.24.12"
   },
   "devDependencies": {
     "@0no-co/graphqlsp": "^1.10.1",

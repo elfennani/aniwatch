@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import zinc from "@/utils/zinc";
-import { AntDesign } from "@expo/vector-icons";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import useSearchQuery from "@/api/use-search-query";
 import { FlashList } from "@shopify/flash-list";

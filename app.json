@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "aniwatch",
+    "name": "AniWatch",
     "slug": "aniwatch",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "icon": "./assets/images/icon.png",
     "scheme": "aniwatch",
     "userInterfaceStyle": "light",
@@ -20,7 +20,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "runtimeVersion": "1.0.0"
     },
     "web": {
       "bundler": "metro",
@@ -47,6 +48,9 @@
       "eas": {
         "projectId": "21ec2229-aea9-4ec3-99cc-91dda263fdf4"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/21ec2229-aea9-4ec3-99cc-91dda263fdf4"
     }
   }
 }
