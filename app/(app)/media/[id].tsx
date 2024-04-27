@@ -115,7 +115,11 @@ const MediaById = (props: Props) => {
                   href={`/watch/${media.id}/${ep.number}` as any}
                   asChild
                 >
-                  <EpsiodeItem episode={ep} mediaId={media.id} />
+                  <EpsiodeItem
+                    episode={ep}
+                    mediaId={media.id}
+                    watched={(media.progress ?? 0) >= ep.number}
+                  />
                 </Link>
               ))}
           </View>
