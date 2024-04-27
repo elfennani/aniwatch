@@ -29,39 +29,41 @@ const EpsiodeItem = React.forwardRef(
     ref: ForwardedRef<TouchableOpacity>
   ) => {
     return (
-      <TouchableOpacity
-        ref={ref}
-        activeOpacity={0.8}
-        {...props}
-        style={[styles.container, watched && { opacity: 0.75 }]}
-      >
-        {thumbnail ? (
-          <Image
-            source={{
-              uri: thumbnail,
-              width: 124,
-              height: 124 * (9 / 16),
-            }}
-            contentFit="cover"
-            style={styles.image}
-          />
-        ) : (
-          <View style={styles.image}>
-            <AntDesign name="meho" color={zinc[600]} size={24} />
+      <View style={watched && { opacity: 0.75 }}>
+        <TouchableOpacity
+          ref={ref}
+          activeOpacity={0.8}
+          {...props}
+          style={[styles.container]}
+        >
+          {thumbnail ? (
+            <Image
+              source={{
+                uri: thumbnail,
+                width: 124,
+                height: 124 * (9 / 16),
+              }}
+              contentFit="cover"
+              style={styles.image}
+            />
+          ) : (
+            <View style={styles.image}>
+              <AntDesign name="meho" color={zinc[600]} size={24} />
+            </View>
+          )}
+          <View>
+            <Text>Episode {number}</Text>
+            <Text style={[styles.info, { textTransform: "uppercase" }]}>
+              sub {dub && "• dub"}{" "}
+            </Text>
+            <Text style={styles.info}>
+              {!!duration && secondsToHms(duration)}
+              {!!duration && !!resolution && " • "}
+              {!!resolution && `${resolution}p`}
+            </Text>
           </View>
-        )}
-        <View>
-          <Text>Episode {number}</Text>
-          <Text style={[styles.info, { textTransform: "uppercase" }]}>
-            sub {dub && "• dub"}{" "}
-          </Text>
-          <Text style={styles.info}>
-            {!!duration && secondsToHms(duration)}
-            {!!duration && !!resolution && " • "}
-            {!!resolution && `${resolution}p`}
-          </Text>
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </View>
     );
   }
 );
