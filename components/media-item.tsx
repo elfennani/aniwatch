@@ -64,9 +64,10 @@ const MediaItem = ({
               {canContinue && (
                 <Link
                   style={styles.continueLink}
-                  href={`/watch/${id}/sub/${progress + 1}` as any}
+                  href={`/watch/${id}/${progress + 1}` as any}
                 >
-                  <AntDesign name="play" size={14} />
+                  <AntDesign name="play" size={14} color={purple[500]} />
+                  {"  "}
                   <Text style={styles.continueText}>Continue Watching</Text>
                 </Link>
               )}
@@ -117,15 +118,13 @@ const styles = StyleSheet.create({
   },
   continueText: {
     color: purple[500],
-    textDecorationLine: "underline",
-    textDecorationColor: purple[500],
     fontSize: 14,
   },
   progress: {
     width: "100%",
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-end",
+    alignItems: "center",
   },
   progressText: {
     fontSize: 12,

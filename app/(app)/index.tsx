@@ -14,6 +14,7 @@ import zinc from "@/utils/zinc";
 import { AntDesign } from "@expo/vector-icons";
 import Text from "@/components/text";
 import { Link } from "expo-router";
+import MediaListingList from "@/components/media-listing-list";
 
 type Props = {};
 
@@ -44,7 +45,7 @@ const HomePage = (props: Props) => {
       <SectionTitle style={{ paddingHorizontal: 16 }}>
         Currently Watching
       </SectionTitle>
-      <MediaListingGrid
+      <MediaListingList
         listing="watching"
         viewerId={viewer.id}
         contentContainerStyle={{
