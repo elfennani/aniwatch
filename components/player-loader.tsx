@@ -8,7 +8,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { AVPlaybackStatus, ResizeMode, Video } from "expo-av";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useLinkQuery from "@/api/use-link-query";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { LinearGradient } from "expo-linear-gradient";
@@ -19,14 +19,23 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import secondsToHms from "@/utils/seconds-to-hms";
+import useWatchedMutation from "@/api/use-watched-mutation";
 
 type Props = {
+  aniListId: number;
   allAnimeId: string;
   episode: number;
   dubbed: boolean;
+  watched: boolean;
 };
 
-const PlayerLoader = ({ allAnimeId, episode, dubbed }: Props) => {
+const PlayerLoader = ({
+  allAnimeId,
+  episode,
+  dubbed,
+  watched,
+  aniListId,
+}: Props) => {
   const [controls, setControls] = useState(false);
   const [status, setStatus] = useState<AVPlaybackStatus | null>(null);
   const position = useSharedValue(0);
@@ -34,12 +43,37 @@ const PlayerLoader = ({ allAnimeId, episode, dubbed }: Props) => {
   const style = useAnimatedStyle(() => ({ top: position.value }));
   const video = useRef<Video>(null);
   const isFirstPress = useRef(false);
+  const updatedEntry = useRef(false);
   const doubleTouchTimeout = useRef<NodeJS.Timeout | null>(null);
+  const {
+    mutate,
+    isPending: isWatchedMutationPending,
+    isSuccess,
+  } = useWatchedMutation(
+    { episode, showId: aniListId },
+    () => updatedEntry.current == true
+  );
   const { data, isPending, isError } = useLinkQuery({
     episode: episode.toString(),
     allAnimeId,
     type: "sub",
   });
+
+  useEffect(() => {
+    if (
+      !status?.isLoaded ||
+      !status.durationMillis ||
+      isWatchedMutationPending ||
+      isSuccess
+    )
+      return;
+    const progress = status.positionMillis;
+    const duration = status.durationMillis;
+
+    if (progress / duration > 0.8 && !watched && !updatedEntry.current) {
+      mutate();
+    }
+  }, [status, updatedEntry, watched, isSuccess, isWatchedMutationPending]);
 
   function handleBackward(intro = false) {
     if (status?.isLoaded) {
@@ -121,92 +155,93 @@ const PlayerLoader = ({ allAnimeId, episode, dubbed }: Props) => {
       onTouchEnd={handleTouchEnd}
       onTouchMove={handleTouchMove}
       onPress={handlePress}
-      style={{ position: "relative", backgroundColor: "black" }}
     >
-      {auto && (
-        <Video
-          ref={video}
-          source={{ uri: auto }}
-          style={{ width: "100%", height: "100%" }}
-          resizeMode={ResizeMode.CONTAIN}
-          shouldPlay={true}
-          onPlaybackStatusUpdate={setStatus}
-        />
-      )}
-      <View style={styles.controlsContainer}>
-        <Animated.View style={[style]}>
-          <LinearGradient
-            colors={["transparent", "rgba(0,0,0,0.7)"]}
-            locations={[0.5, 1]}
-            style={{
-              width: "100%",
-              height: "100%",
-              justifyContent: "flex-end",
-            }}
-          >
-            <View style={styles.controls}>
-              {status?.isLoaded && (
-                <View>
-                  <Text>
-                    {secondsToHms(status.positionMillis / 1000)}
-                    {!!status.durationMillis &&
-                      ` / ${secondsToHms(status.durationMillis / 1000)}`}
-                  </Text>
-                </View>
-              )}
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: 40,
-                }}
-              >
-                <TouchableOpacity
-                  hitSlop={16}
-                  activeOpacity={0.8}
-                  onPress={() => handleBackward()}
-                  onLongPress={() => handleBackward(true)}
+      <View style={{ position: "relative", backgroundColor: "black" }}>
+        {auto && (
+          <Video
+            ref={video}
+            source={{ uri: auto }}
+            style={{ width: "100%", height: "100%" }}
+            resizeMode={ResizeMode.CONTAIN}
+            shouldPlay={true}
+            onPlaybackStatusUpdate={setStatus}
+          />
+        )}
+        <View style={styles.controlsContainer}>
+          <Animated.View style={[style]}>
+            <LinearGradient
+              colors={["transparent", "rgba(0,0,0,0.7)"]}
+              locations={[0.5, 1]}
+              style={{
+                width: "100%",
+                height: "100%",
+                justifyContent: "flex-end",
+              }}
+            >
+              <View style={styles.controls}>
+                {status?.isLoaded && (
+                  <View>
+                    <Text>
+                      {secondsToHms(status.positionMillis / 1000)}
+                      {!!status.durationMillis &&
+                        ` / ${secondsToHms(status.durationMillis / 1000)}`}
+                    </Text>
+                  </View>
+                )}
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 40,
+                  }}
                 >
-                  <AntDesign
-                    name="banckward"
-                    color="rgba(255,255,255,0.9)"
-                    size={24}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  hitSlop={16}
-                  activeOpacity={0.8}
-                  onPress={handleTogglePlayback}
-                >
-                  {playbackStatus == "loading" ? (
-                    <ActivityIndicator
-                      size={40}
-                      color="rgba(255,255,255,0.9)"
-                    />
-                  ) : (
+                  <TouchableOpacity
+                    hitSlop={16}
+                    activeOpacity={0.8}
+                    onPress={() => handleBackward()}
+                    onLongPress={() => handleBackward(true)}
+                  >
                     <AntDesign
-                      name={playbackStatus as any}
+                      name="banckward"
                       color="rgba(255,255,255,0.9)"
-                      size={40}
+                      size={24}
                     />
-                  )}
-                </TouchableOpacity>
-                <TouchableOpacity
-                  hitSlop={16}
-                  activeOpacity={0.8}
-                  onPress={() => handleForward()}
-                  onLongPress={() => handleForward(true)}
-                >
-                  <AntDesign
-                    name="forward"
-                    color="rgba(255,255,255,0.9)"
-                    size={24}
-                  />
-                </TouchableOpacity>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    hitSlop={16}
+                    activeOpacity={0.8}
+                    onPress={handleTogglePlayback}
+                  >
+                    {playbackStatus == "loading" ? (
+                      <ActivityIndicator
+                        size={40}
+                        color="rgba(255,255,255,0.9)"
+                      />
+                    ) : (
+                      <AntDesign
+                        name={playbackStatus as any}
+                        color="rgba(255,255,255,0.9)"
+                        size={40}
+                      />
+                    )}
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    hitSlop={16}
+                    activeOpacity={0.8}
+                    onPress={() => handleForward()}
+                    onLongPress={() => handleForward(true)}
+                  >
+                    <AntDesign
+                      name="forward"
+                      color="rgba(255,255,255,0.9)"
+                      size={24}
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          </LinearGradient>
-        </Animated.View>
+            </LinearGradient>
+          </Animated.View>
+        </View>
       </View>
     </Pressable>
   );

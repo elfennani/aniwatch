@@ -1,5 +1,5 @@
 import useAniListClient from "@/hooks/use-anilist-client";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { graphql } from "gql.tada"
 
 interface Params {
@@ -15,15 +15,22 @@ const mutation = graphql(`
   }
 `);
 
-const useWatchedMutation = (params: Params) => {
+const useWatchedMutation = (params: Params, onSuccess?: () => void) => {
   const { episode, showId } = params
   const client = useAniListClient();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: ["anilist", "watch", showId],
     mutationFn: async () => {
       await client.request(mutation, { mediaId: showId, progress: episode })
     },
+    onSuccess: () => {
+      onSuccess?.()
+      queryClient.refetchQueries({
+        queryKey: ["show", "media"]
+      })
+    }
   })
 }
 

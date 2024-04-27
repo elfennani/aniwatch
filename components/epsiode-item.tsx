@@ -5,7 +5,6 @@ import {
   View,
 } from "react-native";
 import React, { ForwardedRef } from "react";
-import { Link, router } from "expo-router";
 import { Episode } from "@/interfaces/Episode";
 import secondsToHms from "@/utils/seconds-to-hms";
 import zinc from "@/utils/zinc";
@@ -16,6 +15,7 @@ import { Image } from "expo-image";
 type Props = {
   mediaId: number;
   episode: Episode;
+  watched?: boolean;
 } & TouchableOpacityProps;
 
 const EpsiodeItem = React.forwardRef(
@@ -23,6 +23,7 @@ const EpsiodeItem = React.forwardRef(
     {
       episode: { dub, id, number, thumbnail, duration, resolution },
       mediaId,
+      watched = false,
       ...props
     }: Props,
     ref: ForwardedRef<TouchableOpacity>
@@ -32,7 +33,7 @@ const EpsiodeItem = React.forwardRef(
         ref={ref}
         activeOpacity={0.8}
         {...props}
-        style={styles.container}
+        style={[styles.container, watched && { opacity: 0.75 }]}
       >
         {thumbnail ? (
           <Image
