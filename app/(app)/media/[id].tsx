@@ -2,10 +2,12 @@ import {
   RefreshControl,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   View,
+  ViewProps,
   useWindowDimensions,
 } from "react-native";
-import React from "react";
+import React, { ReactNode } from "react";
 import stc from "string-to-color";
 import useShowQuery from "@/api/use-show-query";
 import { Stack, useLocalSearchParams } from "expo-router";
@@ -17,6 +19,10 @@ import zinc from "@/utils/zinc";
 import EpsiodeItem from "@/components/epsiode-item";
 import { Link } from "expo-router";
 import { Image, ImageBackground } from "expo-image";
+import { FlashList } from "@shopify/flash-list";
+import purple from "@/utils/purple";
+import Section from "@/components/section";
+import TagsGrid from "@/components/tags-grid";
 
 type Props = {};
 
@@ -85,10 +91,7 @@ const MediaById = (props: Props) => {
           </View>
         </LinearGradient>
       </ImageBackground>
-      <View style={{ padding: 32 }}>
-        <Text weight="semibold" style={{ fontSize: 14, marginBottom: 16 }}>
-          Synopsis
-        </Text>
+      <Section title="Synopsis">
         <RenderHtml
           contentWidth={width - 64}
           systemFonts={["regular"]}
@@ -100,30 +103,26 @@ const MediaById = (props: Props) => {
           }}
           source={{ html: media.description }}
         />
-      </View>
+      </Section>
+      {media.tags && <TagsGrid tags={media.tags} />}
       {!!media.episodes && (
-        <View style={{ padding: 32 }}>
-          <Text weight="semibold" style={{ fontSize: 14, marginBottom: 16 }}>
-            Episodes
-          </Text>
-          <View style={{ gap: 8 }}>
-            {media.episodes
-              .sort((a, b) => a.number - b.number)
-              .map((ep) => (
-                <Link
-                  key={ep.id}
-                  href={`/watch/${media.id}/${ep.number}` as any}
-                  asChild
-                >
-                  <EpsiodeItem
-                    episode={ep}
-                    mediaId={media.id}
-                    watched={(media.progress ?? 0) >= ep.number}
-                  />
-                </Link>
-              ))}
-          </View>
-        </View>
+        <Section title="Episodes" style={{ gap: 8 }}>
+          {media.episodes
+            .sort((a, b) => a.number - b.number)
+            .map((ep) => (
+              <Link
+                key={ep.id}
+                href={`/watch/${media.id}/${ep.number}` as any}
+                asChild
+              >
+                <EpsiodeItem
+                  episode={ep}
+                  mediaId={media.id}
+                  watched={(media.progress ?? 0) >= ep.number}
+                />
+              </Link>
+            ))}
+        </Section>
       )}
     </ScrollView>
   );
