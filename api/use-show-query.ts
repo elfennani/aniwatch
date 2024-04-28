@@ -17,9 +17,6 @@ const useShowQuery = (params: Params) => {
   return useQuery({
     queryKey: ["show", params.id],
     queryFn: () => fetchShowById(params, anilist, allanime),
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    gcTime: 60 * 60 * 1000,
   })
 }
 

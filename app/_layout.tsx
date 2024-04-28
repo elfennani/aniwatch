@@ -19,7 +19,7 @@ import { storage } from "@/utils/mmkv";
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { gcTime: Infinity },
+    queries: { gcTime: Infinity, staleTime: 1000 * 60 },
   },
 });
 

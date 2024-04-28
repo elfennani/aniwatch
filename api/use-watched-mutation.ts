@@ -28,7 +28,7 @@ const useWatchedMutation = (params: Params, onSuccess?: () => void) => {
     onSuccess: () => {
       onSuccess?.()
       queryClient.refetchQueries({
-        queryKey: ["show", "media"]
+        predicate: ({ queryKey }) => queryKey.includes("show")
       })
     }
   })

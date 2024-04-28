@@ -2,7 +2,7 @@
   "expo": {
     "name": "AniWatch",
     "slug": "aniwatch",
-    "version": "1.0.3",
+    "version": "1.0.5",
     "icon": "./assets/images/icon.png",
     "scheme": "aniwatch",
     "userInterfaceStyle": "dark",
@@ -28,7 +28,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#18181b"
       },
-      "runtimeVersion": "1.0.3"
+      "runtimeVersion": "1.0.5"
     },
     "web": {
       "bundler": "metro",
@@ -52,6 +52,9 @@
       }
     },
     "updates": {
+      "requestHeaders": {
+        "expo-channel-name": "master"
+      },
       "url": "https://u.expo.dev/21ec2229-aea9-4ec3-99cc-91dda263fdf4"
     }
   }

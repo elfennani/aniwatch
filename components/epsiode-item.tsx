@@ -11,6 +11,7 @@ import zinc from "@/utils/zinc";
 import Text from "./text";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Image } from "expo-image";
+import purple from "@/utils/purple";
 
 type Props = {
   mediaId: number;
@@ -55,6 +56,11 @@ const EpsiodeItem = React.forwardRef(
             <Text>Episode {number}</Text>
             <Text style={[styles.info, { textTransform: "uppercase" }]}>
               sub {dub && "• dub"}{" "}
+              {watched && (
+                <Text weight="semibold" style={{ color: purple[500] }}>
+                  • WATCHED
+                </Text>
+              )}
             </Text>
             <Text style={styles.info}>
               {!!duration && secondsToHms(duration)}
