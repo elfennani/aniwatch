@@ -20,7 +20,10 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
       "package": "com.elfen.aniwatch",
@@ -36,7 +39,12 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      ["expo-screen-orientation", { "initialOrientation": "PORTRAIT_UP" }],
+      [
+        "expo-screen-orientation",
+        {
+          "initialOrientation": "PORTRAIT_UP"
+        }
+      ],
       "expo-font",
       "expo-router"
     ],
