@@ -1,5 +1,6 @@
 import useAllAnimeClient from "@/hooks/use-allanime-client";
 import useAniListClient from "@/hooks/use-anilist-client";
+import { Episode } from "@/interfaces/Episode";
 import { ShowDetails } from "@/interfaces/ShowDetails";
 import { useQuery } from "@tanstack/react-query";
 import { graphql } from "gql.tada";
@@ -26,50 +27,75 @@ const fetchShowById = async ({ id }: Params, anilist: GraphQLClient, allanime: G
   const { media } = await anilist.request(media_query, { id });
 
   const search = media?.title?.userPreferred
-  const showSearch: ShowQuery = await retry(
-    () => allanime.request(show_query, { search }),
-    { retries: 3 }
-  )
-  const show = showSearch!!.shows.edges?.find(
-    (show) => show.aniListId == id
-  );
 
+  let episodes: Episode[] | undefined;
+  let showId: string | undefined;
+  if (media?.type == "ANIME") {
 
-
-  let episodes: Episodes | undefined;
-  const showId = show?._id
-
-  if (show) {
-    const max = show.availableEpisodesDetail.sub.length
-
-    episodes = await retry(
-      () => allanime.request(episodes_details_query, { showId, max }),
+    const showSearch: ShowQuery = await retry(
+      () => allanime.request(show_query, { search }),
       { retries: 3 }
+    )
+    const show = showSearch!!.shows.edges?.find(
+      (show) => show.aniListId == id
     );
+
+    showId = show?._id
+
+    if (show) {
+      const max = show.availableEpisodesDetail.sub.length
+
+      const allAnimeEpisodes: AllAnimeEpisodes = await retry(
+        () => allanime.request(episodes_details_query, { showId, max }),
+        { retries: 3 }
+      );
+
+      episodes = allAnimeEpisodes?.episodeInfos.map(ep => ({
+        id: ep._id,
+        number: ep.episodeIdNum,
+        dub: show?.availableEpisodesDetail.dub.includes(String(ep.episodeIdNum)) ?? false,
+        duration: ep.vidInforssub?.vidDuration,
+        resolution: ep.vidInforssub?.vidResolution,
+        thumbnail: ep.thumbnails
+          .filter((t) => !t.includes("cdnfile"))
+          .map(t => t.startsWith("http") ? t : (source + t))[0]
+      })).sort((ep, ep2) => ep2.number - ep.number)
+    }
   }
 
   const showDetails: ShowDetails = {
     id,
     allanimeId: showId,
-    title: media?.title?.userPreferred!,
-    banner: media?.bannerImage!,
+    title: {
+      default: media?.title?.userPreferred ?? undefined,
+      english: media?.title?.english ?? undefined,
+      native: media?.title?.native ?? undefined,
+      romaji: media?.title?.romaji ?? undefined
+    },
+    format: media?.format ?? undefined,
+    banner: media?.bannerImage ?? undefined,
+    startDate: !!media?.startDate ? {
+      day: media.startDate.day ?? undefined,
+      month: media.startDate.month ?? undefined,
+      year: media.startDate.year ?? undefined,
+    } : undefined,
+    endDate: !!media?.endDate ? {
+      day: media.endDate.day ?? undefined,
+      month: media.endDate.month ?? undefined,
+      year: media.endDate.year ?? undefined,
+    } : undefined,
+    source: media?.source ?? undefined,
+    score: media?.mediaListEntry?.score ?? undefined,
+    status: media?.mediaListEntry?.status ?? undefined,
     cover: media?.coverImage?.extraLarge!,
     description: media?.description!,
     genres: (media?.genres as string[] | undefined) ?? [],
     progress: media?.mediaListEntry?.progress ?? undefined,
-    episodesCount: media?.episodes ?? NaN,
+    episodesCount: media?.episodes ?? undefined,
+    chapters: media?.chapters ?? undefined,
     type: media?.type!,
     year: media?.seasonYear!,
-    episodes: episodes?.episodeInfos.map(ep => ({
-      id: ep._id,
-      number: ep.episodeIdNum,
-      dub: show?.availableEpisodesDetail.dub.includes(String(ep.episodeIdNum)) ?? false,
-      duration: ep.vidInforssub?.vidDuration,
-      resolution: ep.vidInforssub?.vidResolution,
-      thumbnail: ep.thumbnails
-        .filter((t) => !t.includes("cdnfile"))
-        .map(t => t.startsWith("http") ? t : (source + t))[0]
-    })).sort((ep, ep2) => ep2.number - ep.number),
+    episodes,
     relations: media?.relations?.edges?.map(edge => ({
       id: edge?.node?.id!,
       title: edge?.node?.title?.english || edge?.node?.title?.native!,
@@ -127,8 +153,50 @@ const show_query = `
 
 const media_query = graphql(`
   query GetMedia($id: Int) {
-    media:Media(id: $id, type: ANIME) {
-      ...media
+    media:Media(id: $id) {
+      id
+      genres
+      episodes
+      description
+      bannerImage
+      type
+      seasonYear
+      season
+      chapters
+      startDate{
+        year
+        month
+        day
+      }
+      endDate{
+        year
+        month
+        day
+      }
+      format
+      source
+      title {
+        userPreferred
+        romaji
+        english
+        native
+      }
+      coverImage {
+        extraLarge
+      }
+      mediaListEntry{
+        progress
+        score
+        status
+      }
+      tags{
+        id
+        name
+        description
+        rank
+        isMediaSpoiler
+        isGeneralSpoiler
+      }
       relations{
         edges{
           relationType(version: 2)
@@ -147,33 +215,6 @@ const media_query = graphql(`
       }
     }
   }
-
-  fragment media on Media{
-    id
-    genres
-    episodes
-    description
-    bannerImage
-    type
-    seasonYear
-    title {
-      userPreferred
-    }
-    coverImage {
-      extraLarge
-    }
-    mediaListEntry{
-      progress
-    }
-    tags{
-      id
-      name
-      description
-      rank
-      isMediaSpoiler
-      isGeneralSpoiler
-    }
-  }
 `);
 
 interface EpisodeDetail {
@@ -188,7 +229,7 @@ interface EpisodeDetail {
   };
 }
 
-export interface Episodes {
+interface AllAnimeEpisodes {
   episodeInfos: EpisodeDetail[];
 }
 

@@ -5,11 +5,24 @@ import Text from "./text";
 interface SectionProps extends ViewProps {
   title: string;
   tailing?: ReactNode;
+  titlePaddingOnly?: boolean;
 }
 
-const Section = ({ title, tailing, ...props }: SectionProps) => (
-  <View style={{ padding: 32 }}>
-    <View style={styles.header}>
+const Section = ({
+  title,
+  tailing,
+  titlePaddingOnly,
+  ...props
+}: SectionProps) => (
+  <View
+    style={[
+      !titlePaddingOnly && { paddingHorizontal: 32 },
+      { paddingVertical: 32 },
+    ]}
+  >
+    <View
+      style={[styles.header, titlePaddingOnly && { paddingHorizontal: 32 }]}
+    >
       <Text weight="semibold" style={styles.title}>
         {title}
       </Text>

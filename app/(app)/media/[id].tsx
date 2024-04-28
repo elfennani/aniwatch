@@ -7,7 +7,7 @@ import {
   ViewProps,
   useWindowDimensions,
 } from "react-native";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect } from "react";
 import stc from "string-to-color";
 import useShowQuery from "@/api/use-show-query";
 import { Stack, useLocalSearchParams } from "expo-router";
@@ -23,6 +23,7 @@ import { FlashList } from "@shopify/flash-list";
 import purple from "@/utils/purple";
 import Section from "@/components/section";
 import TagsGrid from "@/components/tags-grid";
+import MediaRelations from "@/components/media-relations";
 
 type Props = {};
 
@@ -35,11 +36,25 @@ const MediaById = (props: Props) => {
     isRefetching,
     isPending,
     isError,
+    error,
   } = useShowQuery({ id: Number(id) });
   const { width } = useWindowDimensions();
 
+  useEffect(() => {
+    error && console.log(error);
+  }, [error]);
+
   if (isPending) return <Text>Loading...</Text>;
   if (isError) return <Text>Error</Text>;
+
+  function getMediaLength() {
+    if (media?.type == "ANIME" && !!media.episodesCount) {
+      return `• ${media.episodesCount} Episodes`;
+    }
+    if (media?.type == "MANGA" && !!media.chapters) {
+      return `• ${media.chapters} Chapters`;
+    }
+  }
 
   return (
     <ScrollView
@@ -68,12 +83,25 @@ const MediaById = (props: Props) => {
               contentFit="cover"
             />
             <View style={styles.info}>
-              <Text style={{ fontSize: 18 }}>{media.title}</Text>
-              <Text style={{ fontSize: 12, color: zinc[300] }}>
-                {media.year}
+              <Text style={{ fontSize: 18 }}>
+                {media.title.default ??
+                  media.title.english ??
+                  media.title.romaji ??
+                  media.title.native}
               </Text>
-              <Text style={{ fontSize: 12, color: zinc[300] }}>
-                {media.type} • {media.episodesCount} Episodes
+              {media.year && (
+                <Text style={{ fontSize: 12, color: zinc[300] }}>
+                  {media.year}
+                </Text>
+              )}
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: zinc[300],
+                  textTransform: "capitalize",
+                }}
+              >
+                {media.type} {getMediaLength()}
               </Text>
             </View>
           </View>
@@ -91,19 +119,24 @@ const MediaById = (props: Props) => {
           </View>
         </LinearGradient>
       </ImageBackground>
-      <Section title="Synopsis">
-        <RenderHtml
-          contentWidth={width - 64}
-          systemFonts={["regular"]}
-          baseStyle={{
-            fontFamily: "regular",
-            color: zinc[100],
-            fontSize: 12,
-            lineHeight: 19.25,
-          }}
-          source={{ html: media.description }}
-        />
-      </Section>
+      {media.description && (
+        <Section title="Synopsis">
+          <RenderHtml
+            contentWidth={width - 64}
+            systemFonts={["regular"]}
+            baseStyle={{
+              fontFamily: "regular",
+              color: zinc[100],
+              fontSize: 12,
+              lineHeight: 19.25,
+            }}
+            source={{ html: media.description }}
+          />
+        </Section>
+      )}
+      {!!media.relations.length && (
+        <MediaRelations relations={media.relations} />
+      )}
       {media.tags && <TagsGrid tags={media.tags} />}
       {!!media.episodes && (
         <Section title="Episodes" style={{ gap: 8 }}>
