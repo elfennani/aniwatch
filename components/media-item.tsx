@@ -65,10 +65,15 @@ const MediaItem = ({
                 <Link
                   style={styles.continueLink}
                   href={`/watch/${id}/${progress + 1}` as any}
+                  asChild
                 >
-                  <AntDesign name="play" size={14} color={purple[500]} />
-                  {"  "}
-                  <Text style={styles.continueText}>Continue Watching</Text>
+                  <TouchableOpacity activeOpacity={0.7}>
+                    <Text>
+                      <AntDesign name="play" size={14} color={purple[500]} />
+                      {"  "}
+                      <Text style={styles.continueText}>Continue Watching</Text>
+                    </Text>
+                  </TouchableOpacity>
                 </Link>
               )}
             </View>

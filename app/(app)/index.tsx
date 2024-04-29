@@ -1,4 +1,5 @@
 import {
+  Modal,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -15,6 +16,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import Text from "@/components/text";
 import { Link } from "expo-router";
 import MediaListingList from "@/components/media-listing-list";
+import { Image } from "expo-image";
 
 type Props = {};
 
@@ -32,13 +34,18 @@ const HomePage = (props: Props) => {
 
   return (
     <ScrollView contentContainerStyle={{ paddingTop: top + 16 }}>
-      <View style={{ padding: 16, paddingTop: 0 }}>
-        <Link href={`/search`} asChild>
+      <View style={styles.header}>
+        <Link href={`/search`} asChild style={{ flex: 1 }}>
           <TouchableOpacity activeOpacity={0.8} style={styles.search}>
             <AntDesign name="search1" size={24} color={zinc[400]} />
             <Text style={{ color: zinc[400] }}>
               Attack on Titan Season 2...
             </Text>
+          </TouchableOpacity>
+        </Link>
+        <Link href={`/user/${viewer.id}`} asChild>
+          <TouchableOpacity>
+            <Image source={{ uri: viewer.avatar }} style={styles.avatar} />
           </TouchableOpacity>
         </Link>
       </View>
@@ -52,7 +59,6 @@ const HomePage = (props: Props) => {
           padding: 16,
         }}
       />
-
       <SectionTitle style={{ paddingHorizontal: 16 }}>
         Recently Completed
       </SectionTitle>
@@ -66,6 +72,19 @@ const HomePage = (props: Props) => {
 };
 
 const styles = StyleSheet.create({
+  header: {
+    padding: 16,
+    paddingTop: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 50,
+    backgroundColor: zinc[800],
+  },
   page: {
     padding: 32,
     gap: 16,

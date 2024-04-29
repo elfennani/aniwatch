@@ -6,18 +6,20 @@ interface SectionProps extends ViewProps {
   title: string;
   tailing?: ReactNode;
   titlePaddingOnly?: boolean;
+  verticalPadding?: number;
 }
 
 const Section = ({
   title,
   tailing,
   titlePaddingOnly,
+  verticalPadding = 32,
   ...props
 }: SectionProps) => (
   <View
     style={[
       !titlePaddingOnly && { paddingHorizontal: 32 },
-      { paddingVertical: 32 },
+      { paddingVertical: verticalPadding },
     ]}
   >
     <View
