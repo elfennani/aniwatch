@@ -1,36 +1,43 @@
-import { StyleSheet } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  ToastAndroid,
+  View,
+} from "react-native";
 import React, { useEffect } from "react";
 import useShowQuery from "@/api/use-show-query";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import Text from "@/components/text";
 import PlayerLoader from "@/components/player-loader";
 import { StatusBar } from "expo-status-bar";
-import * as Notifications from "expo-notifications";
 import { useKeepAwake } from "expo-keep-awake";
 
-type Props = {};
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-    shouldShowAlert: false,
-  }),
-});
-
-const WatchByEp = (props: Props) => {
+const WatchByEp = () => {
   const { id, ep } = useLocalSearchParams<{ id: string; ep: string }>();
-  const { data: media, isPending, isError } = useShowQuery({ id: Number(id) });
+  const {
+    data: media,
+    isPending,
+    error,
+    isError,
+  } = useShowQuery({ id: Number(id) });
+  const router = useRouter();
   useKeepAwake();
 
   useEffect(() => {
-    setupPlayer();
-  }, []);
+    if (isError) {
+      ToastAndroid.show(error.message, ToastAndroid.LONG);
+      if (router.canGoBack()) {
+        router.back();
+      }
+    }
+  }, [isError, error]);
 
-  async function setupPlayer() {}
-
-  if (isPending) return <Text>Loading...</Text>;
-  if (isError || !media.allanimeId) return <Text>Error</Text>;
+  if (isPending || isError || !media.allanimeId)
+    return (
+      <View style={styles.background}>
+        <ActivityIndicator size={40} color="white" />
+      </View>
+    );
 
   return (
     <>
@@ -42,6 +49,7 @@ const WatchByEp = (props: Props) => {
         }}
       />
       <PlayerLoader
+        media={media}
         aniListId={media.id}
         allAnimeId={media.allanimeId}
         watched={(media.progress ?? 0) >= Number(ep)}
@@ -58,4 +66,11 @@ const WatchByEp = (props: Props) => {
 
 export default WatchByEp;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  background: {
+    backgroundColor: "black",
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});

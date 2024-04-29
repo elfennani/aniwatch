@@ -1,5 +1,4 @@
 import {
-  ActivityIndicator,
   GestureResponderEvent,
   Pressable,
   StyleSheet,
@@ -11,7 +10,6 @@ import { AVPlaybackStatus, ResizeMode, Video } from "expo-av";
 import React, { useEffect, useRef, useState } from "react";
 import useLinkQuery from "@/api/use-link-query";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { LinearGradient } from "expo-linear-gradient";
 import Text from "./text";
 import Animated, {
   useAnimatedStyle,
@@ -20,6 +18,8 @@ import Animated, {
 } from "react-native-reanimated";
 import secondsToHms from "@/utils/seconds-to-hms";
 import useWatchedMutation from "@/api/use-watched-mutation";
+import { ShowDetails } from "@/interfaces/ShowDetails";
+import purple from "@/utils/purple";
 
 type Props = {
   aniListId: number;
@@ -27,6 +27,7 @@ type Props = {
   episode: number;
   dubbed: boolean;
   watched: boolean;
+  media: ShowDetails;
 };
 
 const PlayerLoader = ({
@@ -35,12 +36,15 @@ const PlayerLoader = ({
   dubbed,
   watched,
   aniListId,
+  media,
 }: Props) => {
-  const [controls, setControls] = useState(false);
   const [status, setStatus] = useState<AVPlaybackStatus | null>(null);
-  const position = useSharedValue(0);
+  const opacity = useSharedValue(0);
   const { height, width } = useWindowDimensions();
-  const style = useAnimatedStyle(() => ({ top: position.value }));
+  const style = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    display: opacity.value ? "flex" : "none",
+  }));
   const video = useRef<Video>(null);
   const isFirstPress = useRef(false);
   const updatedEntry = useRef(false);
@@ -141,7 +145,7 @@ const PlayerLoader = ({
     doubleTouchTimeout.current = setTimeout(() => {
       isFirstPress.current = false;
       doubleTouchTimeout.current = null;
-      position.value = withTiming(position.value == 0 ? height / 2 : 0, {
+      opacity.value = withTiming(opacity.value == 0 ? 1 : 0, {
         duration: 100,
       });
     }, 200);
@@ -167,85 +171,95 @@ const PlayerLoader = ({
             onPlaybackStatusUpdate={setStatus}
           />
         )}
-        <View style={styles.controlsContainer}>
-          <Animated.View style={[style]}>
-            <LinearGradient
-              colors={["transparent", "rgba(0,0,0,0.7)"]}
-              locations={[0.5, 1]}
-              style={{
-                width: "100%",
-                height: "100%",
-                justifyContent: "flex-end",
-              }}
-            >
-              <View style={styles.controls}>
-                {status?.isLoaded && (
-                  <View>
-                    <Text>
-                      {secondsToHms(status.positionMillis / 1000)}
-                      {!!status.durationMillis &&
-                        ` / ${secondsToHms(status.durationMillis / 1000)}`}
-                    </Text>
-                  </View>
-                )}
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 40,
-                  }}
-                >
-                  <TouchableOpacity
-                    hitSlop={16}
-                    activeOpacity={0.8}
-                    onPress={() => handleBackward()}
-                    onLongPress={() => handleBackward(true)}
-                  >
-                    <AntDesign
-                      name="banckward"
-                      color="rgba(255,255,255,0.9)"
-                      size={24}
+
+        <Animated.View style={[style, styles.controlsContainer]}>
+          <View style={styles.innerControls}>
+            <Text>
+              “{media.title.default}” - Episode {episode}
+            </Text>
+            <View style={styles.controls}>
+              <TouchableOpacity
+                hitSlop={16}
+                onPress={() => handleBackward()}
+                onLongPress={() => handleBackward(true)}
+              >
+                <AntDesign
+                  name="banckward"
+                  size={24}
+                  color="rgba(255,255,255,0.5)"
+                />
+              </TouchableOpacity>
+              <TouchableOpacity hitSlop={16} onPress={handleTogglePlayback}>
+                <AntDesign
+                  name={playbackStatus as any}
+                  size={48}
+                  color="rgba(255,255,255,0.8)"
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                hitSlop={16}
+                onPress={() => handleForward()}
+                onLongPress={() => handleForward(true)}
+              >
+                <AntDesign
+                  name="forward"
+                  size={24}
+                  color="rgba(255,255,255,0.5)"
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.footer}>
+              <View style={styles.seekbar}>
+                <View style={styles.progress}>
+                  {status?.isLoaded && status.durationMillis && (
+                    <View
+                      style={[
+                        {
+                          width: `${
+                            (status?.positionMillis / status.durationMillis) *
+                            100
+                          }%`,
+                        },
+                        styles.innerProgress,
+                      ]}
                     />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    hitSlop={16}
-                    activeOpacity={0.8}
-                    onPress={handleTogglePlayback}
-                  >
-                    {playbackStatus == "loading" ? (
-                      <ActivityIndicator
-                        size={40}
-                        color="rgba(255,255,255,0.9)"
-                      />
-                    ) : (
-                      <AntDesign
-                        name={playbackStatus as any}
-                        color="rgba(255,255,255,0.9)"
-                        size={40}
-                      />
-                    )}
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    hitSlop={16}
-                    activeOpacity={0.8}
-                    onPress={() => handleForward()}
-                    onLongPress={() => handleForward(true)}
-                  >
-                    <AntDesign
-                      name="forward"
-                      color="rgba(255,255,255,0.9)"
-                      size={24}
-                    />
-                  </TouchableOpacity>
+                  )}
                 </View>
+                {status?.isLoaded && (
+                  <Text>
+                    {status.durationMillis
+                      ? secondsToHms(
+                          (status.durationMillis - status.positionMillis) / 1000
+                        )
+                      : secondsToHms(status.positionMillis / 1000)}
+                  </Text>
+                )}
               </View>
-            </LinearGradient>
-          </Animated.View>
-        </View>
+              <View style={styles.actions}>
+                <FooterButton label="Episodes" icon="bars" />
+                <FooterButton label="Quality" icon="picture" />
+                <FooterButton label="Next Episode" icon="stepforward" />
+              </View>
+            </View>
+          </View>
+        </Animated.View>
       </View>
     </Pressable>
   );
 };
+
+type IconName = keyof typeof AntDesign.glyphMap;
+
+const FooterButton = ({ label, icon }: { label: string; icon: IconName }) => (
+  <TouchableOpacity>
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+      <AntDesign name={icon} color="white" size={18} />
+      <Text weight="semibold" style={{ fontSize: 14 }}>
+        {label}
+      </Text>
+    </View>
+  </TouchableOpacity>
+);
 
 export default PlayerLoader;
 
@@ -256,12 +270,51 @@ const styles = StyleSheet.create({
     left: 0,
     width: "100%",
     height: "100%",
-    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 32,
   },
-  controls: {
+  innerControls: {
+    flex: 1,
+    justifyContent: "space-between",
+    alignItems: "center",
+    aspectRatio: 16 / 9,
+  },
+  footer: {
+    width: "100%",
+    alignItems: "center",
+  },
+  actions: {
+    flexDirection: "row",
     alignItems: "center",
     gap: 32,
-    justifyContent: "flex-end",
-    padding: 32,
+  },
+  seekbar: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+    paddingVertical: 24,
+  },
+  progress: {
+    flex: 1,
+    height: 2,
+    backgroundColor: "rgba(113, 113, 122, 0.33)",
+    borderRadius: 2,
+  },
+  innerProgress: {
+    height: 2,
+    backgroundColor: purple[500],
+    borderRadius: 2,
+  },
+  controls: {
+    flexDirection: "row",
+    position: "absolute",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
   },
 });
