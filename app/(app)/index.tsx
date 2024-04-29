@@ -17,6 +17,7 @@ import Text from "@/components/text";
 import { Link } from "expo-router";
 import MediaListingList from "@/components/media-listing-list";
 import { Image } from "expo-image";
+import Skeleton from "@/components/skeleton";
 
 type Props = {};
 
@@ -25,7 +26,27 @@ const HomePage = (props: Props) => {
   const { data: viewer, isError, isPending } = useViewerQuery();
 
   if (isPending) {
-    return <View></View>;
+    return (
+      <ScrollView
+        contentContainerStyle={{
+          paddingTop: top + 16,
+          paddingHorizontal: 16,
+          gap: 16,
+        }}
+      >
+        <View style={{ flexDirection: "row", gap: 8 }}>
+          <Skeleton height={48} style={{ flex: 1 }} />
+          <Skeleton width={48} height={48} />
+        </View>
+        <Skeleton height={32} width="59%" />
+        <Skeleton height={129} />
+        <Skeleton height={32} width="66%" />
+        <ScrollView horizontal contentContainerStyle={{ gap: 16 }}>
+          <Skeleton width={129} style={{ aspectRatio: 0.69 }} />
+          <Skeleton width={129} style={{ aspectRatio: 0.69 }} />
+        </ScrollView>
+      </ScrollView>
+    );
   }
 
   if (isError) {

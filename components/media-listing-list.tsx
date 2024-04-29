@@ -2,6 +2,7 @@ import Media from "@/interfaces/Media";
 import MediaItem from "./media-item";
 import useMediaByStatusQuery from "@/api/use-media-by-status-query";
 import {
+  ScrollView,
   StyleSheet,
   TouchableNativeFeedbackBase,
   View,
@@ -12,6 +13,7 @@ import { FlashList, FlashListProps } from "@shopify/flash-list";
 import { useMemo } from "react";
 import Text from "./text";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import Skeleton from "./skeleton";
 
 interface Props extends Omit<FlashListProps<Media>, "renderItem" | "data"> {
   viewerId: number;
@@ -23,6 +25,13 @@ const MediaListingList = ({ viewerId, listing, ...props }: Props) => {
     viewer: viewerId,
     status: listing,
   });
+
+  if (isPending)
+    return (
+      <View style={{ padding: 16 }}>
+        <Skeleton height={129} />
+      </View>
+    );
 
   return (
     <View style={{ minHeight: 128 }}>

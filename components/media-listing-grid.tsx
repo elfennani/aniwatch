@@ -1,12 +1,18 @@
 import Media from "@/interfaces/Media";
 import MediaItem from "./media-item";
 import useMediaByStatusQuery from "@/api/use-media-by-status-query";
-import { StyleSheet, View, useWindowDimensions } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import zinc from "@/utils/zinc";
 import { FlashList, FlashListProps } from "@shopify/flash-list";
 import { useMemo } from "react";
 import Text from "./text";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import Skeleton from "./skeleton";
 
 interface Props extends Omit<FlashListProps<Media>, "renderItem" | "data"> {
   viewerId: number;
@@ -18,6 +24,17 @@ const MediaListingGrid = ({ viewerId, listing, ...props }: Props) => {
     viewer: viewerId,
     status: listing,
   });
+
+  if (isPending) {
+    return (
+      <View style={{ padding: 16 }}>
+        <ScrollView horizontal contentContainerStyle={{ gap: 16 }}>
+          <Skeleton width={129} style={{ aspectRatio: 0.69 }} />
+          <Skeleton width={129} style={{ aspectRatio: 0.69 }} />
+        </ScrollView>
+      </View>
+    );
+  }
 
   return (
     <FlashList

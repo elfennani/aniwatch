@@ -16,6 +16,7 @@ import zinc from "@/utils/zinc";
 import Section from "@/components/section";
 import RenderHTML from "react-native-render-html";
 import purple from "@/utils/purple";
+import Skeleton from "@/components/skeleton";
 
 type Params = {
   userId: string;
@@ -36,7 +37,30 @@ const UserById = () => {
     id: Number(userId),
   });
 
-  if (isPending) return <Text>Loading...</Text>;
+  if (isPending)
+    return (
+      <View>
+        <View style={{ padding: 32, paddingTop: 32 + top, gap: 16 }}>
+          <View
+            style={{ flexDirection: "row", alignItems: "flex-end", gap: 16 }}
+          >
+            <Skeleton style={styles.cover} />
+            <View style={{ flex: 1, gap: 8, paddingVertical: 16 }}>
+              <Skeleton height={32} style={{ maxWidth: 175 }} />
+            </View>
+          </View>
+        </View>
+        <Skeleton height={1} radius={0} />
+        <View style={{ padding: 32, gap: 16 }}>
+          <Skeleton height={24} width={60} />
+          <View style={{ gap: 8 }}>
+            <Skeleton height={18} />
+            <Skeleton height={18} />
+            <Skeleton height={18} width="70%" />
+          </View>
+        </View>
+      </View>
+    );
   if (isError) return <Text>Error: {error.message}</Text>;
 
   return (
