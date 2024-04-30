@@ -24,6 +24,7 @@ import { ShowDetails } from "@/interfaces/ShowDetails";
 import purple from "@/utils/purple";
 import { Link } from "expo-router";
 import { storage } from "@/utils/mmkv";
+import QualitySelector from "./quality-selector";
 
 type Props = {
   aniListId: number;
@@ -45,9 +46,14 @@ const PlayerLoader = ({
   media,
 }: Props) => {
   const translationKey = "translation";
+  const qualityKey = "quality";
   const [status, setStatus] = useState<AVPlaybackStatus | null>(null);
+  const [qualityView, setQualityView] = useState(false);
   const [translation, setTranslation] = useState<Translation>(
     (storage.getString(translationKey) as Translation | undefined) ?? "sub"
+  );
+  const [initialStatus, setInitialStatus] = useState<AVPlaybackStatus | null>(
+    null
   );
   const opacity = useSharedValue(0);
   const { height, width } = useWindowDimensions();
@@ -72,6 +78,9 @@ const PlayerLoader = ({
     allAnimeId,
     type: dubbed ? translation : "sub",
   });
+  const [quality, setQuality] = useState(
+    storage.getString(qualityKey) ?? "auto"
+  );
 
   useEffect(() => {
     if (
@@ -92,6 +101,10 @@ const PlayerLoader = ({
   useEffect(() => {
     storage.set(translationKey, translation);
   }, [translation]);
+
+  useEffect(() => {
+    storage.set(qualityKey, quality);
+  }, [quality]);
 
   function handleBackward(intro = false) {
     if (status?.isLoaded) {
@@ -168,7 +181,9 @@ const PlayerLoader = ({
     }, 200);
   }
 
-  const auto = data?.find((level) => level.name == "auto")?.url;
+  const uri =
+    data?.find((level) => level.name == quality)?.url ||
+    data?.find((level) => level.name == "auto")?.url;
 
   return (
     <Pressable
@@ -185,14 +200,15 @@ const PlayerLoader = ({
           height: "100%",
         }}
       >
-        {auto && (
+        {uri && (
           <Video
             ref={video}
-            source={{ uri: auto }}
+            source={{ uri: uri }}
             style={{ width: "100%", height: "100%" }}
             resizeMode={ResizeMode.CONTAIN}
             shouldPlay={true}
             onPlaybackStatusUpdate={setStatus}
+            status={initialStatus ?? undefined}
           />
         )}
 
@@ -265,7 +281,11 @@ const PlayerLoader = ({
               </View>
               <View style={styles.actions}>
                 <FooterButton label="Episodes" icon="bars" />
-                <FooterButton label="Quality" icon="picture" />
+                <FooterButton
+                  onPress={() => setQualityView(true)}
+                  label="Quality"
+                  icon="picture"
+                />
                 {dubbed && (
                   <FooterButton
                     label={
@@ -290,6 +310,17 @@ const PlayerLoader = ({
             </View>
           </View>
         </Animated.View>
+
+        <QualitySelector
+          current={quality}
+          onSelect={(res) => {
+            setQuality(res);
+            setInitialStatus(status);
+          }}
+          visible={qualityView}
+          onRequestClose={() => setQualityView(false)}
+          resolutions={data?.map((res) => res.name)}
+        />
       </View>
     </Pressable>
   );
