@@ -57,8 +57,8 @@ const fetchShowById = async ({ id }: Params, anilist: GraphQLClient, allanime: G
         duration: ep.vidInforssub?.vidDuration,
         resolution: ep.vidInforssub?.vidResolution,
         thumbnail: ep.thumbnails
-          .filter((t) => !t.includes("cdnfile"))
-          .map(t => t.startsWith("http") ? t : (source + t))[0]
+          ?.filter((t) => !t.includes("cdnfile"))
+          ?.map(t => t.startsWith("http") ? t : (source + t))?.[0]
       })).sort((ep, ep2) => ep2.number - ep.number)
     }
   }
@@ -220,7 +220,7 @@ const media_query = graphql(`
 interface EpisodeDetail {
   _id: string;
   episodeIdNum: number;
-  thumbnails: string[];
+  thumbnails?: string[];
   vidInforssub?: {
     vidResolution: number;
     vidPath: string;

@@ -1,7 +1,7 @@
 export interface Episode {
   id: string;
   number: number;
-  thumbnail: string;
+  thumbnail?: string;
   resolution?: number
   duration?: number;
   dub: boolean
