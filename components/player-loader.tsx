@@ -44,9 +44,10 @@ const PlayerLoader = ({
   aniListId,
   media,
 }: Props) => {
+  const translationKey = "translation";
   const [status, setStatus] = useState<AVPlaybackStatus | null>(null);
   const [translation, setTranslation] = useState<Translation>(
-    (storage.getString("tranlation") as Translation | undefined) ?? "sub"
+    (storage.getString(translationKey) as Translation | undefined) ?? "sub"
   );
   const opacity = useSharedValue(0);
   const { height, width } = useWindowDimensions();
@@ -89,7 +90,7 @@ const PlayerLoader = ({
   }, [status, updatedEntry, watched, isSuccess, isWatchedMutationPending]);
 
   useEffect(() => {
-    storage.set("translation", translation);
+    storage.set(translationKey, translation);
   }, [translation]);
 
   function handleBackward(intro = false) {
