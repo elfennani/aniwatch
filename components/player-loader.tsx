@@ -1,13 +1,15 @@
 import {
+  ActivityIndicator,
   GestureResponderEvent,
   Pressable,
   StyleSheet,
   TouchableOpacity,
+  TouchableOpacityProps,
   View,
   useWindowDimensions,
 } from "react-native";
 import { AVPlaybackStatus, ResizeMode, Video } from "expo-av";
-import React, { useEffect, useRef, useState } from "react";
+import React, { ForwardedRef, useEffect, useRef, useState } from "react";
 import useLinkQuery from "@/api/use-link-query";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Text from "./text";
@@ -20,6 +22,8 @@ import secondsToHms from "@/utils/seconds-to-hms";
 import useWatchedMutation from "@/api/use-watched-mutation";
 import { ShowDetails } from "@/interfaces/ShowDetails";
 import purple from "@/utils/purple";
+import { Link } from "expo-router";
+import { storage } from "@/utils/mmkv";
 
 type Props = {
   aniListId: number;
@@ -30,6 +34,8 @@ type Props = {
   media: ShowDetails;
 };
 
+type Translation = "sub" | "dub";
+
 const PlayerLoader = ({
   allAnimeId,
   episode,
@@ -39,6 +45,9 @@ const PlayerLoader = ({
   media,
 }: Props) => {
   const [status, setStatus] = useState<AVPlaybackStatus | null>(null);
+  const [translation, setTranslation] = useState<Translation>(
+    (storage.getString("tranlation") as Translation | undefined) ?? "sub"
+  );
   const opacity = useSharedValue(0);
   const { height, width } = useWindowDimensions();
   const style = useAnimatedStyle(() => ({
@@ -60,7 +69,7 @@ const PlayerLoader = ({
   const { data, isPending, isError } = useLinkQuery({
     episode: episode.toString(),
     allAnimeId,
-    type: "sub",
+    type: dubbed ? translation : "sub",
   });
 
   useEffect(() => {
@@ -78,6 +87,10 @@ const PlayerLoader = ({
       mutate();
     }
   }, [status, updatedEntry, watched, isSuccess, isWatchedMutationPending]);
+
+  useEffect(() => {
+    storage.set("translation", translation);
+  }, [translation]);
 
   function handleBackward(intro = false) {
     if (status?.isLoaded) {
@@ -118,6 +131,9 @@ const PlayerLoader = ({
       playbackStatus = "play";
     }
   }
+
+  const hasNextEp =
+    media.episodes?.some((ep) => ep.number == episode + 1) ?? false;
 
   function handleTouchStart(e: GestureResponderEvent) {}
 
@@ -160,7 +176,14 @@ const PlayerLoader = ({
       onTouchMove={handleTouchMove}
       onPress={handlePress}
     >
-      <View style={{ position: "relative", backgroundColor: "black" }}>
+      <View
+        style={{
+          position: "relative",
+          backgroundColor: "black",
+          width: "100%",
+          height: "100%",
+        }}
+      >
         {auto && (
           <Video
             ref={video}
@@ -190,11 +213,15 @@ const PlayerLoader = ({
                 />
               </TouchableOpacity>
               <TouchableOpacity hitSlop={16} onPress={handleTogglePlayback}>
-                <AntDesign
-                  name={playbackStatus as any}
-                  size={48}
-                  color="rgba(255,255,255,0.8)"
-                />
+                {playbackStatus == "loading" ? (
+                  <ActivityIndicator size={48} color="rgba(255,255,255,0.8)" />
+                ) : (
+                  <AntDesign
+                    name={playbackStatus as any}
+                    size={48}
+                    color="rgba(255,255,255,0.8)"
+                  />
+                )}
               </TouchableOpacity>
               <TouchableOpacity
                 hitSlop={16}
@@ -238,7 +265,26 @@ const PlayerLoader = ({
               <View style={styles.actions}>
                 <FooterButton label="Episodes" icon="bars" />
                 <FooterButton label="Quality" icon="picture" />
-                <FooterButton label="Next Episode" icon="stepforward" />
+                {dubbed && (
+                  <FooterButton
+                    label={
+                      translation == "sub" ? "Watch Dubbed" : "Watch Subbed"
+                    }
+                    icon="sound"
+                    onPress={() =>
+                      setTranslation((t) => (t == "dub" ? "sub" : "dub"))
+                    }
+                  />
+                )}
+                {hasNextEp && (
+                  <Link
+                    replace
+                    href={`/watch/${aniListId}/${episode + 1}`}
+                    asChild
+                  >
+                    <FooterButton label="Next Episode" icon="stepforward" />
+                  </Link>
+                )}
               </View>
             </View>
           </View>
@@ -249,16 +295,25 @@ const PlayerLoader = ({
 };
 
 type IconName = keyof typeof AntDesign.glyphMap;
+type FooterButtonProps = {
+  label: string;
+  icon: IconName;
+} & TouchableOpacityProps;
 
-const FooterButton = ({ label, icon }: { label: string; icon: IconName }) => (
-  <TouchableOpacity>
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-      <AntDesign name={icon} color="white" size={18} />
-      <Text weight="semibold" style={{ fontSize: 14 }}>
-        {label}
-      </Text>
-    </View>
-  </TouchableOpacity>
+const FooterButton = React.forwardRef(
+  (
+    { label, icon, ...props }: FooterButtonProps,
+    ref: ForwardedRef<TouchableOpacity>
+  ) => (
+    <TouchableOpacity hitSlop={16} ref={ref} {...props}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+        <AntDesign name={icon} color="white" size={18} />
+        <Text weight="semibold" style={{ fontSize: 14 }}>
+          {label}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  )
 );
 
 export default PlayerLoader;
