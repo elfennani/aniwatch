@@ -1,5 +1,6 @@
 import {
   Modal,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -18,12 +19,33 @@ import { Link } from "expo-router";
 import MediaListingList from "@/components/media-listing-list";
 import { Image } from "expo-image";
 import Skeleton from "@/components/skeleton";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 type Props = {};
 
 const HomePage = (props: Props) => {
   const { top } = useSafeAreaInsets();
   const { data: viewer, isError, isPending } = useViewerQuery();
+  const client = useQueryClient();
+  const watchingState = client.getQueryState([
+    "show",
+    "media",
+    {
+      viewer: viewer?.id,
+      status: "watching",
+    },
+  ]);
+  const completedState = client.getQueryState([
+    "show",
+    "media",
+    {
+      viewer: viewer?.id,
+      status: "completed",
+    },
+  ]);
+  const isRefetching =
+    watchingState?.fetchStatus == "fetching" ||
+    completedState?.fetchStatus == "fetching";
 
   if (isPending) {
     return (
@@ -53,8 +75,23 @@ const HomePage = (props: Props) => {
     return <View></View>;
   }
 
+  const refreshControl = (
+    <RefreshControl
+      refreshing={isRefetching}
+      onRefresh={() =>
+        client.invalidateQueries({
+          predicate: ({ queryKey }) =>
+            queryKey.includes("show") || queryKey.includes("media"),
+        })
+      }
+    />
+  );
+
   return (
-    <ScrollView contentContainerStyle={{ paddingTop: top + 16 }}>
+    <ScrollView
+      contentContainerStyle={{ paddingTop: top + 16 }}
+      refreshControl={refreshControl}
+    >
       <View style={styles.header}>
         <Link href={`/search`} asChild style={{ flex: 1 }}>
           <TouchableOpacity activeOpacity={0.8} style={styles.search}>

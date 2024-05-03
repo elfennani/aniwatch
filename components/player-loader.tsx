@@ -71,6 +71,7 @@ const PlayerLoader = ({
     isSuccess,
   } = useWatchedMutation(
     { episode, showId: aniListId },
+    media.status != "COMPLETED",
     () => updatedEntry.current == true
   );
   const { data, isPending, isError } = useLinkQuery({

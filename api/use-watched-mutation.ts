@@ -6,16 +6,15 @@ interface Params {
   episode: number
   showId: number
 }
-
 const mutation = graphql(`
-  mutation UPDATE_PROGRESS($progress:Int,$mediaId:Int){
-    SaveMediaListEntry(mediaId: $mediaId, progress: $progress){
+  mutation UPDATE_PROGRESS($progress:Int,$mediaId:Int, $status: MediaListStatus){
+    SaveMediaListEntry(mediaId: $mediaId, progress: $progress, status: $status){
       id
     }
   }
 `);
 
-const useWatchedMutation = (params: Params, onSuccess?: () => void) => {
+const useWatchedMutation = (params: Params, markAsCurrent: boolean, onSuccess?: () => void) => {
   const { episode, showId } = params
   const client = useAniListClient();
   const queryClient = useQueryClient();
@@ -23,11 +22,15 @@ const useWatchedMutation = (params: Params, onSuccess?: () => void) => {
   return useMutation({
     mutationKey: ["anilist", "watch", showId],
     mutationFn: async () => {
-      await client.request(mutation, { mediaId: showId, progress: episode })
+      await client.request(mutation, {
+        mediaId: showId,
+        progress: episode,
+        status: markAsCurrent ? "CURRENT" : undefined
+      })
     },
     onSuccess: () => {
       onSuccess?.()
-      queryClient.refetchQueries({
+      queryClient.invalidateQueries({
         predicate: ({ queryKey }) => queryKey.includes("show")
       })
     }
