@@ -19,6 +19,7 @@ import Skeleton from "@/components/skeleton";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "@/ctx/theme-provider";
 import Box from "@/components/box";
+import useNotificationsQuery from "@/api/use-notifications-query";
 
 const HomePage = () => {
   const { top } = useSafeAreaInsets();
@@ -88,6 +89,28 @@ const HomePage = () => {
             </Box>
           </TouchableOpacity>
         </Link>
+        <Link href={`/notifications`} asChild>
+          <TouchableOpacity>
+            <Box style={styles.notificationContainer} background="card">
+              <AntDesign
+                name="notification"
+                size={18}
+                color={colors.secondary}
+              />
+              {!!viewer.notifications && (
+                <Box background="failure" style={styles.notifications}>
+                  <Text
+                    variant="small"
+                    color="white"
+                    style={{ lineHeight: 12 }}
+                  >
+                    {viewer.notifications}
+                  </Text>
+                </Box>
+              )}
+            </Box>
+          </TouchableOpacity>
+        </Link>
         <Link href={`/user/${viewer.id}`} asChild>
           <TouchableOpacity>
             <Image
@@ -120,6 +143,25 @@ const HomePage = () => {
 };
 
 const styles = StyleSheet.create({
+  notifications: {
+    padding: 2,
+    position: "absolute",
+    top: -2,
+    right: -2,
+    width: 16,
+    height: 16,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  notificationContainer: {
+    width: 40,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 40,
+    position: "relative",
+  },
   header: {
     padding: 16,
     paddingTop: 0,

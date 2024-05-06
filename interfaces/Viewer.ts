@@ -3,4 +3,6 @@ export default interface Viewer {
   name: string;
   avatar?: string;
   about?: string
+  notifications: number;
+
 }

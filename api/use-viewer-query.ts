@@ -11,6 +11,7 @@ const view_query = graphql(`
       avatar{medium}
       name
       about
+      unreadNotificationCount
     }
   }
 `);
@@ -28,7 +29,8 @@ async function fetchUser(client: GraphQLClient) {
     id,
     name,
     about: about ?? undefined,
-    avatar: avatar?.medium ?? undefined
+    avatar: avatar?.medium ?? undefined,
+    notifications: res.user.unreadNotificationCount ?? 0
   }
 
   return viewer

@@ -9,7 +9,9 @@
       {
         "name": "@0no-co/graphqlsp",
         "schema": "https://graphql.anilist.co",
-        "tadaOutputLocation": "./src/graphql-env.d.ts"
+        "tadaOutputLocation": "./src/graphql-env.d.ts",
+        "trackFieldUsage": false,
+        "shouldCheckForColocatedFragments": false
       }
     ]
   },
