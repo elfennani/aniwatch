@@ -5,7 +5,7 @@
     "version": "1.0.5",
     "icon": "./assets/images/icon.png",
     "scheme": "aniwatch",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "automatic",
     "platforms": ["android"],
     "primaryColor": "#a855f7",
     "backgroundColor": "#18181b",

@@ -21,10 +21,10 @@ import Animated, {
 import secondsToHms from "@/utils/seconds-to-hms";
 import useWatchedMutation from "@/api/use-watched-mutation";
 import { ShowDetails } from "@/interfaces/ShowDetails";
-import purple from "@/utils/purple";
 import { Link } from "expo-router";
 import { storage } from "@/utils/mmkv";
 import QualitySelector from "./quality-selector";
+import { useTheme } from "@/ctx/theme-provider";
 
 type Props = {
   aniListId: number;
@@ -47,6 +47,9 @@ const PlayerLoader = ({
 }: Props) => {
   const translationKey = "translation";
   const qualityKey = "quality";
+  const {
+    colors: { primary },
+  } = useTheme();
   const [status, setStatus] = useState<AVPlaybackStatus | null>(null);
   const [qualityView, setQualityView] = useState(false);
   const [translation, setTranslation] = useState<Translation>(
@@ -260,6 +263,7 @@ const PlayerLoader = ({
                     <View
                       style={[
                         {
+                          backgroundColor: primary,
                           width: `${
                             (status?.positionMillis / status.durationMillis) *
                             100
@@ -341,9 +345,7 @@ const FooterButton = React.forwardRef(
     <TouchableOpacity hitSlop={16} ref={ref} {...props}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
         <AntDesign name={icon} color="white" size={18} />
-        <Text weight="semibold" style={{ fontSize: 14 }}>
-          {label}
-        </Text>
+        <Text style={{ fontSize: 14 }}>{label}</Text>
       </View>
     </TouchableOpacity>
   )
@@ -392,7 +394,6 @@ const styles = StyleSheet.create({
   },
   innerProgress: {
     height: 2,
-    backgroundColor: purple[500],
     borderRadius: 2,
   },
   controls: {

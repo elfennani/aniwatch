@@ -1,5 +1,10 @@
-import { StyleSheet, View } from "react-native";
-import { DarkTheme, Theme, ThemeProvider } from "@react-navigation/native";
+import { StyleSheet, View, useColorScheme } from "react-native";
+import {
+  DarkTheme,
+  DefaultTheme,
+  Theme,
+  ThemeProvider as StackThemeProvider,
+} from "@react-navigation/native";
 import React, { useEffect } from "react";
 import { QueryClient } from "@tanstack/react-query";
 import { Slot, SplashScreen } from "expo-router";
@@ -11,11 +16,13 @@ import {
   Manrope_500Medium,
   Manrope_600SemiBold,
 } from "@expo-google-fonts/manrope";
-import zinc from "@/utils/zinc";
 import { StatusBar } from "expo-status-bar";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { storage } from "@/utils/mmkv";
+import theme from "@/constants/theme";
+import darkTheme from "@/constants/dark-theme";
+import { ThemeProvider } from "@/ctx/theme-provider";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -49,6 +56,7 @@ export {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const scheme = useColorScheme();
   const [loaded, error] = useFonts({
     ...AntDesign.font,
     regular: Manrope_400Regular,
@@ -67,9 +75,12 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
+  const backgroundColor =
+    scheme == "light" ? theme.colors.background : darkTheme.colors.background;
+
   if (!loaded) {
     return (
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: zinc[900] }]}>
+      <View style={[StyleSheet.absoluteFill, { backgroundColor }]}>
         <StatusBar hidden={false} style="light" />
       </View>
     );
@@ -79,28 +90,40 @@ export default function RootLayout() {
 }
 
 const RootLayoutNav = () => {
+  const scheme = useColorScheme();
+  const currentTheme = scheme == "light" ? theme : darkTheme;
+  const stackTheme = scheme == "light" ? DefaultTheme : DarkTheme;
+  const backgroundColor =
+    scheme == "light" ? theme.colors.background : darkTheme.colors.background;
+
   const darkThemeOverrides: Theme = {
-    ...DarkTheme,
+    ...stackTheme,
     colors: {
-      ...DarkTheme.colors,
-      background: "#000000",
-      card: "#000000",
+      ...stackTheme.colors,
+      background: currentTheme.colors.background,
+      card: currentTheme.colors.card,
     },
+    dark: scheme == "dark",
   };
 
   return (
-    <View style={[StyleSheet.absoluteFill, { backgroundColor: zinc[900] }]}>
-      <ThemeProvider value={darkThemeOverrides}>
-        <PersistQueryClientProvider
-          client={queryClient}
-          persistOptions={{ persister: asyncStoragePersister }}
-        >
-          <SessionProvider>
-            <StatusBar hidden={false} style="light" />
-            <Slot />
-          </SessionProvider>
-        </PersistQueryClientProvider>
-      </ThemeProvider>
+    <View style={[StyleSheet.absoluteFill, { backgroundColor }]}>
+      <StackThemeProvider value={darkThemeOverrides}>
+        <ThemeProvider>
+          <PersistQueryClientProvider
+            client={queryClient}
+            persistOptions={{ persister: asyncStoragePersister }}
+          >
+            <SessionProvider>
+              <StatusBar
+                hidden={false}
+                style={scheme == "light" ? "dark" : "light"}
+              />
+              <Slot />
+            </SessionProvider>
+          </PersistQueryClientProvider>
+        </ThemeProvider>
+      </StackThemeProvider>
     </View>
   );
 };

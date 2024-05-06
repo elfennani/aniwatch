@@ -1,19 +1,12 @@
 import Media from "@/interfaces/Media";
 import MediaItem from "./media-item";
 import useMediaByStatusQuery from "@/api/use-media-by-status-query";
-import {
-  ScrollView,
-  StyleSheet,
-  TouchableNativeFeedbackBase,
-  View,
-  useWindowDimensions,
-} from "react-native";
-import zinc from "@/utils/zinc";
+import { View, useWindowDimensions } from "react-native";
 import { FlashList, FlashListProps } from "@shopify/flash-list";
-import { useMemo } from "react";
 import Text from "./text";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Skeleton from "./skeleton";
+import { useTheme } from "@/ctx/theme-provider";
 
 interface Props extends Omit<FlashListProps<Media>, "renderItem" | "data"> {
   viewerId: number;
@@ -54,6 +47,9 @@ const MediaListingList = ({ viewerId, listing, ...props }: Props) => {
 
 const EmptyListing = () => {
   const { width } = useWindowDimensions();
+  const {
+    colors: { secondary },
+  } = useTheme();
   return (
     <View
       style={{
@@ -64,8 +60,8 @@ const EmptyListing = () => {
         gap: 8,
       }}
     >
-      <AntDesign name="meho" color={zinc[500]} size={32} />
-      <Text style={{ color: zinc[500] }}>Nothing to see</Text>
+      <AntDesign name="meho" color={secondary} size={32} />
+      <Text color="secondary">Nothing to see</Text>
     </View>
   );
 };

@@ -1,21 +1,13 @@
-import {
-  DimensionValue,
-  StyleSheet,
-  Text,
-  View,
-  ViewProps,
-} from "react-native";
+import { DimensionValue, StyleSheet, ViewProps } from "react-native";
 import React, { useEffect } from "react";
-import zinc from "@/utils/zinc";
 import Animated, {
-  runOnUI,
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
-import purple from "@/utils/purple";
+import { useTheme } from "@/ctx/theme-provider";
 
 type Props = {
   width?: DimensionValue;
@@ -27,6 +19,7 @@ const Skeleton = ({ height, width, radius = 6, ...props }: Props) => {
   const sv = useSharedValue(0);
   const opacity = useDerivedValue(() => sv.value / 2 + 0.5);
   const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
+  const theme = useTheme();
 
   useEffect(() => {
     sv.value = withRepeat(withTiming(1, { duration: 1000 }), -1, true);
@@ -40,7 +33,7 @@ const Skeleton = ({ height, width, radius = 6, ...props }: Props) => {
         {
           width,
           height,
-          backgroundColor: zinc[700],
+          backgroundColor: theme.colors.loading,
           borderRadius: radius,
         },
         props.style,

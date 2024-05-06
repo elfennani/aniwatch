@@ -7,7 +7,6 @@ import {
 import React, { useEffect } from "react";
 import useShowQuery from "@/api/use-show-query";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import Text from "@/components/text";
 import PlayerLoader from "@/components/player-loader";
 import { StatusBar } from "expo-status-bar";
 import { useKeepAwake } from "expo-keep-awake";

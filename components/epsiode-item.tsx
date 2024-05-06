@@ -7,11 +7,10 @@ import {
 import React, { ForwardedRef } from "react";
 import { Episode } from "@/interfaces/Episode";
 import secondsToHms from "@/utils/seconds-to-hms";
-import zinc from "@/utils/zinc";
 import Text from "./text";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Image } from "expo-image";
-import purple from "@/utils/purple";
+import { useTheme } from "@/ctx/theme-provider";
 
 type Props = {
   mediaId: number;
@@ -29,6 +28,10 @@ const EpsiodeItem = React.forwardRef(
     }: Props,
     ref: ForwardedRef<TouchableOpacity>
   ) => {
+    const {
+      colors: { card, secondary },
+    } = useTheme();
+
     return (
       <View style={watched && { opacity: 0.75 }}>
         <TouchableOpacity
@@ -45,24 +48,24 @@ const EpsiodeItem = React.forwardRef(
                 height: 124 * (9 / 16),
               }}
               contentFit="cover"
-              style={styles.image}
+              style={[styles.image, { backgroundColor: card }]}
             />
           ) : (
             <View style={styles.image}>
-              <AntDesign name="meho" color={zinc[600]} size={24} />
+              <AntDesign name="meho" color={secondary} size={24} />
             </View>
           )}
           <View>
             <Text>Episode {number}</Text>
-            <Text style={[styles.info, { textTransform: "uppercase" }]}>
+            <Text
+              style={{ textTransform: "uppercase", marginTop: 4 }}
+              variant="label"
+              color="secondary"
+            >
               sub {dub && "• dub"}{" "}
-              {watched && (
-                <Text weight="semibold" style={{ color: purple[500] }}>
-                  • WATCHED
-                </Text>
-              )}
+              {watched && <Text color="primary">• WATCHED</Text>}
             </Text>
-            <Text style={styles.info}>
+            <Text style={{ marginTop: 4 }} variant="label" color="secondary">
               {!!duration && secondsToHms(duration)}
               {!!duration && !!resolution && " • "}
               {!!resolution && `${resolution}p`}
@@ -86,14 +89,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     aspectRatio: 16 / 9,
     width: 124,
-    backgroundColor: zinc[800],
     alignItems: "center",
     justifyContent: "center",
-  },
-  title: {},
-  info: {
-    fontSize: 12,
-    color: zinc[400],
-    marginTop: 4,
   },
 });

@@ -6,14 +6,16 @@ import { FlashList } from "@shopify/flash-list";
 import { Link } from "expo-router";
 import { ImageBackground } from "expo-image";
 import Text from "./text";
-import purple from "@/utils/purple";
-import zinc from "@/utils/zinc";
+import { useTheme } from "@/ctx/theme-provider";
 
 type Props = {
   relations: ShowRelation[];
 };
 
 const MediaRelations = ({ relations }: Props) => {
+  const {
+    colors: { card },
+  } = useTheme();
   return (
     <Section title="Relations" titlePaddingOnly>
       <FlashList
@@ -29,23 +31,21 @@ const MediaRelations = ({ relations }: Props) => {
             <TouchableOpacity activeOpacity={0.8}>
               <ImageBackground
                 source={{ uri: cover }}
-                style={styles.gridThumbnail}
+                style={[styles.gridThumbnail, { backgroundColor: card }]}
                 contentFit="cover"
               >
                 <View style={styles.gridInfo}>
-                  <Text numberOfLines={3} style={styles.gridTitle}>
+                  <Text
+                    numberOfLines={3}
+                    variant="label"
+                    style={{ color: "white" }}
+                  >
                     {title}
                   </Text>
-                  <Text
-                    weight="semibold"
-                    style={{ fontSize: 10, color: purple[500] }}
-                  >
+                  <Text variant="small" color="primary">
                     {type}
                   </Text>
-                  <Text
-                    weight="semibold"
-                    style={{ fontSize: 10, color: purple[500] }}
-                  >
+                  <Text variant="small" color="primary">
                     {relationType}
                   </Text>
                 </View>
@@ -64,14 +64,9 @@ const styles = StyleSheet.create({
   gridInfo: { backgroundColor: "rgba(0,0,0,0.66)", padding: 8, gap: 4 },
   gridThumbnail: {
     aspectRatio: 0.69,
-    backgroundColor: zinc[800],
     height: 192,
     borderRadius: 6,
     overflow: "hidden",
     justifyContent: "flex-end",
-  },
-  gridTitle: {
-    color: zinc[200],
-    fontSize: 12,
   },
 });

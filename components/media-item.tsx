@@ -2,11 +2,11 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import Media from "@/interfaces/Media";
 import React from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import zinc from "@/utils/zinc";
 import { Link } from "expo-router";
-import purple from "@/utils/purple";
 import Text from "./text";
 import { Image, ImageBackground } from "expo-image";
+import { useTheme } from "@/ctx/theme-provider";
+import Box from "./box";
 
 interface Props {
   canContinue?: boolean;
@@ -19,21 +19,23 @@ const MediaItem = ({
   canContinue = false,
   type = "list",
 }: Props) => {
+  const { colors } = useTheme();
+
   if (type == "grid") {
     return (
       <Link href={`/media/${id}` as any} asChild>
         <TouchableOpacity activeOpacity={0.8}>
           <ImageBackground
             source={{ uri: cover }}
-            style={styles.gridThumbnail}
+            style={[styles.gridThumbnail, { backgroundColor: colors.card }]}
             contentFit="cover"
           >
             <View style={styles.gridInfo}>
-              <Text numberOfLines={3} style={styles.gridTitle}>
+              <Text numberOfLines={3} variant="label" color="white">
                 {title}
               </Text>
               {!!progress && (
-                <Text style={styles.gridProgress}>
+                <Text color="primary" variant="small">
                   ({progress}/{episodes})
                 </Text>
               )}
@@ -47,17 +49,17 @@ const MediaItem = ({
   return (
     <Link href={`/media/${id}` as any} asChild>
       <TouchableOpacity activeOpacity={0.8}>
-        <View style={styles.container}>
+        <Box row rounding="sm" background="card" style={{ overflow: "hidden" }}>
           <Image
             source={{ uri: cover }}
             contentFit="cover"
             style={styles.thumbnail}
           />
           <View style={styles.info}>
-            <Text style={styles.title}>{title}</Text>
+            <Text>{title}</Text>
             <View style={styles.progress}>
               {!!progress && (
-                <Text style={styles.progressText}>
+                <Text variant="label" color="secondary">
                   ({progress}/{episodes})
                 </Text>
               )}
@@ -69,16 +71,16 @@ const MediaItem = ({
                 >
                   <TouchableOpacity activeOpacity={0.7}>
                     <Text>
-                      <AntDesign name="play" size={14} color={purple[500]} />
+                      <AntDesign name="play" size={14} color={colors.primary} />
                       {"  "}
-                      <Text style={styles.continueText}>Continue Watching</Text>
+                      <Text color="primary">Continue Watching</Text>
                     </Text>
                   </TouchableOpacity>
                 </Link>
               )}
             </View>
           </View>
-        </View>
+        </Box>
       </TouchableOpacity>
     </Link>
   );
@@ -87,24 +89,10 @@ const MediaItem = ({
 const styles = StyleSheet.create({
   gridThumbnail: {
     aspectRatio: 0.69,
-    backgroundColor: zinc[800],
     height: 192,
     borderRadius: 6,
     overflow: "hidden",
     justifyContent: "flex-end",
-  },
-  title: {
-    color: zinc[200],
-  },
-  gridTitle: {
-    color: zinc[200],
-    fontSize: 12,
-  },
-  container: {
-    flexDirection: "row",
-    backgroundColor: zinc[800],
-    borderRadius: 6,
-    overflow: "hidden",
   },
   thumbnail: {
     aspectRatio: 0.69,
@@ -121,21 +109,12 @@ const styles = StyleSheet.create({
     gap: 8,
     alignItems: "center",
   },
-  continueText: {
-    color: purple[500],
-    fontSize: 14,
-  },
   progress: {
     width: "100%",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  progressText: {
-    fontSize: 12,
-    color: zinc[500],
-  },
-  gridProgress: { color: purple[300], fontSize: 10 },
 });
 
 export default MediaItem;

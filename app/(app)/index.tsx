@@ -1,51 +1,30 @@
 import {
-  Modal,
   RefreshControl,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
-  useWindowDimensions,
 } from "react-native";
 import React from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import useViewerQuery from "@/api/use-viewer-query";
 import MediaListingGrid from "@/components/media-listing-grid";
 import SectionTitle from "@/components/section-title";
-import zinc from "@/utils/zinc";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Text from "@/components/text";
 import { Link } from "expo-router";
 import MediaListingList from "@/components/media-listing-list";
 import { Image } from "expo-image";
 import Skeleton from "@/components/skeleton";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTheme } from "@/ctx/theme-provider";
+import Box from "@/components/box";
 
-type Props = {};
-
-const HomePage = (props: Props) => {
+const HomePage = () => {
   const { top } = useSafeAreaInsets();
   const { data: viewer, isError, isPending } = useViewerQuery();
+  const { colors } = useTheme();
   const client = useQueryClient();
-  const watchingState = client.getQueryState([
-    "show",
-    "media",
-    {
-      viewer: viewer?.id,
-      status: "watching",
-    },
-  ]);
-  const completedState = client.getQueryState([
-    "show",
-    "media",
-    {
-      viewer: viewer?.id,
-      status: "completed",
-    },
-  ]);
-  const isRefetching =
-    watchingState?.fetchStatus == "fetching" ||
-    completedState?.fetchStatus == "fetching";
 
   if (isPending) {
     return (
@@ -77,7 +56,7 @@ const HomePage = (props: Props) => {
 
   const refreshControl = (
     <RefreshControl
-      refreshing={isRefetching}
+      refreshing={false}
       onRefresh={() =>
         client.invalidateQueries({
           predicate: ({ queryKey }) =>
@@ -94,16 +73,27 @@ const HomePage = (props: Props) => {
     >
       <View style={styles.header}>
         <Link href={`/search`} asChild style={{ flex: 1 }}>
-          <TouchableOpacity activeOpacity={0.8} style={styles.search}>
-            <AntDesign name="search1" size={24} color={zinc[400]} />
-            <Text style={{ color: zinc[400] }}>
-              Attack on Titan Season 2...
-            </Text>
+          <TouchableOpacity activeOpacity={0.8}>
+            <Box
+              row
+              padding="md"
+              paddingHorizontal="lg"
+              gap="md"
+              rounding="sm"
+              background="card"
+              style={{ alignItems: "center" }}
+            >
+              <AntDesign name="search1" size={24} color={colors.secondary} />
+              <Text color="secondary">Attack on Titan Season 2...</Text>
+            </Box>
           </TouchableOpacity>
         </Link>
         <Link href={`/user/${viewer.id}`} asChild>
           <TouchableOpacity>
-            <Image source={{ uri: viewer.avatar }} style={styles.avatar} />
+            <Image
+              source={{ uri: viewer.avatar }}
+              style={[styles.avatar, { backgroundColor: colors.card }]}
+            />
           </TouchableOpacity>
         </Link>
       </View>
@@ -141,20 +131,10 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 50,
-    backgroundColor: zinc[800],
   },
   page: {
     padding: 32,
     gap: 16,
-  },
-  search: {
-    backgroundColor: zinc[800],
-    flexDirection: "row",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    gap: 12,
-    alignItems: "center",
-    borderRadius: 6,
   },
 });
 

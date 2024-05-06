@@ -14,6 +14,24 @@
       "type": "shell",
       "command": "eas build -p android --local --output=build-app.apk",
       "problemMatcher": []
+    },
+    {
+      "label": "Expo Prebuild",
+      "type": "shell",
+      "command": "npx expo prebuild -p android",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run on Android",
+      "type": "shell",
+      "command": "npm run android",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run on Android • Release Variant",
+      "type": "shell",
+      "command": "npx expo run:android --variant release",
+      "problemMatcher": []
     }
   ]
 }

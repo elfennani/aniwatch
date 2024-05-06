@@ -11,12 +11,13 @@ import useUserQuery from "@/api/use-user-query";
 import Text from "@/components/text";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Image, ImageBackground } from "expo-image";
-import { LinearGradient } from "expo-linear-gradient";
-import zinc from "@/utils/zinc";
 import Section from "@/components/section";
 import RenderHTML from "react-native-render-html";
-import purple from "@/utils/purple";
 import Skeleton from "@/components/skeleton";
+import Banner from "@/components/banner";
+import { useTheme } from "@/ctx/theme-provider";
+import Stats from "@/components/stats";
+import Box from "@/components/box";
 
 type Params = {
   userId: string;
@@ -25,6 +26,7 @@ type Params = {
 const UserById = () => {
   const { top, bottom } = useSafeAreaInsets();
   const { width } = useWindowDimensions();
+  const theme = useTheme();
   const { userId } = useLocalSearchParams<Params>();
   const {
     data: user,
@@ -77,24 +79,20 @@ const UserById = () => {
       <ImageBackground
         source={{ uri: user.banner ?? undefined }}
         contentFit="cover"
-        style={{ backgroundColor: zinc[800] }}
+        style={{ backgroundColor: theme.colors.card }}
       >
-        <LinearGradient
-          colors={["rgba(39, 39, 42, 0)", zinc[900]]}
-          locations={[0.25, 0.95]}
-          style={[styles.gradient, { paddingTop: 32 + top }]}
-        >
-          <View style={styles.header}>
+        <Banner>
+          <Box row gap="lg">
             <Image
-              style={styles.cover}
+              style={[styles.cover, { backgroundColor: theme.colors.card }]}
               source={{ uri: user.avatar }}
               contentFit="cover"
             />
             <View style={styles.info}>
               <Text style={{ fontSize: 18 }}>{user.name}</Text>
             </View>
-          </View>
-        </LinearGradient>
+          </Box>
+        </Banner>
       </ImageBackground>
       {user.about && (
         <Section title="About">
@@ -103,7 +101,7 @@ const UserById = () => {
             systemFonts={["regular"]}
             baseStyle={{
               fontFamily: "regular",
-              color: zinc[100],
+              color: theme.colors.foreground,
               fontSize: 12,
               lineHeight: 19.25,
             }}
@@ -112,48 +110,21 @@ const UserById = () => {
         </Section>
       )}
       <Section verticalPadding={16} title="Anime">
-        <View style={styles.statContainer}>
-          <View style={styles.statItem}>
-            <Text style={styles.stat} weight="semibold">
-              {user.totalAnime}
-            </Text>
-            <Text style={styles.statLabel}>Total Anime</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.stat} weight="semibold">
-              {user.daysWatched?.toFixed(2)}
-            </Text>
-            <Text style={styles.statLabel}>Days Watched</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.stat} weight="semibold">
-              {user.meanScore}
-            </Text>
-            <Text style={styles.statLabel}>Mean Score</Text>
-          </View>
-        </View>
+        <Stats>
+          <Stats.Stat label="Total Anime" value={user.totalAnime} />
+          <Stats.Stat
+            label="Days Watched"
+            value={user.daysWatched?.toFixed(2)}
+          />
+          <Stats.Stat label="Mean Score" value={user.meanScore} />
+        </Stats>
       </Section>
       <Section verticalPadding={16} title="Manga">
-        <View style={styles.statContainer}>
-          <View style={styles.statItem}>
-            <Text style={styles.stat} weight="semibold">
-              {user.totalManga}
-            </Text>
-            <Text style={styles.statLabel}>Total Manga</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.stat} weight="semibold">
-              {user.chaptersRead}
-            </Text>
-            <Text style={styles.statLabel}>Chapters Read</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.stat} weight="semibold">
-              {user.mangaMeanScore}
-            </Text>
-            <Text style={styles.statLabel}>Mean Score</Text>
-          </View>
-        </View>
+        <Stats>
+          <Stats.Stat label="Total Manga" value={user.totalManga} />
+          <Stats.Stat label="Chapters Read" value={user.chaptersRead} />
+          <Stats.Stat label="Mean Score" value={user.mangaMeanScore} />
+        </Stats>
       </Section>
     </ScrollView>
   );
@@ -166,7 +137,6 @@ const styles = StyleSheet.create({
     width: 128,
     height: 128,
     borderRadius: 128,
-    backgroundColor: zinc[800],
   },
   info: {
     justifyContent: "flex-end",
@@ -174,31 +144,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 16,
   },
-  header: {
-    flexDirection: "row",
-    gap: 16,
-  },
   gradient: {
     padding: 32,
     backgroundColor: "rgba(39, 39, 42, 0.2)",
-  },
-  statContainer: {
-    backgroundColor: zinc[800],
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 6,
-  },
-  statItem: {
-    alignItems: "center",
-    gap: 4,
-  },
-  statLabel: {
-    fontSize: 10,
-    color: zinc[400],
-  },
-  stat: {
-    color: purple[500],
   },
 });

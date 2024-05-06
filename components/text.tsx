@@ -1,15 +1,26 @@
-import zinc from "@/utils/zinc";
+import theme from "@/constants/theme";
+import { useTheme } from "@/ctx/theme-provider";
 import { Text as TextBase, TextProps } from "react-native";
 
 interface Props extends TextProps {
-  weight?: "regular" | "medium" | "semibold";
+  variant?: keyof typeof theme.textVariants;
+  color?: keyof typeof theme.colors;
 }
 
-export default function Text({ weight = "regular", ...props }: Props) {
+export default function Text({
+  variant = "body",
+  color = "foreground",
+  ...props
+}: Props) {
+  const theme = useTheme();
   return (
     <TextBase
       {...props}
-      style={[{ fontFamily: weight, color: zinc[100] }, props.style]}
+      style={[
+        theme.textVariants[variant],
+        { color: theme.colors[color] },
+        props.style,
+      ]}
     />
   );
 }

@@ -25,9 +25,7 @@ const Section = ({
     <View
       style={[styles.header, titlePaddingOnly && { paddingHorizontal: 32 }]}
     >
-      <Text weight="semibold" style={styles.title}>
-        {title}
-      </Text>
+      <Text variant="label">{title}</Text>
       {tailing}
     </View>
     <View {...props} />

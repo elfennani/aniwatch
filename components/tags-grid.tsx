@@ -2,8 +2,8 @@ import { StyleSheet, TouchableOpacity, View } from "react-native";
 import React, { useState } from "react";
 import Tag from "@/interfaces/Tag";
 import Section from "./section";
-import purple from "@/utils/purple";
 import Text from "./text";
+import { useTheme } from "@/ctx/theme-provider";
 
 type Props = {
   tags: Tag[];
@@ -11,6 +11,9 @@ type Props = {
 
 const TagsGrid = ({ tags }: Props) => {
   const [spoilers, setSpoilers] = useState(false);
+  const {
+    colors: { primary },
+  } = useTheme();
 
   function toggleSpoilers() {
     setSpoilers((spoiler) => !spoiler);
@@ -23,7 +26,7 @@ const TagsGrid = ({ tags }: Props) => {
       tailing={
         tags.some((tag) => tag.spoiler) && (
           <TouchableOpacity activeOpacity={0.75} onPress={toggleSpoilers}>
-            <Text style={{ color: purple[500], fontSize: 12 }}>
+            <Text style={{ color: primary, fontSize: 12 }}>
               {spoilers ? "hide" : "show"} spoilers
             </Text>
           </TouchableOpacity>
@@ -44,9 +47,7 @@ const TagsGrid = ({ tags }: Props) => {
             >
               {tag.name}
             </Text>
-            <Text style={{ fontSize: 12, color: purple[500] }}>
-              {tag.rank}%
-            </Text>
+            <Text style={{ fontSize: 12, color: primary }}>{tag.rank}%</Text>
           </View>
         ))}
     </Section>
