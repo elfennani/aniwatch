@@ -62,7 +62,8 @@ const CharacterItem = ({ character }: { character: Character }) => {
     <Box style={{ width: "100%" }} padding="xs">
       <Box rounding="xs" background="card" style={{ overflow: "hidden" }}>
         <Image
-          source={{ uri: character.image }}
+          recyclingKey={character.id.toString()}
+          source={{ uri: character.image, cacheKey: character.id.toString() }}
           style={{ aspectRatio: 0.69, width: "100%" }}
           contentFit="cover"
         />
@@ -77,6 +78,7 @@ const CharacterItem = ({ character }: { character: Character }) => {
             {character.actors?.map((actor) => (
               <Box key={actor.id} gap="xs" row style={{ alignItems: "center" }}>
                 <Image
+                  recyclingKey={actor.id.toString()}
                   source={{ uri: actor.image }}
                   style={{
                     width: spacing["xl"],

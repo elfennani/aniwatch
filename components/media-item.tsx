@@ -26,6 +26,7 @@ const MediaItem = ({
       <Link href={`/media/${id}` as any} asChild>
         <TouchableOpacity activeOpacity={0.8}>
           <ImageBackground
+            recyclingKey={id.toString()}
             source={{ uri: cover }}
             style={[styles.gridThumbnail, { backgroundColor: colors.card }]}
             contentFit="cover"
@@ -51,6 +52,7 @@ const MediaItem = ({
       <TouchableOpacity activeOpacity={0.8}>
         <Box row rounding="sm" background="card" style={{ overflow: "hidden" }}>
           <Image
+            recyclingKey={id.toString()}
             source={{ uri: cover }}
             contentFit="cover"
             style={styles.thumbnail}

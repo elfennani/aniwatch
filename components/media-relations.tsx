@@ -30,6 +30,7 @@ const MediaRelations = ({ relations }: Props) => {
           <Link href={`/media/${id}` as any} asChild>
             <TouchableOpacity activeOpacity={0.8}>
               <ImageBackground
+                recyclingKey={id.toString()}
                 source={{ uri: cover }}
                 style={[styles.gridThumbnail, { backgroundColor: card }]}
                 contentFit="cover"

@@ -42,6 +42,7 @@ const EpsiodeItem = React.forwardRef(
         >
           {thumbnail ? (
             <Image
+              recyclingKey={id}
               source={{
                 uri: thumbnail,
                 width: 124,

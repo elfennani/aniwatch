@@ -51,6 +51,7 @@ const CharactersSection = ({ characters, mediaId }: Props) => {
               style={{ borderColor: card, borderWidth: 4 }}
             >
               <Image
+                recyclingKey={ch.id.toString()}
                 source={{ uri: ch.image }}
                 style={{
                   width: spacing["6xl"],
