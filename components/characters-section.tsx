@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 import Character from "@/interfaces/Character";
 import Section from "./section";
@@ -36,10 +36,13 @@ const CharactersSection = ({ characters, mediaId }: Props) => {
       <FlashList
         data={characters}
         horizontal
-        contentContainerStyle={{ paddingHorizontal: 32 }}
+        contentContainerStyle={{
+          paddingHorizontal: 32,
+        }}
         estimatedItemSize={spacing["6xl"]}
         fadingEdgeLength={100}
-        ItemSeparatorComponent={() => <Box width="lg" />}
+        alwaysBounceHorizontal={false}
+        ItemSeparatorComponent={() => <Box width="lg" height="lg" />}
         renderItem={({ item: ch }) => (
           <Box gap="sm" style={{ alignItems: "center" }}>
             <Box

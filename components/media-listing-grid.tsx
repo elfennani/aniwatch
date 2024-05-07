@@ -14,6 +14,7 @@ interface Props extends Omit<FlashListProps<Media>, "renderItem" | "data"> {
 }
 
 const MediaListingGrid = ({ viewerId, listing, ...props }: Props) => {
+  const { width } = useWindowDimensions();
   const { data: shows, isPending } = useMediaByStatusQuery({
     viewer: viewerId,
     status: listing,
@@ -37,6 +38,7 @@ const MediaListingGrid = ({ viewerId, listing, ...props }: Props) => {
       fadingEdgeLength={75}
       data={shows?.pages.flat()}
       estimatedItemSize={192 * 0.69}
+      estimatedListSize={{ width, height: 192 }}
       ListEmptyComponent={EmptyListing}
       ItemSeparatorComponent={() => (
         <View style={{ height: 192 * 0.69, width: 16 }} />

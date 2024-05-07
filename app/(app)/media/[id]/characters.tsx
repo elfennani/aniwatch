@@ -1,5 +1,11 @@
-import { StyleSheet, TouchableHighlight, View } from "react-native";
-import React from "react";
+import {
+  Modal,
+  StyleSheet,
+  TouchableHighlight,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import React, { useState } from "react";
 import SectionTitle from "@/components/section-title";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FlashList } from "@shopify/flash-list";
@@ -11,12 +17,16 @@ import useCharactersQuery from "@/api/use-characters-query";
 import Character from "@/interfaces/Character";
 import { Image } from "expo-image";
 import Text from "@/components/text";
+import Language from "@/interfaces/Language";
+import { useMMKVObject, useMMKVString } from "react-native-mmkv";
+import Heading from "@/components/heading";
 
 export default function CharactersScreen() {
   const { spacing } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const [language] = useMMKVObject<Language>("language");
   const { data, fetchNextPage, isFetchingNextPage } = useCharactersQuery({
-    lang: "JAPANESE",
+    lang: language ?? "JAPANESE",
     mediaId: Number(id),
   });
 
@@ -24,12 +34,16 @@ export default function CharactersScreen() {
     <SafeAreaView style={{ flex: 1 }}>
       <FlashList
         data={data}
-        contentContainerStyle={{ padding: spacing["xl"] }}
+        contentContainerStyle={{ padding: spacing["lg"] }}
         estimatedItemSize={128}
-        ListHeaderComponent={<Header />}
+        ListHeaderComponent={
+          <Header
+            language={language ?? "JAPANESE"}
+            onSetLanguage={() => router.push(`/language`)}
+          />
+        }
         renderItem={({ item }) => <CharacterItem character={item} />}
         numColumns={3}
-        // ItemSeparatorComponent={() => <Box width="sm" height="sm" />}
         onEndReachedThreshold={0.5}
         onEndReached={() => {
           if (!isFetchingNextPage) {
@@ -87,32 +101,20 @@ const CharacterItem = ({ character }: { character: Character }) => {
   );
 };
 
-const Header = () => {
-  const {
-    spacing,
-    colors: { card, secondary },
-  } = useTheme();
+interface HeaderProps {
+  onSetLanguage: () => void;
+  language: Language;
+}
 
-  return (
-    <Box
-      row
-      style={{ alignItems: "center", marginBottom: spacing["lg"] }}
-      gap="lg"
-    >
-      <TouchableHighlight
-        underlayColor={card}
-        onPress={() => router.canGoBack() && router.back()}
-        style={{ borderRadius: 1000 }}
-      >
-        <Box padding="md">
-          <AntDesign name="back" size={24} color={secondary} />
-        </Box>
-      </TouchableHighlight>
-      <SectionTitle>Characters</SectionTitle>
-    </Box>
-  );
-};
-
+const Header = ({ language, onSetLanguage }: HeaderProps) => (
+  <Heading
+    name="Characters"
+    button
+    back
+    label={language}
+    onPress={onSetLanguage}
+  />
+);
 const styles = StyleSheet.create({
   label: { textTransform: "capitalize", textAlign: "center" },
 });
