@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Box from "@/components/box";
 import { FlashList, ListRenderItem } from "@shopify/flash-list";
@@ -11,10 +11,18 @@ import { useTheme } from "@/ctx/theme-provider";
 import SectionTitle from "@/components/section-title";
 import moment from "moment";
 import { router } from "expo-router";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function NotificationsScreen() {
   const { data, fetchNextPage, isFetchingNextPage } = useNotificationsQuery();
   const { spacing } = useTheme();
+  const client = useQueryClient();
+
+  useEffect(() => {
+    client.invalidateQueries({
+      queryKey: ["anilist", "viewer"],
+    });
+  }, [data]);
 
   const renderItem: ListRenderItem<Notification> = ({ item }) => (
     <TouchableOpacity

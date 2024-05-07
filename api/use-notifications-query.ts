@@ -17,8 +17,8 @@ const useNotificationsQuery = () => {
 
 export default useNotificationsQuery
 
-async function fetchNotifications(page: number, client: GraphQLClient): Promise<Notification[]> {
-  const notifications = await client.request(query, { page });
+export async function fetchNotifications(page: number, client: GraphQLClient, markAsRead: boolean = true, perPage = 25): Promise<Notification[]> {
+  const notifications = await client.request(query, { page, markAsRead, perPage });
   return notifications.Page?.notifications?.map(function (n): Notification {
     if (n?.__typename == "AiringNotification") {
       let content = ""
@@ -109,9 +109,9 @@ async function fetchNotifications(page: number, client: GraphQLClient): Promise<
 
 
 const query = graphql(`
-  query GetNotifications($page: Int!){
-    Page(page: $page, perPage: 25){
-      notifications(resetNotificationCount: true){
+  query GetNotifications($page: Int!, $markAsRead: Boolean!, $perPage: Int = 25){
+    Page(page: $page, perPage: $perPage){
+      notifications(resetNotificationCount: $markAsRead){
         __typename
         ... on AiringNotification {
         id

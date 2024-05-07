@@ -16,7 +16,7 @@ const view_query = graphql(`
   }
 `);
 
-async function fetchUser(client: GraphQLClient) {
+export async function fetchViewer(client: GraphQLClient) {
   await new Promise(res => setTimeout(res, 5000));
   const res = await client.request(view_query);
 
@@ -41,7 +41,7 @@ const useViewerQuery = () => {
 
   return useQuery({
     queryKey: ["anilist", "viewer"],
-    queryFn: () => fetchUser(client),
+    queryFn: () => fetchViewer(client),
   })
 }
 

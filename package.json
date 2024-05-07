@@ -58,7 +58,8 @@
     "react-native-track-player": "^4.1.1",
     "react-native-web": "~0.19.6",
     "string-to-color": "^2.2.2",
-    "ts-retry-promise": "^0.8.0"
+    "ts-retry-promise": "^0.8.0",
+    "expo-background-fetch": "~11.8.1"
   },
   "devDependencies": {
     "@0no-co/graphqlsp": "^1.10.1",
