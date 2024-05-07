@@ -97,6 +97,7 @@ const MediaById = (props: Props) => {
   return (
     <ScrollView
       style={{ paddingBottom: bottom }}
+      nestedScrollEnabled
       refreshControl={
         <RefreshControl
           refreshing={isRefetching}

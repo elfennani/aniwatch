@@ -241,7 +241,7 @@ const HomePage = () => {
         }}
       />
       <SectionTitle style={{ paddingHorizontal: 16 }}>
-        Recently Completed Shows
+        Recently Completed
       </SectionTitle>
       <MediaListingGrid
         listing="completed"

@@ -34,6 +34,7 @@ const MediaListingGrid = ({ viewerId, listing, ...props }: Props) => {
     <FlashList
       {...props}
       horizontal
+      fadingEdgeLength={75}
       data={shows?.pages.flat()}
       estimatedItemSize={192 * 0.69}
       ListEmptyComponent={EmptyListing}

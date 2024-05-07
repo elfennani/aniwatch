@@ -7,6 +7,7 @@ import Text from "./text";
 import { Image } from "expo-image";
 import { useTheme } from "@/ctx/theme-provider";
 import { Link } from "expo-router";
+import { FlashList } from "@shopify/flash-list";
 
 type Props = {
   mediaId: number;
@@ -32,13 +33,15 @@ const CharactersSection = ({ characters, mediaId }: Props) => {
         </Link>
       }
     >
-      <ScrollView
+      <FlashList
+        data={characters}
         horizontal
-        contentContainerStyle={{ gap: 16, paddingHorizontal: 32 }}
-        showsHorizontalScrollIndicator={false}
-      >
-        {characters?.map((ch) => (
-          <Box key={ch.id} gap="sm" style={{ alignItems: "center" }}>
+        contentContainerStyle={{ paddingHorizontal: 32 }}
+        estimatedItemSize={spacing["6xl"]}
+        fadingEdgeLength={100}
+        ItemSeparatorComponent={() => <Box width="lg" />}
+        renderItem={({ item: ch }) => (
+          <Box gap="sm" style={{ alignItems: "center" }}>
             <Box
               background="secondary"
               rounding="full"
@@ -61,8 +64,8 @@ const CharactersSection = ({ characters, mediaId }: Props) => {
               {ch.fullName}
             </Text>
           </Box>
-        ))}
-      </ScrollView>
+        )}
+      />
     </Section>
   );
 };
