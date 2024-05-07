@@ -1,3 +1,4 @@
+import Character from './Character';
 import { Episode } from './Episode'
 import MediaFormat from './MediaFormat';
 import MediaSource from './MediaSource';
@@ -32,6 +33,7 @@ export interface ShowDetails {
   startDate?: MediaDate,
   endDate?: MediaDate,
   source?: MediaSource
+  mainCharacters: Character[];
 }
 
 interface MediaDate {

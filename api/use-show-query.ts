@@ -96,6 +96,12 @@ const fetchShowById = async ({ id }: Params, anilist: GraphQLClient, allanime: G
     type: media?.type!,
     year: media?.seasonYear!,
     episodes,
+    mainCharacters: media?.characters?.edges?.map(ch => ({
+      id: ch?.id ?? 0!,
+      fullName: ch?.node?.name?.full!,
+      image: ch?.node?.image?.medium ?? undefined,
+      role: ch?.role!,
+    })) ?? [],
     relations: media?.relations?.edges?.map(edge => ({
       id: edge?.node?.id!,
       title: edge?.node?.title?.english || edge?.node?.title?.native!,
@@ -196,6 +202,20 @@ const media_query = graphql(`
         rank
         isMediaSpoiler
         isGeneralSpoiler
+      }
+      characters(role: MAIN) {
+        edges {
+          id
+          role
+          node {
+            image{
+              medium
+            }
+            name {
+              full
+            }
+          }
+        }
       }
       relations{
         edges{

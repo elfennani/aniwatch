@@ -64,7 +64,7 @@ export default function NotificationsScreen() {
         ItemSeparatorComponent={() => (
           <View style={{ height: spacing["md"] }} />
         )}
-        contentContainerStyle={{ padding: spacing["lg"] }}
+        contentContainerStyle={{ padding: spacing["xl"] }}
         estimatedItemSize={128}
         renderItem={renderItem}
         onEndReached={() => {

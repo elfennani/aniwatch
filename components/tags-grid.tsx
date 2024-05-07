@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, ToastAndroid, TouchableOpacity, View } from "react-native";
 import React, { useState } from "react";
 import Tag from "@/interfaces/Tag";
 import Section from "./section";
@@ -19,6 +19,10 @@ const TagsGrid = ({ tags }: Props) => {
     setSpoilers((spoiler) => !spoiler);
   }
 
+  function notify(description: string): void {
+    ToastAndroid.show(description, ToastAndroid.SHORT);
+  }
+
   return (
     <Section
       title="Tags"
@@ -36,9 +40,12 @@ const TagsGrid = ({ tags }: Props) => {
       {tags
         .filter((tag) => !tag.spoiler || spoilers)
         .map((tag, i) => (
-          <View
+          <TouchableOpacity
+            disabled={!tag.description}
+            onLongPress={() => notify(tag.description!)}
             key={tag.id}
             style={[styles.tag, tag.spoiler && styles.spoiler]}
+            activeOpacity={0.8}
           >
             <Text
               numberOfLines={1}
@@ -48,7 +55,7 @@ const TagsGrid = ({ tags }: Props) => {
               {tag.name}
             </Text>
             <Text style={{ fontSize: 12, color: primary }}>{tag.rank}%</Text>
-          </View>
+          </TouchableOpacity>
         ))}
     </Section>
   );

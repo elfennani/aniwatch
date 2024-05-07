@@ -23,6 +23,7 @@ import Skeleton from "@/components/skeleton";
 import chroma from "chroma-js";
 import { useTheme } from "@/ctx/theme-provider";
 import Box from "@/components/box";
+import CharactersSection from "@/components/characters-section";
 
 type Props = {};
 
@@ -177,6 +178,7 @@ const MediaById = (props: Props) => {
           />
         </Section>
       )}
+      <CharactersSection mediaId={media.id} characters={media.mainCharacters} />
       {!!media.relations.length && (
         <MediaRelations relations={media.relations} />
       )}
