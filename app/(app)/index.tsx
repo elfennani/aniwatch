@@ -30,12 +30,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fetchNotifications } from "@/api/use-notifications-query";
 import { storage } from "@/utils/mmkv";
 import * as Notifications from "expo-notifications";
-import {
-  useUpdates,
-  fetchUpdateAsync,
-  checkForUpdateAsync,
-  reloadAsync,
-} from "expo-updates";
 import moment from "moment";
 
 Notifications.setNotificationHandler({
@@ -133,54 +127,14 @@ const HomePage = () => {
   const { data: viewer, isError, isPending } = useViewerQuery();
   const { colors } = useTheme();
   const client = useQueryClient();
-  const {
-    availableUpdate,
-    isUpdateAvailable,
-    isUpdatePending,
-    initializationError,
-    checkError,
-    downloadError,
-    downloadedUpdate,
-  } = useUpdates();
 
   useEffect(() => {
     register();
   }, []);
 
-  useEffect(() => {
-    if (downloadedUpdate) {
-      ToastAndroid.show("Update Downloaded Successfully", ToastAndroid.LONG);
-    }
-  }, [downloadedUpdate]);
-
-  useEffect(() => {
-    if (initializationError || checkError || downloadError) {
-      Alert.alert(
-        "Update Error",
-        initializationError?.message ||
-          checkError?.message ||
-          downloadError?.message
-      );
-    }
-  }, [initializationError, checkError, downloadError]);
-
   async function register() {
     if (await registerForNotificationsAsync()) {
       registerBackgroundFetchAsync();
-    }
-  }
-
-  async function onFetchUpdateAsync() {
-    try {
-      const update = await checkForUpdateAsync();
-
-      if (update.isAvailable) {
-        ToastAndroid.show("Update Available", ToastAndroid.LONG);
-        await fetchUpdateAsync();
-        await reloadAsync();
-      }
-    } catch (error) {
-      alert(`Error fetching latest Expo update: ${error}`);
     }
   }
 
@@ -268,43 +222,13 @@ const HomePage = () => {
             </Box>
           </TouchableOpacity>
         </Link>
-        <TouchableOpacity
-          onPress={() => router.push(`/user/${viewer.id}`)}
-          onLongPress={onFetchUpdateAsync}
-        >
+        <TouchableOpacity onPress={() => router.push(`/user/${viewer.id}`)}>
           <Image
             source={{ uri: viewer.avatar }}
             style={[styles.avatar, { backgroundColor: colors.card }]}
           />
         </TouchableOpacity>
       </View>
-      {isUpdateAvailable && (
-        <TouchableOpacity activeOpacity={0.7}>
-          <Box
-            margin="lg"
-            padding="lg"
-            background="card"
-            rounding="xs"
-            row
-            gap="lg"
-            style={{ alignItems: "center" }}
-          >
-            <AntDesign name="infocirlceo" size={24} color={colors.primary} />
-            <Box>
-              <Text variant="title">Update Available</Text>
-              <Text color="secondary">
-                {moment(availableUpdate?.createdAt).fromNow()}
-                {isUpdatePending && (
-                  <>
-                    {" "}
-                    • <Text color="primary">Updating...</Text>
-                  </>
-                )}
-              </Text>
-            </Box>
-          </Box>
-        </TouchableOpacity>
-      )}
 
       <SectionTitle style={{ paddingHorizontal: 16 }}>
         Currently Watching
@@ -317,7 +241,7 @@ const HomePage = () => {
         }}
       />
       <SectionTitle style={{ paddingHorizontal: 16 }}>
-        Recently Completed
+        Recently Completed Shows
       </SectionTitle>
       <MediaListingGrid
         listing="completed"

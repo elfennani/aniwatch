@@ -94,7 +94,11 @@ const Header = () => {
   } = useTheme();
 
   return (
-    <Box row style={{ alignItems: "center" }} gap="lg">
+    <Box
+      row
+      style={{ alignItems: "center", marginBottom: spacing["lg"] }}
+      gap="lg"
+    >
       <TouchableHighlight
         underlayColor={card}
         onPress={() => router.canGoBack() && router.back()}

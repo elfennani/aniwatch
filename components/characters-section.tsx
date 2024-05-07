@@ -24,7 +24,7 @@ const CharactersSection = ({ characters, mediaId }: Props) => {
       title="Characters"
       tailing={
         <Link href={`/media/${mediaId}/characters`} asChild>
-          <TouchableOpacity activeOpacity={0.75}>
+          <TouchableOpacity activeOpacity={0.75} hitSlop={16}>
             <Text color="primary" variant="label">
               See All
             </Text>

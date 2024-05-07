@@ -61,7 +61,7 @@
     },
     "updates": {
       "requestHeaders": {
-        "expo-channel-name": "master"
+        "expo-channel-name": "production"
       },
       "url": "https://u.expo.dev/21ec2229-aea9-4ec3-99cc-91dda263fdf4"
     }

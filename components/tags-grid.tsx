@@ -29,7 +29,11 @@ const TagsGrid = ({ tags }: Props) => {
       style={{ flexWrap: "wrap", flexDirection: "row", marginHorizontal: -8 }}
       tailing={
         tags.some((tag) => tag.spoiler) && (
-          <TouchableOpacity activeOpacity={0.75} onPress={toggleSpoilers}>
+          <TouchableOpacity
+            activeOpacity={0.75}
+            onPress={toggleSpoilers}
+            hitSlop={16}
+          >
             <Text style={{ color: primary, fontSize: 12 }}>
               {spoilers ? "hide" : "show"} spoilers
             </Text>
