@@ -94,7 +94,13 @@ const PlayerProgress = ({ status, onProgress }: Props) => {
         initialPageX.current = e.nativeEvent.layout.x;
       }}
     >
-      <Pressable onPress={handlePress} hitSlop={md}>
+      <Pressable
+        onPress={handlePress}
+        hitSlop={md}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <Box rounding="full" style={styles.progressContainer}>
           <Box
             hitSlop={16}
@@ -113,6 +119,7 @@ const PlayerProgress = ({ status, onProgress }: Props) => {
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        hitSlop={16}
       >
         <Box
           width="md"
