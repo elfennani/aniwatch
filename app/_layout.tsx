@@ -7,7 +7,7 @@ import {
 } from "@react-navigation/native";
 import React, { useEffect } from "react";
 import { QueryClient } from "@tanstack/react-query";
-import { Slot, SplashScreen } from "expo-router";
+import { Slot, SplashScreen, usePathname } from "expo-router";
 import { SessionProvider } from "@/ctx/session";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import {
@@ -23,6 +23,7 @@ import { storage } from "@/utils/mmkv";
 import theme from "@/constants/theme";
 import darkTheme from "@/constants/dark-theme";
 import { ThemeProvider } from "@/ctx/theme-provider";
+import * as Brightness from "expo-brightness";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -91,6 +92,7 @@ export default function RootLayout() {
 
 const RootLayoutNav = () => {
   const scheme = useColorScheme();
+  const pathname = usePathname();
   const currentTheme = scheme == "light" ? theme : darkTheme;
   const stackTheme = scheme == "light" ? DefaultTheme : DarkTheme;
   const backgroundColor =
@@ -105,6 +107,12 @@ const RootLayoutNav = () => {
     },
     dark: scheme == "dark",
   };
+
+  useEffect(() => {
+    if (!pathname.includes("/watch")) {
+      Brightness.restoreSystemBrightnessAsync();
+    }
+  }, [pathname]);
 
   return (
     <View style={[StyleSheet.absoluteFill, { backgroundColor }]}>

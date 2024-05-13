@@ -2,7 +2,7 @@
   "expo": {
     "name": "AniWatch",
     "slug": "aniwatch",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "icon": "./assets/images/icon.png",
     "scheme": "aniwatch",
     "userInterfaceStyle": "automatic",
@@ -31,7 +31,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#18181b"
       },
-      "runtimeVersion": "1.2.0"
+      "runtimeVersion": "1.2.1"
     },
     "web": {
       "bundler": "metro",

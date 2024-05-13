@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState } from "react";
 import { AVPlaybackStatus, Video } from "expo-av";
 import Text from "./text";
 import { Iconify } from "react-native-iconify";
@@ -19,6 +19,9 @@ import chroma from "chroma-js";
 import { Image } from "expo-image";
 import theme from "@/constants/theme";
 import { router } from "expo-router";
+import Slider from "./slider";
+import useVolume from "@/hooks/use-volume";
+import useBrightness from "@/hooks/use-brightness";
 
 type Props = {
   visible: boolean;
@@ -28,6 +31,8 @@ type Props = {
 
 const PlayerControls = ({ status, videoRef: video, visible }: Props) => {
   const { backward, forward, togglePlayback } = useControls(status, video);
+  const [volume, setVolume] = useVolume();
+  const [brightness, setBrightness] = useBrightness();
   const { title, episode, nextEpisode, id } = usePlayerData();
   const {
     spacing,
@@ -54,32 +59,57 @@ const PlayerControls = ({ status, videoRef: video, visible }: Props) => {
   const progress: DimensionValue = `${progressPercent}%`;
   const playable: DimensionValue = `${playablePercent}%`;
 
+  const volumeIcon = (
+    <Iconify
+      icon="material-symbols-light:volume-down"
+      size={24}
+      color="white"
+    />
+  );
+
+  const brightnessIcon = (
+    <Iconify
+      icon="material-symbols-light:brightness-7"
+      size={18}
+      color="white"
+    />
+  );
+
   const duration =
     status.durationMillis && secondsToHms(status.durationMillis / 1000);
   const position = secondsToHms(status.positionMillis / 1000);
 
-  console.log(status);
-
   return (
     <View style={[StyleSheet.absoluteFill, styles.container]}>
+      {/* Header, contains information on the left, and brightness and volume controls on the right. */}
       <Box
         row
-        gap="md"
         style={[styles.header, { paddingTop: spacing.lg + top }]}
         paddingHorizontal="xl"
       >
-        <Iconify
-          icon="material-symbols-light:slideshow-sharp"
-          size={24}
-          color="white"
-        />
-        <Box>
-          <Text color="white">{title}</Text>
-          <Text variant="label" color="faded">
-            Episode {episode}
-          </Text>
+        <Box row gap="md" style={{ alignItems: "center" }}>
+          <Iconify
+            icon="material-symbols-light:slideshow-sharp"
+            size={24}
+            color="white"
+          />
+          <Box>
+            <Text color="white">{title}</Text>
+            <Text variant="label" color="faded">
+              Episode {episode}
+            </Text>
+          </Box>
+        </Box>
+        <Box row gap="4xl">
+          <Slider value={volume} onChange={setVolume} icon={volumeIcon} />
+          <Slider
+            value={brightness}
+            onChange={setBrightness}
+            icon={brightnessIcon}
+          />
         </Box>
       </Box>
+      {/* Middle controls: backward, toggle playback, forward */}
       <Box style={[StyleSheet.absoluteFill, styles.controls]} row>
         <Button
           padding={4}
@@ -125,22 +155,9 @@ const PlayerControls = ({ status, videoRef: video, visible }: Props) => {
         <Box style={{ position: "relative", justifyContent: "center" }}>
           <Box rounding="full" style={styles.progressContainer}>
             <Box
-              style={{
-                height: 2,
-                backgroundColor,
-                width: progress,
-                position: "absolute",
-                top: 0,
-                left: 0,
-              }}
+              style={[styles.progress, { backgroundColor, width: progress }]}
             />
-            <Box
-              style={{
-                height: 2,
-                backgroundColor: chroma("#fff").alpha(0.25).css(),
-                width: playable,
-              }}
-            />
+            <Box style={[styles.load, { width: playable }]} />
           </Box>
           <Box
             width="md"
@@ -238,6 +255,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: "center",
+    justifyContent: "space-between",
   },
   footer: {
     alignItems: "flex-end",
@@ -258,5 +276,15 @@ const styles = StyleSheet.create({
     borderRadius: theme.spacing.xs,
     borderWidth: 1,
     borderColor: "white",
+  },
+  progress: {
+    height: 2,
+    position: "absolute",
+    top: 0,
+    left: 0,
+  },
+  load: {
+    height: 2,
+    backgroundColor: chroma("#fff").alpha(0.25).css(),
   },
 });

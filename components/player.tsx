@@ -14,38 +14,21 @@ type Props = {
 };
 
 const Player = ({ url }: Props) => {
-  const ref = useRef<Video>(null);
-  const [status, setStatus] = useState<AVPlaybackStatus>();
-  const [controls, setControls] = useState(false);
-  const handler = usePressHandler(ref, status, () => setControls((c) => !c));
-
-  return (
-    <Pressable onPress={handler}>
-      <View style={styles.container}>
-        <Video
-          ref={ref}
-          style={{ width: "100%", height: "100%" }}
-          resizeMode={ResizeMode.CONTAIN}
-          shouldPlay
-          onPlaybackStatusUpdate={setStatus}
-          source={{ uri: url }}
-        />
-      </View>
-      <PlayerControls status={status} videoRef={ref} visible={controls} />
-    </Pressable>
-  );
-};
-
-const usePressHandler = (
-  video: React.RefObject<Video>,
-  status: AVPlaybackStatus | undefined,
-  onToggle?: () => void
-) => {
+  const video = useRef<Video>(null);
   const isFirstPress = useRef(false);
   const doublePressTimeout = useRef<NodeJS.Timeout | null>(null);
+  const canceled = useRef(false);
+  const [status, setStatus] = useState<AVPlaybackStatus>();
+  const [controls, setControls] = useState(false);
   const { width } = useWindowDimensions();
 
-  function handlePress({ nativeEvent: { locationX } }: GestureResponderEvent) {
+  function handler({
+    nativeEvent: { locationX, ...ev },
+  }: GestureResponderEvent) {
+    if (canceled.current) {
+      canceled.current = false;
+      return;
+    }
     if (!status?.isLoaded) return;
 
     if (isFirstPress.current) {
@@ -68,11 +51,25 @@ const usePressHandler = (
     doublePressTimeout.current = setTimeout(() => {
       isFirstPress.current = false;
       doublePressTimeout.current = null;
-      onToggle?.();
+      setControls((c) => !c);
     }, 200);
   }
 
-  return handlePress;
+  return (
+    <Pressable onTouchMove={() => (canceled.current = true)} onPress={handler}>
+      <View style={styles.container}>
+        <Video
+          ref={video}
+          style={{ width: "100%", height: "100%" }}
+          resizeMode={ResizeMode.CONTAIN}
+          shouldPlay
+          onPlaybackStatusUpdate={setStatus}
+          source={{ uri: url }}
+        />
+      </View>
+      <PlayerControls status={status} videoRef={video} visible={controls} />
+    </Pressable>
+  );
 };
 
 export default Player;
