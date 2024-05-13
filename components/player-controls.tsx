@@ -36,8 +36,10 @@ const PlayerControls = ({ status, videoRef: video, visible }: Props) => {
   const { backward, forward, togglePlayback } = useControls(status, video);
   const [volume, setVolume] = useVolume();
   const [brightness, setBrightness] = useBrightness();
-  const { title, episode, nextEpisode, id, qualities } = usePlayerData();
+  const { title, episode, nextEpisode, id, qualities, dubbed } =
+    usePlayerData();
   const [quality, setQuality] = useMMKVString(keys.qualityKey, undefined);
+  const [translation, setTranslation] = useMMKVString(keys.translationKey);
 
   const {
     spacing,
@@ -183,10 +185,9 @@ const PlayerControls = ({ status, videoRef: video, visible }: Props) => {
                 <Box
                   background={q == quality ? "white" : undefined}
                   padding="xs"
+                  rounding="xs"
                   style={{
-                    borderColor: "white",
-                    borderWidth: 1,
-                    opacity: q == quality ? 1 : 0.66,
+                    opacity: q == quality ? 1 : 0.5,
                   }}
                 >
                   <Text
@@ -198,6 +199,23 @@ const PlayerControls = ({ status, videoRef: video, visible }: Props) => {
                 </Box>
               </TouchableOpacity>
             ))}
+            {dubbed && (
+              <TouchableOpacity
+                onPress={() =>
+                  setTranslation(translation == "sub" ? "dub" : "sub")
+                }
+              >
+                <Box padding="xs" rounding="xs">
+                  <Text
+                    variant="small"
+                    color={"white"}
+                    style={{ textTransform: "uppercase" }}
+                  >
+                    {translation || "sub"}
+                  </Text>
+                </Box>
+              </TouchableOpacity>
+            )}
           </Box>
           {nextEpisode && (
             <TouchableOpacity

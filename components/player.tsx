@@ -20,11 +20,14 @@ import Stats from "./stats";
 
 type Props = {
   url: string;
+  onOverThreshold?: () => void;
+  /** percentage between 0 and 1 */
+  threshold?: number;
 };
 
 type TO = NodeJS.Timeout | null;
 
-const Player = ({ url }: Props) => {
+const Player = ({ url, threshold, onOverThreshold }: Props) => {
   const video = useRef<Video>(null);
   const isFirstPress = useRef(false);
   const doublePressTimeout = useRef<TO>(null);
@@ -33,6 +36,13 @@ const Player = ({ url }: Props) => {
   const [status, setStatus, initial] = useStatus(url);
   const [controls, setControls] = useControlsStatus(status);
   const { width } = useWindowDimensions();
+
+  useEffect(() => {
+    if (!status?.isLoaded || !status.durationMillis) return;
+    if (status.positionMillis / status.durationMillis > (threshold ?? 0.8)) {
+      onOverThreshold?.();
+    }
+  }, [status]);
 
   function handler({
     nativeEvent: { locationX, ...ev },

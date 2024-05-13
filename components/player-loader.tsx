@@ -31,7 +31,7 @@ const PlayerLoader = ({
 }: Props) => {
   const [translation, setTranslation] = useMMKVString(keys.translationKey);
   const [quality, setQuality] = useMMKVString(keys.qualityKey, undefined);
-  const updateEntry = useUpdateEntry(episode, aniListId, media.status);
+  const updateEntry = useUpdateEntry(episode, aniListId, media);
 
   const type = dubbed ? (translation as Translation) ?? "sub" : "sub";
   const params = { episode: "" + episode, allAnimeId, type };
@@ -47,24 +47,41 @@ const PlayerLoader = ({
     nextEpisode: media.episodes?.find((ep) => ep.number == episode + 1),
     id: media.id,
     qualities: data?.map((res) => res.name),
+    dubbed,
   };
 
   return (
     <PlayerDataContext.Provider value={metadata}>
-      <Player url={uri ?? ""} />
+      <Player
+        url={uri ?? ""}
+        threshold={0.8}
+        onOverThreshold={() => updateEntry()}
+      />
     </PlayerDataContext.Provider>
   );
 };
 
-const useUpdateEntry = (episode: number, id: number, status?: MediaStatus) => {
+const useUpdateEntry = (episode: number, id: number, media: ShowDetails) => {
   const updatedEntry = useRef(false);
-  const { mutate } = useWatchedMutation(
+  const { mutate, isPending, isSuccess } = useWatchedMutation(
     { episode, showId: id },
-    status != "COMPLETED",
+    media.status != "COMPLETED",
     () => updatedEntry.current == true
   );
 
-  return mutate;
+  function update() {
+    if (
+      updatedEntry.current ||
+      media.status == "COMPLETED" ||
+      (media.progress ?? 0) >= episode ||
+      isPending ||
+      isSuccess
+    )
+      return;
+    mutate();
+  }
+
+  return update;
 };
 
 export default PlayerLoader;
