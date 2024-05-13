@@ -20,7 +20,9 @@ const useLinkQuery = (params: Params) => {
 
   return useQuery({
     queryKey: ["show", "link", params],
-    queryFn: () => fetchLink(params, client)
+    queryFn: () => fetchLink(params, client),
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   })
 }
 
@@ -37,25 +39,26 @@ const fetchLink = async ({ allAnimeId, episode, type }: Params, client: GraphQLC
     { retries: 3 }
   );
 
+
   const providers = response.episode.sourceUrls
-    .filter((url) => m3u8_providers.includes(url.sourceName))
+    .filter((url) => [...m3u8_providers, ...mp4_providers].includes(url.sourceName))
     .reduce(
       (prev, url) => ({
         ...prev,
         [url.sourceName]:
           "https://allanime.day" +
-          url.sourceUrl
-            .replace("--", "")
-            .match(/.{1,2}/g)
-            ?.map(dycrept)
-            .join("")
-            .replace("clock", "clock.json"),
+          url.sourceUrl.replace("--", "").match(/.{1,2}/g)?.map(dycrept).join("").replace("clock", "clock.json"),
       }),
       {} as Record<string, string>
     );
 
+
   const link = await retry(async () => {
-    const res = await fetch(providers["Luf-mp4"]);
+    const headers = new Headers();
+    headers.append("Referer", "https://allanime.to")
+    headers.append("Agent", 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0')
+
+    const res = await Promise.any([fetch(providers["Luf-mp4"], { headers }), fetch(providers["Default"], { headers })]);
     const json = await res.json();
     const link = json.links[0].link;
 
@@ -65,11 +68,12 @@ const fetchLink = async ({ allAnimeId, episode, type }: Params, client: GraphQLC
   const hlsRes = await fetch(link)
   const hls = parse(await hlsRes.text()) as MasterPlaylist
 
+
   const urlStart = link.split("/").slice(0, -1).join("/") + "/";
 
   return [...hls.variants.map((variant) => ({
     name: `${variant.resolution?.height}p`,
-    url: urlStart + variant.uri,
+    url: variant.uri.startsWith("http") ? variant.uri : urlStart + variant.uri,
   })), {
     name: "auto" as const,
     url: link as string
@@ -93,6 +97,7 @@ const query_episode = `
       episodeString: $episodeString
     ) {
       episodeString
+      translationType
       sourceUrls
     }
   }

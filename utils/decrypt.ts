@@ -28,6 +28,12 @@ const dycrept = (string: string) => {
   if (string == "4e") return "v";
   if (string == "57") return "o";
   if (string == "51") return "i";
+  if (string == "50") return "h";
+  if (string == "4b") return "s";
+  if (string == "02") return ":";
+  if (string == "55") return "m";
+  if (string == "4d") return "u";
+  if (string == "16") return ".";
   return string;
 };
 

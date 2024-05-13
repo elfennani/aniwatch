@@ -6,6 +6,7 @@ const theme = {
     background: palette.white,
     foreground: palette.zinc["900"],
     secondary: palette.zinc["600"],
+    faded: palette.zinc["300"],
     card: palette.zinc["100"],
     loading: palette.zinc["200"],
     primary: palette.purple["500"],
