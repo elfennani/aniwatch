@@ -22,6 +22,12 @@ import { router } from "expo-router";
 import Slider from "./slider";
 import useVolume from "@/hooks/use-volume";
 import useBrightness from "@/hooks/use-brightness";
+import {
+  BACKWARD_DURATION,
+  FORWARD_DURATION,
+  LONG_BACKWARD_DURATION,
+  LONG_FORWARD_DURATION,
+} from "@/constants/values";
 
 type Props = {
   visible: boolean;
@@ -224,7 +230,8 @@ const useControls = (
     }
 
     video.current?.setPositionAsync(
-      status.positionMillis - (intro ? 90000 : 10000)
+      status.positionMillis -
+        (intro ? LONG_BACKWARD_DURATION : BACKWARD_DURATION)
     );
   },
   togglePlayback: () => {
@@ -236,7 +243,7 @@ const useControls = (
   forward: (intro: boolean = false) => {
     if (!status?.isLoaded) return;
     video.current?.setPositionAsync(
-      status.positionMillis + (intro ? 87000 : 10000)
+      status.positionMillis + (intro ? LONG_FORWARD_DURATION : FORWARD_DURATION)
     );
   },
 });
