@@ -3,6 +3,7 @@
  */
 const palette = {
   white: "#ffffff",
+  black: "#000000",
   purple: {
     "50": "#faf5ff",
     "100": "#f3e8ff",

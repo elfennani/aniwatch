@@ -6,6 +6,7 @@ export interface PlayerData {
   episode: number;
   id: number;
   nextEpisode?: Episode;
+  qualities?: string[];
 }
 
 export const PlayerDataContext = createContext<PlayerData>({

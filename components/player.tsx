@@ -14,6 +14,9 @@ import {
   FORWARD_DURATION,
   TOUCH_CANCEL_DISTANCE,
 } from "@/constants/values";
+import { storage } from "@/utils/mmkv";
+import * as keys from "@/constants/keys";
+import Stats from "./stats";
 
 type Props = {
   url: string;
@@ -27,8 +30,8 @@ const Player = ({ url }: Props) => {
   const doublePressTimeout = useRef<TO>(null);
   const initialPress = useRef({ x: 0, y: 0 });
   const canceled = useRef(false);
-  const [status, setStatus] = useState<AVPlaybackStatus>();
-  const [controls, setControls] = useControls(status);
+  const [status, setStatus, initial] = useStatus(url);
+  const [controls, setControls] = useControlsStatus(status);
   const { width } = useWindowDimensions();
 
   function handler({
@@ -96,6 +99,7 @@ const Player = ({ url }: Props) => {
           shouldPlay
           onPlaybackStatusUpdate={setStatus}
           source={{ uri: url }}
+          status={initial}
         />
       </View>
       <PlayerControls status={status} videoRef={video} visible={controls} />
@@ -103,7 +107,24 @@ const Player = ({ url }: Props) => {
   );
 };
 
-const useControls = (status: AVPlaybackStatus | undefined) => {
+const useStatus = (url: string) => {
+  const [initialStatus, setInitialStatus] = useState<AVPlaybackStatus>();
+  const [status, setStatus] = useState<AVPlaybackStatus>();
+
+  useEffect(() => {
+    const listener = storage.addOnValueChangedListener((key) => {
+      if ([keys.qualityKey, keys.translationKey].includes(key)) {
+        setInitialStatus(status);
+      }
+    });
+
+    return () => listener.remove();
+  }, [status]);
+
+  return [status, setStatus, initialStatus] as const;
+};
+
+const useControlsStatus = (status: AVPlaybackStatus | undefined) => {
   const [controls, setControls] = useState(false);
   const timeoutControls = useRef<TO>(null);
 

@@ -4,9 +4,8 @@ import {
   TouchableHighlight,
   TouchableHighlightProps,
   TouchableOpacity,
-  View,
 } from "react-native";
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode } from "react";
 import { AVPlaybackStatus, Video } from "expo-av";
 import Text from "./text";
 import { Iconify } from "react-native-iconify";
@@ -22,12 +21,10 @@ import { router } from "expo-router";
 import Slider from "./slider";
 import useVolume from "@/hooks/use-volume";
 import useBrightness from "@/hooks/use-brightness";
-import {
-  BACKWARD_DURATION,
-  FORWARD_DURATION,
-  LONG_BACKWARD_DURATION,
-  LONG_FORWARD_DURATION,
-} from "@/constants/values";
+import VisibilityView from "./visibility-view";
+import useControls from "@/hooks/use-controls";
+import { useMMKVString } from "react-native-mmkv";
+import * as keys from "@/constants/keys";
 
 type Props = {
   visible: boolean;
@@ -39,13 +36,16 @@ const PlayerControls = ({ status, videoRef: video, visible }: Props) => {
   const { backward, forward, togglePlayback } = useControls(status, video);
   const [volume, setVolume] = useVolume();
   const [brightness, setBrightness] = useBrightness();
-  const { title, episode, nextEpisode, id } = usePlayerData();
+  const { title, episode, nextEpisode, id, qualities } = usePlayerData();
+  const [quality, setQuality] = useMMKVString(keys.qualityKey, undefined);
+
   const {
     spacing,
     colors: { primary: backgroundColor },
   } = useTheme();
   const { top, bottom } = useSafeAreaInsets();
-  if (!status?.isLoaded || !visible) return;
+
+  if (!status?.isLoaded) return;
 
   const playbackIcon = status.isPlaying ? (
     <Iconify icon="material-symbols-light:pause" size={48} color="white" />
@@ -86,7 +86,10 @@ const PlayerControls = ({ status, videoRef: video, visible }: Props) => {
   const position = secondsToHms(status.positionMillis / 1000);
 
   return (
-    <View style={[StyleSheet.absoluteFill, styles.container]}>
+    <VisibilityView
+      visible={visible}
+      style={[StyleSheet.absoluteFill, styles.container]}
+    >
       {/* Header, contains information on the left, and brightness and volume controls on the right. */}
       <Box
         row
@@ -174,7 +177,28 @@ const PlayerControls = ({ status, videoRef: video, visible }: Props) => {
           />
         </Box>
         <Box row style={styles.footer}>
-          <Text color="white">PlayerControls</Text>
+          <Box row gap="lg">
+            {qualities?.map((q) => (
+              <TouchableOpacity key={q} onPress={() => setQuality(q)}>
+                <Box
+                  background={q == quality ? "white" : undefined}
+                  padding="xs"
+                  style={{
+                    borderColor: "white",
+                    borderWidth: 1,
+                    opacity: q == quality ? 1 : 0.66,
+                  }}
+                >
+                  <Text
+                    variant="small"
+                    color={q == quality ? "black" : "white"}
+                  >
+                    {q == "auto" ? "AUTO" : q}
+                  </Text>
+                </Box>
+              </TouchableOpacity>
+            ))}
+          </Box>
           {nextEpisode && (
             <TouchableOpacity
               onPress={() => router.replace(`/watch/${id}/${episode + 1}`)}
@@ -197,7 +221,7 @@ const PlayerControls = ({ status, videoRef: video, visible }: Props) => {
           )}
         </Box>
       </Box>
-    </View>
+    </VisibilityView>
   );
 };
 
@@ -217,36 +241,6 @@ const Button = ({ children, padding, ...props }: ButtonProps) => (
     <Box style={[styles.button, { padding }]}>{children}</Box>
   </TouchableHighlight>
 );
-
-const useControls = (
-  status: AVPlaybackStatus | undefined,
-  video: React.RefObject<Video>
-) => ({
-  backward: (intro = false) => {
-    if (!status?.isLoaded) return;
-    if (status.positionMillis < 10000) {
-      video.current?.setPositionAsync(0);
-      return;
-    }
-
-    video.current?.setPositionAsync(
-      status.positionMillis -
-        (intro ? LONG_BACKWARD_DURATION : BACKWARD_DURATION)
-    );
-  },
-  togglePlayback: () => {
-    if (!status?.isLoaded) return;
-
-    if (status.isPlaying) video.current?.pauseAsync();
-    else video.current?.playAsync();
-  },
-  forward: (intro: boolean = false) => {
-    if (!status?.isLoaded) return;
-    video.current?.setPositionAsync(
-      status.positionMillis + (intro ? LONG_FORWARD_DURATION : FORWARD_DURATION)
-    );
-  },
-});
 
 export default PlayerControls;
 

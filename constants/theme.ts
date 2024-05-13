@@ -12,6 +12,7 @@ const theme = {
     primary: palette.purple["500"],
     failure: palette.red["500"],
     white: palette.white,
+    black: palette.black,
   },
   spacing: {
     xs: 4,

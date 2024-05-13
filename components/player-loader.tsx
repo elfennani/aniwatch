@@ -8,6 +8,7 @@ import { Video } from "expo-av";
 import Player from "./player";
 import MediaStatus from "@/interfaces/MediaStatus";
 import { PlayerData, PlayerDataContext } from "@/ctx/player-data";
+import * as keys from "@/constants/keys";
 
 type Props = {
   aniListId: number;
@@ -28,10 +29,8 @@ const PlayerLoader = ({
   aniListId,
   media,
 }: Props) => {
-  const translationKey = "translation";
-  const qualityKey = "quality";
-  const [translation, setTranslation] = useMMKVString(translationKey);
-  const [quality, setQuality] = useMMKVString(qualityKey, undefined);
+  const [translation, setTranslation] = useMMKVString(keys.translationKey);
+  const [quality, setQuality] = useMMKVString(keys.qualityKey, undefined);
   const updateEntry = useUpdateEntry(episode, aniListId, media.status);
 
   const type = dubbed ? (translation as Translation) ?? "sub" : "sub";
@@ -47,6 +46,7 @@ const PlayerLoader = ({
     episode,
     nextEpisode: media.episodes?.find((ep) => ep.number == episode + 1),
     id: media.id,
+    qualities: data?.map((res) => res.name),
   };
 
   return (
