@@ -11,6 +11,7 @@ import PlayerControls from "./player-controls";
 import {
   BACKWARD_DURATION,
   CONTROLS_TIMEOUT,
+  DOUBLE_PRESS_DELAY,
   FORWARD_DURATION,
   TOUCH_CANCEL_DISTANCE,
 } from "@/constants/values";
@@ -34,7 +35,8 @@ const Player = ({ url, threshold, onOverThreshold }: Props) => {
   const initialPress = useRef({ x: 0, y: 0 });
   const canceled = useRef(false);
   const [status, setStatus, initial] = useStatus(url);
-  const [controls, setControls] = useControlsStatus(status);
+  const [isTouchingControls, setIsTouchingControls] = useState(false);
+  const [controls, setControls] = useControlsStatus(status, isTouchingControls);
   const { width } = useWindowDimensions();
 
   useEffect(() => {
@@ -78,7 +80,7 @@ const Player = ({ url, threshold, onOverThreshold }: Props) => {
       isFirstPress.current = false;
       doublePressTimeout.current = null;
       setControls((c) => !c);
-    }, 200);
+    }, DOUBLE_PRESS_DELAY);
   }
 
   function handleTouchStart(e: GestureResponderEvent) {
@@ -91,6 +93,7 @@ const Player = ({ url, threshold, onOverThreshold }: Props) => {
     const distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 
     if (distance > TOUCH_CANCEL_DISTANCE) {
+      setIsTouchingControls(true);
       canceled.current = true;
     }
   }
@@ -99,6 +102,7 @@ const Player = ({ url, threshold, onOverThreshold }: Props) => {
     <Pressable
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
+      onTouchEnd={() => setIsTouchingControls(false)}
       onPress={handler}
     >
       <View style={styles.container}>
@@ -134,7 +138,10 @@ const useStatus = (url: string) => {
   return [status, setStatus, initialStatus] as const;
 };
 
-const useControlsStatus = (status: AVPlaybackStatus | undefined) => {
+const useControlsStatus = (
+  status: AVPlaybackStatus | undefined,
+  disableTimeout = false
+) => {
   const [controls, setControls] = useState(false);
   const timeoutControls = useRef<TO>(null);
 
@@ -148,11 +155,11 @@ const useControlsStatus = (status: AVPlaybackStatus | undefined) => {
       }, CONTROLS_TIMEOUT);
     }
 
-    if (!status.isPlaying && !!timeoutControls.current) {
+    if ((!status.isPlaying || disableTimeout) && !!timeoutControls.current) {
       clearTimeout(timeoutControls.current);
       timeoutControls.current = null;
     }
-  }, [status, controls]);
+  }, [status, controls, disableTimeout]);
 
   return [controls, setControls] as const;
 };

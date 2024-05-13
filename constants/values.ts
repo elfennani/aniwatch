@@ -4,3 +4,4 @@ export const FORWARD_DURATION = 15000;
 export const BACKWARD_DURATION = 5000;
 export const LONG_FORWARD_DURATION = 87000;
 export const LONG_BACKWARD_DURATION = 90000;
+export const DOUBLE_PRESS_DELAY = 200

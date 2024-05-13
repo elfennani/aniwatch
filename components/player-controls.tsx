@@ -25,6 +25,7 @@ import VisibilityView from "./visibility-view";
 import useControls from "@/hooks/use-controls";
 import { useMMKVString } from "react-native-mmkv";
 import * as keys from "@/constants/keys";
+import PlayerProgress from "./player-progress";
 
 type Props = {
   visible: boolean;
@@ -163,21 +164,10 @@ const PlayerControls = ({ status, videoRef: video, visible }: Props) => {
             )}
           </Text>
         </Box>
-        <Box style={{ position: "relative", justifyContent: "center" }}>
-          <Box rounding="full" style={styles.progressContainer}>
-            <Box
-              style={[styles.progress, { backgroundColor, width: progress }]}
-            />
-            <Box style={[styles.load, { width: playable }]} />
-          </Box>
-          <Box
-            width="md"
-            height="md"
-            rounding="full"
-            background="primary"
-            style={{ position: "absolute", left: progress }}
-          />
-        </Box>
+        <PlayerProgress
+          status={status}
+          onProgress={(pos) => video.current?.setPositionAsync(pos)}
+        />
         <Box row style={styles.footer}>
           <Box row gap="lg">
             {qualities?.map((q) => (
