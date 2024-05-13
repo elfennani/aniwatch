@@ -71,7 +71,7 @@ const fetchLink = async ({ allAnimeId, episode, type }: Params, client: GraphQLC
 
   const urlStart = link.split("/").slice(0, -1).join("/") + "/";
 
-  return [...hls.variants.map((variant) => ({
+  return [...hls.variants.filter(v => !v.isIFrameOnly).map((variant) => ({
     name: `${variant.resolution?.height}p`,
     url: variant.uri.startsWith("http") ? variant.uri : urlStart + variant.uri,
   })), {
