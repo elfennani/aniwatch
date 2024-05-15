@@ -38,6 +38,8 @@ export default function NotificationsScreen() {
         background="card"
       >
         <Image
+          recyclingKey={item.id.toString()}
+          cachePolicy="memory-disk"
           source={{ uri: item.thumbnail }}
           style={{ height: 128, aspectRatio: 0.69, borderRadius: spacing.xs }}
         />

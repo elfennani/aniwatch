@@ -7,7 +7,7 @@ import { useSession } from "@/ctx/session";
 type Props = {};
 
 const SignInPage = (props: Props) => {
-  const { isLoading, session } = useSession();
+  const { session } = useSession();
 
   function handleLogin() {
     const { client_id, redirect_uri } = config;

@@ -1,10 +1,8 @@
 import {
-  Alert,
   Platform,
   RefreshControl,
   ScrollView,
   StyleSheet,
-  ToastAndroid,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -13,12 +11,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import useViewerQuery, { fetchViewer } from "@/api/use-viewer-query";
 import MediaListingGrid from "@/components/media-listing-grid";
 import SectionTitle from "@/components/section-title";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import Text from "@/components/text";
 import { Link, router } from "expo-router";
 import MediaListingList from "@/components/media-listing-list";
 import { Image } from "expo-image";
-import Skeleton from "@/components/skeleton";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "@/ctx/theme-provider";
 import Box from "@/components/box";
@@ -30,7 +26,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fetchNotifications } from "@/api/use-notifications-query";
 import { storage } from "@/utils/mmkv";
 import * as Notifications from "expo-notifications";
-import moment from "moment";
+import HomeSkeleton from "@/components/skeletons/home";
+import useMediaByStatusQuery from "@/api/use-media-by-status-query";
+import MediaStatus from "@/interfaces/MediaStatus";
+import { Iconify } from "react-native-iconify";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -127,6 +126,11 @@ const HomePage = () => {
   const { data: viewer, isError, isPending } = useViewerQuery();
   const { colors } = useTheme();
   const client = useQueryClient();
+  const status: MediaStatus[] = ["COMPLETED", "CURRENT"];
+  const listingByStatus = useMediaByStatusQuery(
+    { viewer: viewer?.id!, status, infinite: false, max: 10 },
+    !viewer
+  );
 
   useEffect(() => {
     register();
@@ -138,44 +142,18 @@ const HomePage = () => {
     }
   }
 
-  if (isPending) {
-    return (
-      <ScrollView
-        contentContainerStyle={{
-          paddingTop: top + 16,
-          paddingHorizontal: 16,
-          gap: 16,
-        }}
-      >
-        <View style={{ flexDirection: "row", gap: 8 }}>
-          <Skeleton height={40} style={{ flex: 1, borderRadius: 40 }} />
-          <Skeleton width={40} height={40} style={{ borderRadius: 40 }} />
-          <Skeleton width={40} height={40} style={{ borderRadius: 40 }} />
-        </View>
-        <Skeleton height={32} width="59%" />
-        <Skeleton height={129} />
-        <Skeleton height={32} width="66%" />
-        <ScrollView horizontal contentContainerStyle={{ gap: 16 }}>
-          <Skeleton width={129} style={{ aspectRatio: 0.69 }} />
-          <Skeleton width={129} style={{ aspectRatio: 0.69 }} />
-        </ScrollView>
-      </ScrollView>
-    );
+  if (isPending || listingByStatus.isPending) {
+    return <HomeSkeleton />;
   }
 
-  if (isError) {
+  if (isError || listingByStatus.isError) {
     return <View></View>;
   }
 
   const refreshControl = (
     <RefreshControl
-      refreshing={false}
-      onRefresh={() =>
-        client.invalidateQueries({
-          predicate: ({ queryKey }) =>
-            queryKey.includes("show") || queryKey.includes("media"),
-        })
-      }
+      refreshing={listingByStatus.isRefetching}
+      onRefresh={listingByStatus.refetch}
     />
   );
 
@@ -195,7 +173,11 @@ const HomePage = () => {
               background="card"
               style={{ alignItems: "center", height: 40 }}
             >
-              <AntDesign name="search1" size={18} color={colors.secondary} />
+              <Iconify
+                icon="material-symbols-light:search"
+                size={24}
+                color={colors.secondary}
+              />
               <Text color="secondary">Attack on Titan Season 2...</Text>
             </Box>
           </TouchableOpacity>
@@ -203,9 +185,9 @@ const HomePage = () => {
         <Link href={`/notifications`} asChild>
           <TouchableOpacity>
             <Box style={styles.notificationContainer} background="card">
-              <AntDesign
-                name="notification"
-                size={18}
+              <Iconify
+                icon="material-symbols-light:notifications-outline"
+                size={24}
                 color={colors.secondary}
               />
               {!!viewer.notifications && (
@@ -224,6 +206,7 @@ const HomePage = () => {
         </Link>
         <TouchableOpacity onPress={() => router.push(`/user/${viewer.id}`)}>
           <Image
+            cachePolicy="memory-disk"
             source={{ uri: viewer.avatar }}
             style={[styles.avatar, { backgroundColor: colors.card }]}
           />
@@ -234,8 +217,7 @@ const HomePage = () => {
         Currently Watching
       </SectionTitle>
       <MediaListingList
-        listing="watching"
-        viewerId={viewer.id}
+        data={listingByStatus.data.CURRENT}
         contentContainerStyle={{
           padding: 16,
         }}
@@ -244,8 +226,7 @@ const HomePage = () => {
         Recently Completed
       </SectionTitle>
       <MediaListingGrid
-        listing="completed"
-        viewerId={viewer.id}
+        data={listingByStatus.data.COMPLETED}
         contentContainerStyle={{ padding: 16 }}
       />
     </ScrollView>

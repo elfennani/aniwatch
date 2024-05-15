@@ -77,6 +77,7 @@ const UserById = () => {
       }
     >
       <ImageBackground
+        cachePolicy="memory-disk"
         source={{ uri: user.banner ?? undefined }}
         contentFit="cover"
         style={{ backgroundColor: theme.colors.card }}
@@ -84,6 +85,7 @@ const UserById = () => {
         <Banner>
           <Box row gap="lg">
             <Image
+              cachePolicy="memory-disk"
               style={[styles.cover, { backgroundColor: theme.colors.card }]}
               source={{ uri: user.avatar }}
               contentFit="cover"

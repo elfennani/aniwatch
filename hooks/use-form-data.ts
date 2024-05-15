@@ -17,7 +17,6 @@ const useFormData = <T extends Record<string, any>>(initialData: T) => {
   const [state, dispatch] = useReducer(reducer, initialData);
 
   const modify = <K extends keyof T>(field: K, value: T[K]) => {
-    console.log({ field, value })
     dispatch({ field, value });
   };
 

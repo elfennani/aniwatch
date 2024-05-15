@@ -51,6 +51,7 @@ const CharactersSection = ({ characters, mediaId }: Props) => {
               style={{ borderColor: card, borderWidth: 4 }}
             >
               <Image
+                cachePolicy="memory-disk"
                 recyclingKey={ch.id.toString()}
                 source={{ uri: ch.image }}
                 style={{

@@ -1,67 +1,112 @@
 import useAniListClient from "@/hooks/use-anilist-client";
 import Media from "@/interfaces/Media";
-import { useInfiniteQuery, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { graphql } from "gql.tada";
 import { GraphQLClient } from "graphql-request";
-import { setStringAsync } from 'expo-clipboard'
+import MediaStatus from "@/interfaces/MediaStatus";
 
 interface Params {
   viewer: number,
-  status: "watching" | "completed"
+  status: MediaStatus[],
+  infinite: boolean,
+  max?: number;
 }
 
-const useMediaByStatusQuery = (params: Params) => {
+type Shows = Partial<Record<MediaStatus, Media[]>>
+
+const useMediaByStatusQuery = (params: Params, disabled = false) => {
   const client = useAniListClient();
+
+  if (!params.infinite) {
+    return useQuery({
+      queryKey: ["show", "media", "finite", params],
+      queryFn: () => fetchMediaByStatus(params, undefined, client),
+    })
+  }
+
   return useInfiniteQuery({
     queryKey: ["show", "media", params],
     queryFn: ({ pageParam }) => fetchMediaByStatus(params, pageParam, client),
     initialPageParam: 1,
-    getNextPageParam: (_, __, lastPageParam) => lastPageParam + 1
+    getNextPageParam: (_, __, lastPageParam) => lastPageParam + 1,
+    enabled: !disabled,
+    select: (data) => {
+      const result: Shows = {};
+
+      data.pages.flat().forEach(page => {
+        Object.keys(page).forEach(status => {
+          const key = status as MediaStatus;
+          result[key] = !!result[key] ? result[key]!.concat(page[key]!) : page[key]!;
+        });
+      });
+
+      return result
+    }
   })
 }
 
+
+
 export default useMediaByStatusQuery;
 
-const fetchMediaByStatus = async ({ status, viewer }: Params, page: number, client: GraphQLClient) => {
-  const statusMapped = {
-    watching: "CURRENT",
-    completed: "COMPLETED"
-  } as const
-
-  const response = await client.request(completed_query, {
+const fetchMediaByStatus = async ({ status, viewer, infinite, max }: Params, page: number | undefined, client: GraphQLClient) => {
+  let variables = {
     userId: viewer,
-    status: statusMapped[status],
-    chunk: page,
+    status: status,
+    chunk: 1,
     perChunk: 10
-  });
+  }
+
+  if (infinite) {
+    variables = {
+      userId: viewer,
+      status: status,
+      chunk: page ?? 1,
+      perChunk: 40
+    }
+  }
 
 
-  const shows: Media[] = response.collection?.lists?.[0]?.entries?.map((entry) => {
-    const media = entry?.media
-    return ({
-      id: media?.id!,
-      title: media?.title?.userPreferred!,
-      cover: media?.coverImage?.large!,
-      progress: media?.mediaListEntry?.progress!,
-      episodes: media?.episodes!
-    });
-  })!
+  const responses = await Promise.all(status.map(status => client.request(completed_query, { ...variables, status: [status] })));
+  const lists = responses.map(res => res.collection?.lists);
 
-  return shows ?? []
+  let shows: Shows = {};
+
+  lists.forEach(list => {
+    const listItem = list?.[0]
+    if (!listItem || !listItem.status) return;
+
+    const { entries, status } = listItem
+
+    const entriesMapped: Media[] = entries?.map((entry) => {
+      const media = entry?.media
+      return ({
+        id: media?.id!,
+        title: media?.title?.userPreferred!,
+        cover: media?.coverImage?.large!,
+        progress: media?.mediaListEntry?.progress!,
+        episodes: media?.episodes!
+      });
+    }) ?? []
+
+    shows[status] = [...(shows[status] ?? []), ...entriesMapped]
+  })
+
+  return shows
 }
 
 const completed_query = graphql(`
-  query CompletedQuery($userId: Int!,$status: MediaListStatus!, $chunk:Int!, $perChunk: Int!) {
+  query CompletedQuery($userId: Int!,$status: [MediaListStatus]!, $chunk:Int, $perChunk: Int) {
     collection:MediaListCollection(
       userId: $userId
       type: ANIME
-      status_in: [$status]
+      status_in: $status
       sort: [FINISHED_ON_DESC],
       chunk: $chunk,
       perChunk: $perChunk
     ) {
       lists {
-        name
+        status
         entries {
           media {
             id

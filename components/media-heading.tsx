@@ -38,6 +38,7 @@ const MediaHeading = ({ media }: Props) => {
 
   return (
     <ImageBackground
+      cachePolicy="memory-disk"
       source={{ uri: media.banner ?? undefined }}
       contentFit="cover"
     >
@@ -52,6 +53,7 @@ const MediaHeading = ({ media }: Props) => {
       >
         <Box gap="lg" row>
           <Image
+            cachePolicy="memory-disk"
             style={styles.cover}
             source={{ uri: media.cover }}
             contentFit="cover"

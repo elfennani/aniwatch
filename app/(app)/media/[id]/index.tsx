@@ -10,14 +10,16 @@ import Box from "@/components/box";
 import MediaHeading from "@/components/media-heading";
 import MediaDetailsSkeleton from "@/components/skeletons/media-details";
 import { FlashList } from "@shopify/flash-list";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import theme from "@/constants/theme";
 import { ShowDetails } from "@/interfaces/ShowDetails";
+import { Iconify } from "react-native-iconify";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = {};
 
 const MediaById = (props: Props) => {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { bottom } = useSafeAreaInsets();
   const {
     data: media,
     refetch,
@@ -40,6 +42,7 @@ const MediaById = (props: Props) => {
       data={media.episodes?.sort((a, b) => a.number - b.number)}
       keyExtractor={(item) => item.id}
       estimatedItemSize={69.75}
+      contentContainerStyle={{ paddingBottom: bottom + theme.spacing.lg }}
       ListHeaderComponent={
         <>
           <MediaHeading media={media} />
@@ -63,10 +66,10 @@ const MediaById = (props: Props) => {
                 height="3xl"
                 width="3xl"
               >
-                <AntDesign
-                  name="infocirlce"
+                <Iconify
+                  icon="material-symbols-light:info-outline"
                   color={theme.colors.primary}
-                  size={14}
+                  size={24}
                 />
               </Box>
             </TouchableOpacity>
@@ -104,7 +107,16 @@ interface StatusButtonProps {
 
 const StatusButton = ({ media }: StatusButtonProps) => {
   let label = "Set Status";
-  const icon = media.status ? "edit" : "plus";
+  let icon = (
+    <Iconify icon="material-symbols-light:add" color="white" size={18} />
+  );
+
+  if (media.status) {
+    icon = (
+      <Iconify icon="material-symbols-light:edit" color="white" size={18} />
+    );
+  }
+
   const { status } = media;
 
   if (status == "CURRENT") {
@@ -130,7 +142,7 @@ const StatusButton = ({ media }: StatusButtonProps) => {
         gap="sm"
         background="primary"
       >
-        <AntDesign name={icon as any} color="white" size={14} />
+        {icon}
         <Text
           variant="label"
           color="white"

@@ -9,10 +9,6 @@
     "platforms": ["android"],
     "primaryColor": "#a855f7",
     "backgroundColor": "#18181b",
-    "androidNavigationBar": {
-      "backgroundColor": "#000000",
-      "barStyle": "dark-content"
-    },
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",

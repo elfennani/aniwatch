@@ -6,7 +6,6 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import useSearchQuery from "@/api/use-search-query";
 import { FlashList } from "@shopify/flash-list";
@@ -14,6 +13,7 @@ import MediaItem from "@/components/media-item";
 import { Stack } from "expo-router";
 import { useTheme } from "@/ctx/theme-provider";
 import Box from "@/components/box";
+import { Iconify } from "react-native-iconify";
 
 type Props = {};
 
@@ -42,7 +42,11 @@ const SearchScreen = (props: Props) => {
         gap="md"
         style={{ paddingTop: top + 16, alignItems: "center" }}
       >
-        <AntDesign name="search1" size={24} color={colors.secondary} />
+        <Iconify
+          icon="material-symbols-light:search"
+          size={24}
+          color={colors.secondary}
+        />
         <TextInput
           placeholder="Attack on Titan Season 2..."
           placeholderTextColor={colors.secondary}

@@ -8,9 +8,9 @@ import React, { ForwardedRef } from "react";
 import { Episode } from "@/interfaces/Episode";
 import secondsToHms from "@/utils/seconds-to-hms";
 import Text from "./text";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import { Image } from "expo-image";
 import { useTheme } from "@/ctx/theme-provider";
+import { Iconify } from "react-native-iconify";
 
 type Props = {
   mediaId: number;
@@ -42,6 +42,7 @@ const EpsiodeItem = React.forwardRef(
         >
           {thumbnail ? (
             <Image
+              cachePolicy="memory-disk"
               recyclingKey={id}
               source={{
                 uri: thumbnail,
@@ -53,7 +54,11 @@ const EpsiodeItem = React.forwardRef(
             />
           ) : (
             <View style={styles.image}>
-              <AntDesign name="meho" color={secondary} size={24} />
+              <Iconify
+                icon="material-symbols-light:error-outline"
+                color={secondary}
+                size={24}
+              />
             </View>
           )}
           <View>

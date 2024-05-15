@@ -1,38 +1,36 @@
 import Media from "@/interfaces/Media";
 import MediaItem from "./media-item";
-import useMediaByStatusQuery from "@/api/use-media-by-status-query";
 import { View, useWindowDimensions } from "react-native";
 import { FlashList, FlashListProps } from "@shopify/flash-list";
 import Text from "./text";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import Skeleton from "./skeleton";
 import { useTheme } from "@/ctx/theme-provider";
+import { Iconify } from "react-native-iconify";
 
 interface Props extends Omit<FlashListProps<Media>, "renderItem" | "data"> {
-  viewerId: number;
-  listing: "watching" | "completed";
+  data?: Media[];
 }
 
-const MediaListingList = ({ viewerId, listing, ...props }: Props) => {
-  const { data: shows, isPending } = useMediaByStatusQuery({
-    viewer: viewerId,
-    status: listing,
-  });
+const ITEM_SIZE = 192 * 0.69;
 
-  if (isPending)
-    return (
-      <View style={{ padding: 16 }}>
-        <Skeleton height={129} />
-      </View>
-    );
-
+const MediaListingList = (props: Props) => {
+  const { width } = useWindowDimensions();
+  const height = props.data?.length
+    ? props.data.length * (ITEM_SIZE + 16) - 16
+    : 128;
   return (
-    <View style={{ minHeight: 128 }}>
+    <View
+      style={{
+        minHeight: height,
+      }}
+    >
       <FlashList
         {...props}
-        data={shows?.pages.flat()}
-        estimatedItemSize={192 * 0.69}
+        estimatedItemSize={ITEM_SIZE}
         ListEmptyComponent={EmptyListing}
+        estimatedListSize={{
+          width,
+          height,
+        }}
         ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
         scrollEnabled={false}
         renderItem={({ item }) => {
@@ -60,7 +58,11 @@ const EmptyListing = () => {
         gap: 8,
       }}
     >
-      <AntDesign name="meho" color={secondary} size={32} />
+      <Iconify
+        icon="material-symbols-light:error-outline"
+        color={secondary}
+        size={24}
+      />{" "}
       <Text color="secondary">Nothing to see</Text>
     </View>
   );

@@ -1,6 +1,5 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createContext, useContext } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useMMKVObject } from "react-native-mmkv";
 
 export interface Session {
   token_type: string;
@@ -10,37 +9,26 @@ export interface Session {
 }
 
 const SessionContext = createContext({
-  session: null as Session | null | undefined,
-  isLoading: true,
+  session: undefined as Session | undefined,
 });
 
+const useSessionStorage = () => useMMKVObject<Session>("session");
+
 export const SessionProvider = ({ children }: { children: any }) => {
-  const requestSession = async () => {
-    const sessionData = await AsyncStorage.getItem("session");
-    if (!sessionData) return null;
-    const session: Session = JSON.parse(sessionData);
-
-    return session;
-  };
-
-  const { data, isLoading } = useQuery({
-    queryKey: ["session"],
-    queryFn: requestSession,
-  });
+  const [session] = useSessionStorage();
 
   return (
-    <SessionContext.Provider value={{ session: data, isLoading: isLoading }}>
+    <SessionContext.Provider value={{ session: session }}>
       {children}
     </SessionContext.Provider>
   );
 };
 
 export const useSaveSession = () => {
-  const client = useQueryClient();
+  const [_, setSession] = useSessionStorage();
 
   return async (session: Session) => {
-    await AsyncStorage.setItem("session", JSON.stringify(session));
-    await client.invalidateQueries({ queryKey: ["session"], exact: true });
+    setSession(session);
   };
 };
 

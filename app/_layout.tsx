@@ -6,10 +6,9 @@ import {
   ThemeProvider as StackThemeProvider,
 } from "@react-navigation/native";
 import React, { useEffect } from "react";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, useIsRestoring } from "@tanstack/react-query";
 import { Slot, SplashScreen, usePathname } from "expo-router";
 import { SessionProvider } from "@/ctx/session";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import {
   useFonts,
   Manrope_400Regular,
@@ -24,6 +23,10 @@ import theme from "@/constants/theme";
 import darkTheme from "@/constants/dark-theme";
 import { ThemeProvider } from "@/ctx/theme-provider";
 import * as Brightness from "expo-brightness";
+import * as NavigationBar from "expo-navigation-bar";
+
+NavigationBar.setPositionAsync("absolute");
+NavigationBar.setBackgroundColorAsync("#ffffff01");
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -59,7 +62,6 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const scheme = useColorScheme();
   const [loaded, error] = useFonts({
-    ...AntDesign.font,
     regular: Manrope_400Regular,
     medium: Manrope_500Medium,
     semibold: Manrope_600SemiBold,
@@ -69,12 +71,6 @@ export default function RootLayout() {
   useEffect(() => {
     if (error) throw error;
   }, [error]);
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
 
   const backgroundColor =
     scheme == "light" ? theme.colors.background : darkTheme.colors.background;
@@ -87,12 +83,20 @@ export default function RootLayout() {
     );
   }
 
-  return <RootLayoutNav />;
+  return (
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{ persister: asyncStoragePersister }}
+    >
+      <RootLayoutNav />
+    </PersistQueryClientProvider>
+  );
 }
 
 const RootLayoutNav = () => {
   const scheme = useColorScheme();
   const pathname = usePathname();
+  const isRestoring = useIsRestoring();
   const currentTheme = scheme == "light" ? theme : darkTheme;
   const stackTheme = scheme == "light" ? DefaultTheme : DarkTheme;
   const backgroundColor =
@@ -114,22 +118,31 @@ const RootLayoutNav = () => {
     }
   }, [pathname]);
 
+  useEffect(() => {
+    if (!isRestoring) {
+      SplashScreen.hideAsync();
+    }
+  }, [isRestoring]);
+
+  if (isRestoring) {
+    return (
+      <View style={[StyleSheet.absoluteFill, { backgroundColor }]}>
+        <StatusBar hidden={false} style="light" />
+      </View>
+    );
+  }
+
   return (
     <View style={[StyleSheet.absoluteFill, { backgroundColor }]}>
       <StackThemeProvider value={darkThemeOverrides}>
         <ThemeProvider>
-          <PersistQueryClientProvider
-            client={queryClient}
-            persistOptions={{ persister: asyncStoragePersister }}
-          >
-            <SessionProvider>
-              <StatusBar
-                hidden={false}
-                style={scheme == "light" ? "dark" : "light"}
-              />
-              <Slot />
-            </SessionProvider>
-          </PersistQueryClientProvider>
+          <SessionProvider>
+            <StatusBar
+              hidden={false}
+              style={scheme == "light" ? "dark" : "light"}
+            />
+            <Slot />
+          </SessionProvider>
         </ThemeProvider>
       </StackThemeProvider>
     </View>

@@ -1,24 +1,16 @@
-import {
-  Modal,
-  StyleSheet,
-  TouchableHighlight,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import React, { useState } from "react";
-import SectionTitle from "@/components/section-title";
+import { StyleSheet } from "react-native";
+import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FlashList } from "@shopify/flash-list";
 import { useTheme } from "@/ctx/theme-provider";
 import Box from "@/components/box";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import { router, useLocalSearchParams } from "expo-router";
 import useCharactersQuery from "@/api/use-characters-query";
 import Character from "@/interfaces/Character";
 import { Image } from "expo-image";
 import Text from "@/components/text";
 import Language from "@/interfaces/Language";
-import { useMMKVObject, useMMKVString } from "react-native-mmkv";
+import { useMMKVObject } from "react-native-mmkv";
 import Heading from "@/components/heading";
 
 export default function CharactersScreen() {
@@ -62,6 +54,7 @@ const CharacterItem = ({ character }: { character: Character }) => {
     <Box style={{ width: "100%" }} padding="xs">
       <Box rounding="xs" background="card" style={{ overflow: "hidden" }}>
         <Image
+          cachePolicy="memory-disk"
           recyclingKey={character.id.toString()}
           source={{ uri: character.image, cacheKey: character.id.toString() }}
           style={{ aspectRatio: 0.69, width: "100%" }}
@@ -78,6 +71,7 @@ const CharacterItem = ({ character }: { character: Character }) => {
             {character.actors?.map((actor) => (
               <Box key={actor.id} gap="xs" row style={{ alignItems: "center" }}>
                 <Image
+                  cachePolicy="memory-disk"
                   recyclingKey={actor.id.toString()}
                   source={{ uri: actor.image }}
                   style={{

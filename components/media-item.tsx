@@ -1,4 +1,3 @@
-import AntDesign from "@expo/vector-icons/AntDesign";
 import Media from "@/interfaces/Media";
 import React from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
@@ -7,6 +6,7 @@ import Text from "./text";
 import { Image, ImageBackground } from "expo-image";
 import { useTheme } from "@/ctx/theme-provider";
 import Box from "./box";
+import { Iconify } from "react-native-iconify";
 
 interface Props {
   canContinue?: boolean;
@@ -26,6 +26,7 @@ const MediaItem = ({
       <Link href={`/media/${id}` as any} asChild>
         <TouchableOpacity activeOpacity={0.8}>
           <ImageBackground
+            cachePolicy="memory-disk"
             recyclingKey={id.toString()}
             source={{ uri: cover }}
             style={[styles.gridThumbnail, { backgroundColor: colors.card }]}
@@ -52,6 +53,7 @@ const MediaItem = ({
       <TouchableOpacity activeOpacity={0.8}>
         <Box row rounding="sm" background="card" style={{ overflow: "hidden" }}>
           <Image
+            cachePolicy="memory-disk"
             recyclingKey={id.toString()}
             source={{ uri: cover }}
             contentFit="cover"
@@ -72,11 +74,12 @@ const MediaItem = ({
                   asChild
                 >
                   <TouchableOpacity activeOpacity={0.7}>
-                    <Text>
-                      <AntDesign name="play" size={14} color={colors.primary} />
-                      {"  "}
-                      <Text color="primary">Continue Watching</Text>
-                    </Text>
+                    <Iconify
+                      icon="material-symbols-light:play-circle"
+                      size={16}
+                      color={colors.primary}
+                    />
+                    <Text color="primary">Continue Watching</Text>
                   </TouchableOpacity>
                 </Link>
               )}

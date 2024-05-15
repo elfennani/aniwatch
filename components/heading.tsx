@@ -6,11 +6,11 @@ import {
 } from "react-native";
 import React from "react";
 import Box from "./box";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import SectionTitle from "./section-title";
 import { useTheme } from "@/ctx/theme-provider";
 import { router } from "expo-router";
 import Text from "./text";
+import { Iconify } from "react-native-iconify";
 
 type Props = {
   name: string;
@@ -35,7 +35,11 @@ const Heading = (props: Props) => {
           style={{ borderRadius: 1000 }}
         >
           <Box padding="md">
-            <AntDesign name="back" size={24} color={secondary} />
+            <Iconify
+              icon="material-symbols-light:arrow-back-ios-new"
+              size={24}
+              color={secondary}
+            />
           </Box>
         </TouchableHighlight>
       )}

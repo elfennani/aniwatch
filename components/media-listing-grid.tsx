@@ -1,42 +1,23 @@
 import Media from "@/interfaces/Media";
 import MediaItem from "./media-item";
-import useMediaByStatusQuery from "@/api/use-media-by-status-query";
-import { ScrollView, View, useWindowDimensions } from "react-native";
+import { View, useWindowDimensions } from "react-native";
 import { FlashList, FlashListProps } from "@shopify/flash-list";
 import Text from "./text";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import Skeleton from "./skeleton";
 import { useTheme } from "@/ctx/theme-provider";
+import { Iconify } from "react-native-iconify";
 
 interface Props extends Omit<FlashListProps<Media>, "renderItem" | "data"> {
-  viewerId: number;
-  listing: "watching" | "completed";
+  data?: Media[];
 }
 
-const MediaListingGrid = ({ viewerId, listing, ...props }: Props) => {
+const MediaListingGrid = (props: Props) => {
   const { width } = useWindowDimensions();
-  const { data: shows, isPending } = useMediaByStatusQuery({
-    viewer: viewerId,
-    status: listing,
-  });
-
-  if (isPending) {
-    return (
-      <View style={{ padding: 16 }}>
-        <ScrollView horizontal contentContainerStyle={{ gap: 16 }}>
-          <Skeleton width={129} style={{ aspectRatio: 0.69 }} />
-          <Skeleton width={129} style={{ aspectRatio: 0.69 }} />
-        </ScrollView>
-      </View>
-    );
-  }
 
   return (
     <FlashList
       {...props}
       horizontal
       fadingEdgeLength={75}
-      data={shows?.pages.flat()}
       estimatedItemSize={192 * 0.69}
       estimatedListSize={{ width, height: 192 }}
       ListEmptyComponent={EmptyListing}
@@ -65,7 +46,11 @@ const EmptyListing = () => {
         gap: 8,
       }}
     >
-      <AntDesign name="meho" color={secondary} size={32} />
+      <Iconify
+        icon="material-symbols-light:error-outline"
+        color={secondary}
+        size={24}
+      />
       <Text color="secondary">Nothing to see</Text>
     </View>
   );

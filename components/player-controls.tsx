@@ -221,6 +221,7 @@ const PlayerControls = ({ status, videoRef: video, visible }: Props) => {
                   </Text>
                 </Box>
                 <Image
+                  cachePolicy="memory-disk"
                   source={{ uri: nextEpisode.thumbnail }}
                   style={styles.thumbnail}
                 />

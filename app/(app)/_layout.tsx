@@ -3,20 +3,15 @@ import React, { useEffect } from "react";
 import { Redirect, SplashScreen, Stack } from "expo-router";
 import { useSession } from "@/ctx/session";
 import { useTheme } from "@/ctx/theme-provider";
+import chroma from "chroma-js";
 
 SplashScreen.preventAutoHideAsync();
 
 const AppLayout = () => {
-  const { isLoading, session } = useSession();
+  const { session } = useSession();
   const {
     colors: { background },
   } = useTheme();
-
-  useEffect(() => {
-    if (!isLoading) SplashScreen.hideAsync();
-  }, [isLoading]);
-
-  if (isLoading) return null;
 
   if (!session) {
     return <Redirect href={"/signin" as any} />;
@@ -27,7 +22,7 @@ const AppLayout = () => {
       screenOptions={{
         orientation: "portrait",
         headerShown: false,
-        navigationBarColor: background,
+        navigationBarColor: chroma(background).alpha(0).css(),
       }}
     >
       <Stack.Screen

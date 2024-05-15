@@ -61,9 +61,6 @@ const Status = (props: Props) => {
     [state, initialData, statusMutation.isPending, isRefetching]
   );
 
-  console.log("state", JSON.stringify(state));
-  console.log("initi", JSON.stringify(initialData));
-
   let statusText = "Set Status";
   if (state.status) statusText = POSSIBLE_STATUS[state.status];
 

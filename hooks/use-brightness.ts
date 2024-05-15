@@ -8,7 +8,6 @@ const useBrightness = () => {
     Brightness.getBrightnessAsync().then((val) => setBrightness(val * 100))
 
     const listener = Brightness.addBrightnessListener((result) => {
-      console.log(result)
       setBrightness(result.brightness * 100)
     });
 
