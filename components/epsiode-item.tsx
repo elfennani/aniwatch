@@ -64,7 +64,11 @@ const EpsiodeItem = React.forwardRef(
               color="secondary"
             >
               sub {dub && "• dub"}{" "}
-              {watched && <Text color="primary">• WATCHED</Text>}
+              {watched && (
+                <Text color="primary" variant="label">
+                  • WATCHED
+                </Text>
+              )}
             </Text>
             <Text style={{ marginTop: 4 }} variant="label" color="secondary">
               {!!duration && secondsToHms(duration)}

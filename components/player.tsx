@@ -155,7 +155,10 @@ const useControlsStatus = (
       }, CONTROLS_TIMEOUT);
     }
 
-    if ((!status.isPlaying || disableTimeout) && !!timeoutControls.current) {
+    if (
+      (!status.isPlaying || disableTimeout || !controls) &&
+      !!timeoutControls.current
+    ) {
       clearTimeout(timeoutControls.current);
       timeoutControls.current = null;
     }

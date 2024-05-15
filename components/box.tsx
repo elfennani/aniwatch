@@ -1,6 +1,7 @@
 import theme from "@/constants/theme";
 import { useTheme } from "@/ctx/theme-provider";
 import { View, ViewProps } from "react-native";
+import Animated from "react-native-reanimated";
 
 type Spacing = keyof typeof theme.spacing;
 type Color = keyof typeof theme.colors;
@@ -18,6 +19,7 @@ export interface BoxProps extends ViewProps {
   row?: boolean;
   wrap?: boolean;
   flex?: boolean;
+  animated?: boolean;
 }
 
 const Box = ({
@@ -33,11 +35,15 @@ const Box = ({
   gap,
   wrap,
   flex,
+  animated,
   ...props
 }: BoxProps) => {
   const theme = useTheme();
+
+  const Element = animated ? Animated.View : View;
+
   return (
-    <View
+    <Element
       {...props}
       style={[
         {

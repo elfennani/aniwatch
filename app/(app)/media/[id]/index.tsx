@@ -12,6 +12,7 @@ import MediaDetailsSkeleton from "@/components/skeletons/media-details";
 import { FlashList } from "@shopify/flash-list";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import theme from "@/constants/theme";
+import { ShowDetails } from "@/interfaces/ShowDetails";
 
 type Props = {};
 
@@ -48,22 +49,7 @@ const MediaById = (props: Props) => {
             style={{ marginTop: -theme.spacing["2xl"] }}
             gap="md"
           >
-            <TouchableOpacity activeOpacity={0.8} style={{ flex: 1 }}>
-              <Box
-                flex
-                style={styles.button}
-                row
-                rounding="xs"
-                height="3xl"
-                gap="sm"
-                background="primary"
-              >
-                <AntDesign name="plus" color="white" size={14} />
-                <Text variant="label" color="white">
-                  Set Status
-                </Text>
-              </Box>
-            </TouchableOpacity>
+            <StatusButton media={media} />
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => router.push(`/media/${id}/details`)}
@@ -109,6 +95,51 @@ const MediaById = (props: Props) => {
         </Box>
       )}
     />
+  );
+};
+
+interface StatusButtonProps {
+  media: ShowDetails;
+}
+
+const StatusButton = ({ media }: StatusButtonProps) => {
+  let label = "Set Status";
+  const icon = media.status ? "edit" : "plus";
+  const { status } = media;
+
+  if (status == "CURRENT") {
+    label = `Watching   ${media.progress ?? 0}/${media.episodesCount}`;
+  } else if (status == "REPEATING") {
+    label = `Rewatching ${media.progress ?? 0}/${media.episodesCount}`;
+  } else if (!!status) {
+    label = status;
+  }
+
+  return (
+    <TouchableOpacity
+      activeOpacity={0.8}
+      style={{ flex: 1 }}
+      onPress={() => router.push(`/media/${media.id}/status`)}
+    >
+      <Box
+        flex
+        style={styles.button}
+        row
+        rounding="xs"
+        height="3xl"
+        gap="sm"
+        background="primary"
+      >
+        <AntDesign name={icon as any} color="white" size={14} />
+        <Text
+          variant="label"
+          color="white"
+          style={{ textTransform: "capitalize" }}
+        >
+          {label}
+        </Text>
+      </Box>
+    </TouchableOpacity>
   );
 };
 

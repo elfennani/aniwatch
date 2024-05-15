@@ -74,15 +74,25 @@ const fetchShowById = async ({ id }: Params, anilist: GraphQLClient, allanime: G
     },
     format: media?.format ?? undefined,
     banner: media?.bannerImage ?? undefined,
-    startDate: !!media?.startDate ? {
+    showStartDate: !!media?.startDate ? {
       day: media.startDate.day ?? undefined,
       month: media.startDate.month ?? undefined,
       year: media.startDate.year ?? undefined,
     } : undefined,
-    endDate: !!media?.endDate ? {
+    showEndDate: !!media?.endDate ? {
       day: media.endDate.day ?? undefined,
       month: media.endDate.month ?? undefined,
       year: media.endDate.year ?? undefined,
+    } : undefined,
+    startDate: !!media?.mediaListEntry?.startedAt ? {
+      day: media.mediaListEntry.startedAt.day ?? undefined,
+      month: media.mediaListEntry.startedAt.month ?? undefined,
+      year: media.mediaListEntry.startedAt.year ?? undefined,
+    } : undefined,
+    endDate: !!media?.mediaListEntry?.completedAt ? {
+      day: media.mediaListEntry?.completedAt?.day ?? undefined,
+      month: media.mediaListEntry?.completedAt?.month ?? undefined,
+      year: media.mediaListEntry?.completedAt?.year ?? undefined,
     } : undefined,
     source: media?.source ?? undefined,
     score: media?.mediaListEntry?.score ?? undefined,
@@ -194,6 +204,16 @@ const media_query = graphql(`
         progress
         score
         status
+        startedAt{
+          year
+          month
+          day
+        }
+        completedAt{
+          year
+          month
+          day
+        }
       }
       tags{
         id

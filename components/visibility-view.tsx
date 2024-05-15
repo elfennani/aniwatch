@@ -8,9 +8,10 @@ import Animated, {
 
 type Props = {
   visible: boolean;
+  duration?: number;
 } & ViewProps;
 
-const VisibilityView = ({ visible, ...props }: Props) => {
+const VisibilityView = ({ visible, duration = 100, ...props }: Props) => {
   const opacity = useSharedValue(0);
   const style = useAnimatedStyle(() => ({
     opacity: opacity.value,
@@ -19,7 +20,7 @@ const VisibilityView = ({ visible, ...props }: Props) => {
 
   useEffect(() => {
     opacity.value = withTiming(visible ? 1 : 0, {
-      duration: 100,
+      duration,
     });
   }, [visible]);
 
