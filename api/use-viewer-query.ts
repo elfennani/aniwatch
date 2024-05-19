@@ -17,7 +17,6 @@ const view_query = graphql(`
 `);
 
 export async function fetchViewer(client: GraphQLClient) {
-  await new Promise(res => setTimeout(res, 5000));
   const res = await client.request(view_query);
 
   if (!res.user) {

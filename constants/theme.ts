@@ -31,6 +31,10 @@ const theme = {
       fontSize: 18,
       fontFamily: "regular"
     },
+    bold: {
+      fontSize: 14,
+      fontFamily: "semibold"
+    },
     body: {
       fontSize: 14,
       fontFamily: "regular"

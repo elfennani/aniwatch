@@ -1,10 +1,11 @@
 import Media from "@/interfaces/Media";
 import MediaItem from "./media-item";
 import { View, useWindowDimensions } from "react-native";
-import { FlashList, FlashListProps } from "@shopify/flash-list";
+import { FlashList, FlashListProps, ListRenderItem } from "@shopify/flash-list";
 import Text from "./text";
 import { useTheme } from "@/ctx/theme-provider";
 import { Iconify } from "react-native-iconify";
+import { useCallback } from "react";
 
 interface Props extends Omit<FlashListProps<Media>, "renderItem" | "data"> {
   data?: Media[];
@@ -12,6 +13,16 @@ interface Props extends Omit<FlashListProps<Media>, "renderItem" | "data"> {
 
 const MediaListingGrid = (props: Props) => {
   const { width } = useWindowDimensions();
+
+  const renderItem: ListRenderItem<Media> = useCallback(
+    ({ item }) => <MediaItem type="grid" key={item.id} media={item} />,
+    []
+  );
+
+  const separator = useCallback(
+    () => <View style={{ height: 192 * 0.69, width: 16 }} />,
+    []
+  );
 
   return (
     <FlashList
@@ -21,12 +32,8 @@ const MediaListingGrid = (props: Props) => {
       estimatedItemSize={192 * 0.69}
       estimatedListSize={{ width, height: 192 }}
       ListEmptyComponent={EmptyListing}
-      ItemSeparatorComponent={() => (
-        <View style={{ height: 192 * 0.69, width: 16 }} />
-      )}
-      renderItem={({ item }) => {
-        return <MediaItem type="grid" key={item.id} media={item} />;
-      }}
+      ItemSeparatorComponent={separator}
+      renderItem={renderItem}
     />
   );
 };

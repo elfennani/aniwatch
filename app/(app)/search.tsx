@@ -1,19 +1,14 @@
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import React, { useEffect, useState } from "react";
+import { StyleSheet, TextInput, View } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import useSearchQuery from "@/api/use-search-query";
-import { FlashList } from "@shopify/flash-list";
+import { FlashList, ListRenderItem } from "@shopify/flash-list";
 import MediaItem from "@/components/media-item";
 import { Stack } from "expo-router";
 import { useTheme } from "@/ctx/theme-provider";
 import Box from "@/components/box";
 import { Iconify } from "react-native-iconify";
+import Media from "@/interfaces/Media";
 
 type Props = {};
 
@@ -31,6 +26,11 @@ const SearchScreen = (props: Props) => {
 
     return () => clearTimeout(timeout);
   }, [value]);
+
+  const renderItem: ListRenderItem<Media> = useCallback(
+    ({ item }) => <MediaItem media={item} type="list" />,
+    []
+  );
 
   return (
     <View style={{ flex: 1 }}>
@@ -63,7 +63,7 @@ const SearchScreen = (props: Props) => {
         estimatedItemSize={128}
         contentContainerStyle={{ padding: 16 }}
         ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
-        renderItem={({ item }) => <MediaItem media={item} type="list" />}
+        renderItem={renderItem}
         onEndReached={() => fetchNextPage()}
       />
     </View>

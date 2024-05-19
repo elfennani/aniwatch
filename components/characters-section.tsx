@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity } from "react-native";
-import React from "react";
+import React, { useCallback } from "react";
 import Character from "@/interfaces/Character";
 import Section from "./section";
 import Box from "./box";
@@ -7,7 +7,8 @@ import Text from "./text";
 import { Image } from "expo-image";
 import { useTheme } from "@/ctx/theme-provider";
 import { Link } from "expo-router";
-import { FlashList } from "@shopify/flash-list";
+import { FlashList, ListRenderItem } from "@shopify/flash-list";
+import theme from "@/constants/theme";
 
 type Props = {
   mediaId: number;
@@ -19,6 +20,30 @@ const CharactersSection = ({ characters, mediaId }: Props) => {
     spacing,
     colors: { card },
   } = useTheme();
+
+  const renderItem: ListRenderItem<Character> = useCallback(
+    ({ item: ch }) => (
+      <Box gap="sm" style={{ alignItems: "center" }}>
+        <Box
+          background="secondary"
+          rounding="full"
+          style={{ borderColor: card, borderWidth: 4 }}
+        >
+          <Image
+            cachePolicy="memory-disk"
+            recyclingKey={ch.id.toString()}
+            source={{ uri: ch.image }}
+            style={styles.image}
+          />
+        </Box>
+        <Text style={styles.name} numberOfLines={2} variant="small">
+          {ch.fullName}
+        </Text>
+      </Box>
+    ),
+    []
+  );
+
   return (
     <Section
       titlePaddingOnly
@@ -43,33 +68,7 @@ const CharactersSection = ({ characters, mediaId }: Props) => {
         fadingEdgeLength={100}
         alwaysBounceHorizontal={false}
         ItemSeparatorComponent={() => <Box width="lg" height="lg" />}
-        renderItem={({ item: ch }) => (
-          <Box gap="sm" style={{ alignItems: "center" }}>
-            <Box
-              background="secondary"
-              rounding="full"
-              style={{ borderColor: card, borderWidth: 4 }}
-            >
-              <Image
-                cachePolicy="memory-disk"
-                recyclingKey={ch.id.toString()}
-                source={{ uri: ch.image }}
-                style={{
-                  width: spacing["6xl"],
-                  height: spacing["6xl"],
-                  borderRadius: 1000,
-                }}
-              />
-            </Box>
-            <Text
-              style={{ width: spacing["6xl"], textAlign: "center" }}
-              numberOfLines={2}
-              variant="small"
-            >
-              {ch.fullName}
-            </Text>
-          </Box>
-        )}
+        renderItem={renderItem}
       />
     </Section>
   );
@@ -77,4 +76,11 @@ const CharactersSection = ({ characters, mediaId }: Props) => {
 
 export default CharactersSection;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  image: {
+    width: theme.spacing["6xl"],
+    height: theme.spacing["6xl"],
+    borderRadius: 1000,
+  },
+  name: { width: theme.spacing["6xl"], textAlign: "center" },
+});

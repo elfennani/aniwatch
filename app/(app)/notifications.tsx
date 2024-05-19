@@ -1,6 +1,14 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-import React, { useEffect } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from "react-native";
+import React, { useCallback, useEffect, useMemo } from "react";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import Box from "@/components/box";
 import { FlashList, ListRenderItem } from "@shopify/flash-list";
 import useNotificationsQuery from "@/api/use-notifications-query";
@@ -16,7 +24,15 @@ import { useQueryClient } from "@tanstack/react-query";
 export default function NotificationsScreen() {
   const { data, fetchNextPage, isFetchingNextPage } = useNotificationsQuery();
   const { spacing } = useTheme();
+  const insets = useSafeAreaInsets();
+  const { width, height } = useWindowDimensions();
   const client = useQueryClient();
+  const estimatedListSize = useMemo(() => {
+    return {
+      width: width - insets.left + insets.right,
+      height: height - insets.top + insets.bottom,
+    };
+  }, [width, height, insets]);
 
   useEffect(() => {
     client.invalidateQueries({
@@ -24,33 +40,36 @@ export default function NotificationsScreen() {
     });
   }, [data]);
 
-  const renderItem: ListRenderItem<Notification> = ({ item }) => (
-    <TouchableOpacity
-      disabled={!item.path}
-      onPress={() => router.push(item.path)}
-      activeOpacity={0.8}
-    >
-      <Box
-        row
-        style={{ width: "100%" }}
-        gap="sm"
-        rounding="sm"
-        background="card"
+  const renderItem: ListRenderItem<Notification> = useCallback(
+    ({ item }) => (
+      <TouchableOpacity
+        disabled={!item.path}
+        onPress={() => router.push(item.path)}
+        activeOpacity={0.8}
       >
-        <Image
-          recyclingKey={item.id.toString()}
-          cachePolicy="memory-disk"
-          source={{ uri: item.thumbnail }}
-          style={{ height: 128, aspectRatio: 0.69, borderRadius: spacing.xs }}
-        />
-        <Box flex padding="sm" gap="xs">
-          <Text color="secondary" variant="label">
-            {moment(item.createdAt * 1000).fromNow()}
-          </Text>
-          <Text flex>{item.content}</Text>
+        <Box
+          row
+          style={{ width: "100%" }}
+          gap="sm"
+          rounding="sm"
+          background="card"
+        >
+          <Image
+            recyclingKey={item.id.toString()}
+            cachePolicy="memory-disk"
+            source={{ uri: item.thumbnail }}
+            style={{ height: 128, aspectRatio: 0.69, borderRadius: spacing.xs }}
+          />
+          <Box flex padding="sm" gap="xs">
+            <Text color="secondary" variant="label">
+              {moment(item.createdAt * 1000).fromNow()}
+            </Text>
+            <Text flex>{item.content}</Text>
+          </Box>
         </Box>
-      </Box>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    ),
+    []
   );
 
   return (
@@ -68,6 +87,7 @@ export default function NotificationsScreen() {
         )}
         contentContainerStyle={{ padding: spacing["xl"] }}
         estimatedItemSize={128}
+        estimatedListSize={estimatedListSize}
         renderItem={renderItem}
         onEndReached={() => {
           if (!isFetchingNextPage) fetchNextPage();

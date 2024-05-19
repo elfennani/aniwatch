@@ -1,7 +1,15 @@
-import { StyleSheet } from "react-native";
-import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { FlashList } from "@shopify/flash-list";
+import { StyleSheet, useWindowDimensions } from "react-native";
+import React, { useCallback } from "react";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import {
+  ContentStyle,
+  FlashList,
+  ListRenderItem,
+  MasonryFlashList,
+} from "@shopify/flash-list";
 import { useTheme } from "@/ctx/theme-provider";
 import Box from "@/components/box";
 import { router, useLocalSearchParams } from "expo-router";
@@ -16,34 +24,47 @@ import Heading from "@/components/heading";
 export default function CharactersScreen() {
   const { spacing } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { top: paddingTop, bottom: paddingBottom } = useSafeAreaInsets();
+  const { width, height } = useWindowDimensions();
   const [language] = useMMKVObject<Language>("language");
   const { data, fetchNextPage, isFetchingNextPage } = useCharactersQuery({
     lang: language ?? "JAPANESE",
     mediaId: Number(id),
   });
+  const renderItem: ListRenderItem<Character> = useCallback(
+    ({ item }) => <CharacterItem character={item} />,
+    []
+  );
+
+  const onEndReached = useCallback(() => {
+    if (!isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [isFetchingNextPage]);
+
+  const style: ContentStyle = {
+    padding: spacing["lg"],
+    paddingBottom,
+    paddingTop,
+  };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <FlashList
-        data={data}
-        contentContainerStyle={{ padding: spacing["lg"] }}
-        estimatedItemSize={128}
-        ListHeaderComponent={
-          <Header
-            language={language ?? "JAPANESE"}
-            onSetLanguage={() => router.push(`/language`)}
-          />
-        }
-        renderItem={({ item }) => <CharacterItem character={item} />}
-        numColumns={3}
-        onEndReachedThreshold={0.5}
-        onEndReached={() => {
-          if (!isFetchingNextPage) {
-            fetchNextPage();
-          }
-        }}
-      />
-    </SafeAreaView>
+    <MasonryFlashList
+      data={data}
+      estimatedListSize={{ width, height }}
+      contentContainerStyle={style}
+      estimatedItemSize={128}
+      ListHeaderComponent={
+        <Header
+          language={language ?? "JAPANESE"}
+          onSetLanguage={() => router.push(`/language`)}
+        />
+      }
+      renderItem={renderItem}
+      numColumns={3}
+      onEndReachedThreshold={0.5}
+      onEndReached={onEndReached}
+    />
   );
 }
 
