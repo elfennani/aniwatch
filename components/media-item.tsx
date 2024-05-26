@@ -12,18 +12,20 @@ interface Props {
   canContinue?: boolean;
   media: Media;
   type?: "list" | "grid";
+  local?: boolean;
 }
 
 const MediaItem = ({
   media: { cover, episodes, id, progress, title },
   canContinue = false,
   type = "list",
+  local = false,
 }: Props) => {
   const { colors } = useTheme();
 
   if (type == "grid") {
     return (
-      <Link href={`/media/${id}` as any} asChild>
+      <Link href={local ? `/offline/media/${id}` : `/media/${id}`} asChild>
         <TouchableOpacity activeOpacity={0.8}>
           <ImageBackground
             cachePolicy="memory-disk"

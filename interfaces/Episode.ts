@@ -4,5 +4,6 @@ export interface Episode {
   thumbnail?: string;
   resolution?: number
   duration?: number;
-  dub: boolean
+  dub: boolean;
+  downloadTranslation?: "sub" | "dub"
 }

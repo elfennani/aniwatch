@@ -24,6 +24,7 @@ import darkTheme from "@/constants/dark-theme";
 import { ThemeProvider } from "@/ctx/theme-provider";
 import * as Brightness from "expo-brightness";
 import * as NavigationBar from "expo-navigation-bar";
+import { DownloadManagerProvider } from "@/ctx/download-manager";
 
 NavigationBar.setPositionAsync("absolute");
 NavigationBar.setBackgroundColorAsync("#ffffff01");
@@ -137,11 +138,13 @@ const RootLayoutNav = () => {
       <StackThemeProvider value={darkThemeOverrides}>
         <ThemeProvider>
           <SessionProvider>
-            <StatusBar
-              hidden={false}
-              style={scheme == "light" ? "dark" : "light"}
-            />
-            <Slot />
+            <DownloadManagerProvider>
+              <StatusBar
+                hidden={false}
+                style={scheme == "light" ? "dark" : "light"}
+              />
+              <Slot />
+            </DownloadManagerProvider>
           </SessionProvider>
         </ThemeProvider>
       </StackThemeProvider>

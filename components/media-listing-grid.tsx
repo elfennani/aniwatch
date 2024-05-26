@@ -9,14 +9,17 @@ import { useCallback } from "react";
 
 interface Props extends Omit<FlashListProps<Media>, "renderItem" | "data"> {
   data?: Media[];
+  local?: boolean;
 }
 
-const MediaListingGrid = (props: Props) => {
+const MediaListingGrid = ({ local, ...props }: Props) => {
   const { width } = useWindowDimensions();
 
   const renderItem: ListRenderItem<Media> = useCallback(
-    ({ item }) => <MediaItem type="grid" key={item.id} media={item} />,
-    []
+    ({ item }) => (
+      <MediaItem type="grid" key={item.id} media={item} local={local} />
+    ),
+    [local]
   );
 
   const separator = useCallback(

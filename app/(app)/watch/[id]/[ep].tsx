@@ -1,42 +1,46 @@
-import {
-  ActivityIndicator,
-  StyleSheet,
-  ToastAndroid,
-  View,
-} from "react-native";
-import React, { useEffect } from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
+import React from "react";
 import useShowQuery from "@/api/use-show-query";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import PlayerLoader from "@/components/player-loader";
 import { StatusBar } from "expo-status-bar";
 import { useKeepAwake } from "expo-keep-awake";
+import ErrorScreen from "@/components/error-screen";
+
+type Params = {
+  id: string;
+  ep: string;
+};
 
 const WatchByEp = () => {
-  const { id, ep } = useLocalSearchParams<{ id: string; ep: string }>();
+  const { id, ep } = useLocalSearchParams<Params>();
   const {
     data: media,
     isPending,
     error,
     isError,
+    refetch,
+    isRefetching,
+    isFetching,
   } = useShowQuery({ id: Number(id) });
-  const router = useRouter();
   useKeepAwake();
 
-  useEffect(() => {
-    if (isError) {
-      ToastAndroid.show(error.message, ToastAndroid.LONG);
-      if (router.canGoBack()) {
-        router.back();
-      }
-    }
-  }, [isError, error]);
-
-  if (isPending || isError || !media.allanimeId)
+  if (isPending || (media && !media.allanimeId))
     return (
       <View style={styles.background}>
         <ActivityIndicator size={40} color="white" />
       </View>
     );
+
+  if (isError && !media) {
+    return (
+      <ErrorScreen
+        error={error}
+        isRetrying={isFetching || isFetching || isPending}
+        onRetry={refetch}
+      />
+    );
+  }
 
   return (
     <>
@@ -50,7 +54,7 @@ const WatchByEp = () => {
       <PlayerLoader
         media={media}
         aniListId={media.id}
-        allAnimeId={media.allanimeId}
+        allAnimeId={media.allanimeId!}
         watched={(media.progress ?? 0) >= Number(ep)}
         episode={Number(ep)}
         dubbed={

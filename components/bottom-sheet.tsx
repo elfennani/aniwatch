@@ -25,6 +25,7 @@ export type BottomSheetProps = {
   visible: boolean;
   onClose: () => void;
   children: React.ReactNode | React.ReactNode[];
+  disableExitAnim?: boolean;
 };
 
 const BottomSheet = ({
@@ -32,6 +33,7 @@ const BottomSheet = ({
   onClose,
   visible,
   label,
+  disableExitAnim = false,
 }: BottomSheetProps) => {
   const theme = useTheme();
   const [modal, setModal] = useState(visible);
@@ -67,7 +69,8 @@ const BottomSheet = ({
   useEffect(() => {
     let timeout: NodeJS.Timeout;
     if (visible == false) {
-      timeout = setTimeout(() => setModal(visible), 300);
+      if (disableExitAnim) setModal(false);
+      else timeout = setTimeout(() => setModal(visible), 300);
     } else {
       setModal(visible);
     }

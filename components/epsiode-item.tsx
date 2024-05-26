@@ -4,13 +4,17 @@ import {
   TouchableOpacityProps,
   View,
 } from "react-native";
-import React, { ForwardedRef } from "react";
+import React, { ForwardedRef, memo, useEffect, useState } from "react";
 import { Episode } from "@/interfaces/Episode";
 import secondsToHms from "@/utils/seconds-to-hms";
 import Text from "./text";
 import { Image } from "expo-image";
 import { useTheme } from "@/ctx/theme-provider";
 import { Iconify } from "react-native-iconify";
+import Box from "./box";
+import * as FileSystem from "expo-file-system";
+import useSavedShow from "@/hooks/use-saved-show";
+import { filesize } from "filesize";
 
 type Props = {
   mediaId: number;
@@ -21,7 +25,15 @@ type Props = {
 const EpsiodeItem = React.forwardRef(
   (
     {
-      episode: { dub, id, number, thumbnail, duration, resolution },
+      episode: {
+        dub,
+        id,
+        number,
+        thumbnail,
+        duration,
+        resolution,
+        downloadTranslation,
+      },
       mediaId,
       watched = false,
       ...props
@@ -29,7 +41,7 @@ const EpsiodeItem = React.forwardRef(
     ref: ForwardedRef<TouchableOpacity>
   ) => {
     const {
-      colors: { card, secondary },
+      colors: { card, secondary, primary },
     } = useTheme();
 
     return (
@@ -63,27 +75,64 @@ const EpsiodeItem = React.forwardRef(
           )}
           <View>
             <Text>Episode {number}</Text>
-            <Text
-              style={{ textTransform: "uppercase", marginTop: 4 }}
-              variant="label"
-              color="secondary"
-            >
-              sub {dub && "• dub"}{" "}
-              {watched && (
-                <Text color="primary" variant="label">
-                  • WATCHED
-                </Text>
+            <Box row style={{ alignItems: "center", marginTop: 4, gap: 4 }}>
+              {downloadTranslation && (
+                <Iconify
+                  icon="material-symbols-light:download-for-offline"
+                  size={16}
+                  color={primary}
+                />
               )}
-            </Text>
+              <Text
+                style={{ textTransform: "uppercase" }}
+                variant="label"
+                color={downloadTranslation ? "primary" : "secondary"}
+              >
+                {downloadTranslation ? (
+                  <>{downloadTranslation}</>
+                ) : (
+                  <>sub {dub && "• dub"}</>
+                )}{" "}
+                {watched && (
+                  <Text color="primary" variant="label">
+                    • WATCHED
+                  </Text>
+                )}
+              </Text>
+            </Box>
             <Text style={{ marginTop: 4 }} variant="label" color="secondary">
               {!!duration && secondsToHms(duration)}
               {!!duration && !!resolution && " • "}
               {!!resolution && `${resolution}p`}
+              {downloadTranslation && (
+                <EpisodeDownloadSize ep={number} mediaId={mediaId} />
+              )}
             </Text>
           </View>
         </TouchableOpacity>
       </View>
     );
+  }
+);
+
+const EpisodeDownloadSize = memo(
+  ({ ep, mediaId }: { ep: number; mediaId: number }) => {
+    const [mediaSize, setMediaSize] = useState<number>();
+    const saved = useSavedShow(mediaId, ep);
+
+    useEffect(() => {
+      if (!mediaSize && saved) {
+        FileSystem.getInfoAsync(saved.uri, { size: true }).then((info) => {
+          if (!info.isDirectory && info.exists) {
+            setMediaSize(info.size);
+          }
+        });
+      }
+    }, [ep, mediaId]);
+
+    if (mediaSize) return ` • ${filesize(mediaSize, { round: 0 })}`;
+
+    return "";
   }
 );
 

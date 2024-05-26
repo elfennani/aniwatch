@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import React from "react";
+import React, { useMemo } from "react";
 import { Link, router } from "expo-router";
 import Box from "./box";
 import { Iconify } from "react-native-iconify";
@@ -7,6 +7,8 @@ import { Image } from "expo-image";
 import Viewer from "@/interfaces/Viewer";
 import { useTheme } from "@/ctx/theme-provider";
 import Text from "./text";
+import useDownloads from "@/hooks/use-downloads";
+import useCurrentDownload from "@/hooks/use-current-download";
 
 type Props = {
   viewer: Viewer;
@@ -14,6 +16,13 @@ type Props = {
 
 const HomeHeader = ({ viewer }: Props) => {
   const { colors } = useTheme();
+  const [downloads] = useDownloads();
+  const [current] = useCurrentDownload();
+
+  const downloadCount = useMemo(
+    () => (downloads?.length ?? 0) + (current ? 1 : 0),
+    [downloads, current]
+  );
 
   return (
     <View style={styles.header}>
@@ -32,7 +41,27 @@ const HomeHeader = ({ viewer }: Props) => {
               size={24}
               color={colors.secondary}
             />
-            <Text color="secondary">Attack on Titan Season 2...</Text>
+            <Text color="secondary" style={{ flex: 1 }} numberOfLines={1}>
+              Attack on Titan Season 2...
+            </Text>
+          </Box>
+        </TouchableOpacity>
+      </Link>
+      <Link href={`/downloads`} asChild>
+        <TouchableOpacity>
+          <Box style={styles.notificationContainer} background="card">
+            <Iconify
+              icon="material-symbols-light:download"
+              size={24}
+              color={colors.secondary}
+            />
+            {!!downloadCount && (
+              <Box background="failure" style={styles.notifications}>
+                <Text variant="small" color="white" style={{ lineHeight: 12 }}>
+                  {downloadCount}
+                </Text>
+              </Box>
+            )}
           </Box>
         </TouchableOpacity>
       </Link>

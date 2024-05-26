@@ -9,13 +9,14 @@ import { retry } from "ts-retry-promise";
 interface Params {
   allAnimeId: string,
   episode: string,
-  type: "sub" | "dub"
+  type: "sub" | "dub",
+  mp4?: boolean
 }
 
 const m3u8_providers = ["Luf-mp4", "Default"];
 const mp4_providers = ["S-mp4", "Kir", "Sak"];
 
-const useLinkQuery = (params: Params) => {
+const useLinkQuery = (params: Params, enabled = true) => {
   const client = useAllAnimeClient();
 
   return useQuery({
@@ -23,12 +24,16 @@ const useLinkQuery = (params: Params) => {
     queryFn: () => fetchLink(params, client),
     refetchOnMount: true,
     refetchOnWindowFocus: true,
+    enabled
   })
 }
 
 export default useLinkQuery
 
-const fetchLink = async ({ allAnimeId, episode, type }: Params, client: GraphQLClient) => {
+type FetchLinkReturn = Promise<{ name: string | "auto"; url: any; }[]>
+
+export const fetchLink = async (params: Params, client: GraphQLClient): FetchLinkReturn => {
+  const { allAnimeId, episode, type, mp4 = false } = params
 
   const response: QueryEpisode = await retry(
     () => client.request(query_episode, {
@@ -58,12 +63,30 @@ const fetchLink = async ({ allAnimeId, episode, type }: Params, client: GraphQLC
     headers.append("Referer", "https://allanime.to")
     headers.append("Agent", 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0')
 
-    const res = await Promise.any([fetch(providers["Luf-mp4"], { headers }), fetch(providers["Default"], { headers })]);
+
+    const res = await Promise.any(
+      Object
+        .keys(providers)
+        .filter(provider =>
+          mp4 ?
+            mp4_providers.includes(provider) :
+            m3u8_providers.includes(provider)
+        )
+        .map(provider => fetch(providers[provider], { headers }))
+    );
+
     const json = await res.json();
     const link = json.links[0].link;
 
     return link
   }, { retries: 3 });
+
+  if (mp4) {
+    return [{
+      name: "auto",
+      url: link
+    }]
+  }
 
   const hlsRes = await fetch(link)
   const hls = parse(await hlsRes.text()) as MasterPlaylist
@@ -75,7 +98,7 @@ const fetchLink = async ({ allAnimeId, episode, type }: Params, client: GraphQLC
     name: `${variant.resolution?.height}p`,
     url: variant.uri.startsWith("http") ? variant.uri : urlStart + variant.uri,
   })), {
-    name: "auto" as const,
+    name: "auto",
     url: link as string
   }];
 
