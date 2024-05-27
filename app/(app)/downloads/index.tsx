@@ -16,7 +16,11 @@ const DownloadScreen = () => {
   return (
     <ScrollView>
       <SafeAreaView style={{ padding: spacing["xl"] }}>
-        <SectionTitle style={{ marginBottom: 16 }}>Download Queue</SectionTitle>
+        <Box>
+          <SectionTitle style={{ marginBottom: 16 }}>
+            Download Queue
+          </SectionTitle>
+        </Box>
         <Text style={{ paddingVertical: 8 }} variant="label">
           Currently Downloading
         </Text>

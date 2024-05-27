@@ -12,7 +12,7 @@ import Downloadable from "@/interfaces/Downloadable";
 import throttle from "lodash.throttle";
 
 const DownloadManagerContext = createContext({
-  downloadAsync: (current: CurrentDownload) => {},
+  // downloadAsync: (current: CurrentDownload) => {},
   push: (toDownload: Downloadable | Downloadable[]) => {},
 });
 
@@ -31,10 +31,12 @@ export const DownloadManagerProvider = ({ children }: any) => {
     // setDownloads(undefined)
     if (!current && downloads?.length) {
       const toDownload = downloads[0];
-      setCurrent({
+      const current = {
         downloadable: toDownload,
         progressPercent: 0,
-      });
+      };
+      setCurrent(current);
+      downloadAsync(current);
       setDownloads((downloads) => {
         if (downloads)
           return downloads.filter(
@@ -45,8 +47,26 @@ export const DownloadManagerProvider = ({ children }: any) => {
     }
   }, [current, downloads]);
 
+  useEffect(() => {
+    if (current) {
+      restartDownloadAsync(current);
+    }
+  }, []);
+
+  const restartDownloadAsync = async (current: CurrentDownload) => {
+    const newCurrent = { ...current, started: false };
+    setCurrent(newCurrent);
+
+    const uri = TEMP_DIR + getFileName(current);
+    if ((await FileSystem.getInfoAsync(uri)).exists) {
+      await FileSystem.deleteAsync(uri);
+    }
+
+    ToastAndroid.show("Restarting Download", ToastAndroid.SHORT);
+    downloadAsync(newCurrent);
+  };
+
   const push = (toDownload: Downloadable | Downloadable[]) => {
-    console.log("toDownload", toDownload);
     if (!Array.isArray(toDownload)) {
       toDownload = [toDownload];
     }
@@ -56,6 +76,10 @@ export const DownloadManagerProvider = ({ children }: any) => {
       ...(toDownload as Downloadable[]),
     ]);
   };
+
+  const getFileName = ({
+    downloadable: { show, episode, tranlation },
+  }: CurrentDownload) => `${show.title.default}-EP${episode}-${tranlation}.mp4`;
 
   async function downloadAsync(current: CurrentDownload) {
     setCurrent({ ...current, started: true });
@@ -73,7 +97,7 @@ export const DownloadManagerProvider = ({ children }: any) => {
       allAnimeClient
     );
     const { url } = link.find((link) => link.name == "auto")!;
-    const fileName = `${show.title.default}-EP${episode}-${type}.mp4`;
+    const fileName = getFileName(current);
     const downloadUri = TEMP_DIR + fileName;
 
     await createTempDirAsync();
@@ -93,14 +117,15 @@ export const DownloadManagerProvider = ({ children }: any) => {
       const result = await download.downloadAsync();
       if (result) {
         await save(result.uri, fileName, current.downloadable, type);
-        ToastAndroid.show(`Downloaded: ${result.uri}`, ToastAndroid.SHORT);
       }
     } catch (error) {
       ToastAndroid.show(
         `Download Failed for EP.${episode}`,
         ToastAndroid.SHORT
       );
-      await FileSystem.deleteAsync(downloadUri);
+      if ((await FileSystem.getInfoAsync(downloadUri)).exists) {
+        await FileSystem.deleteAsync(downloadUri);
+      }
       setCurrent(undefined);
     }
 
@@ -127,7 +152,7 @@ export const DownloadManagerProvider = ({ children }: any) => {
   };
 
   return (
-    <DownloadManagerContext.Provider value={{ downloadAsync, push }}>
+    <DownloadManagerContext.Provider value={{ push }}>
       {children}
     </DownloadManagerContext.Provider>
   );

@@ -20,7 +20,7 @@ const useSavedShows = () => {
     }
 
     const newUri = SHOWS_DIR + fileName
-    await FileSystem.copyAsync({ from: uri, to: newUri })
+    await FileSystem.moveAsync({ from: uri, to: newUri })
 
     setSavedShows(savedShows => {
       const show: SavedShow = { ...downloadable, uri: newUri, type, savedAt: Date.now() }

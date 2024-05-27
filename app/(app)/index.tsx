@@ -23,6 +23,7 @@ import Button from "@/components/button";
 import { storage } from "@/utils/mmkv";
 import * as FileSystem from "expo-file-system";
 import { SHOWS_DIR, TEMP_DIR } from "@/constants/values";
+import { router } from "expo-router";
 
 const status: MediaStatus[] = ["COMPLETED", "CURRENT"];
 
@@ -131,7 +132,18 @@ const HomePage = () => {
       <HomeHeader viewer={viewer} />
 
       {process.env.NODE_ENV == "development" && (
-        <Button label="Delete All" onPress={deleteAll} />
+        <>
+          <Button
+            label="Check Files"
+            onPress={() =>
+              router.push({
+                pathname: "/file-browser/[path]",
+                params: { path: FileSystem.documentDirectory },
+              })
+            }
+          />
+          <Button label="Delete All" onPress={deleteAll} />
+        </>
       )}
 
       <SectionTitle style={styles.section}>Currently Watching</SectionTitle>
