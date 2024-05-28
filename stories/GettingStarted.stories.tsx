@@ -1,3 +1,4 @@
+import Box from "@/components/box";
 import { Linking, Text, View } from "react-native";
 
 const StarterComponent = () => (

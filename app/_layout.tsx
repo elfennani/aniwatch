@@ -25,6 +25,7 @@ import { ThemeProvider } from "@/ctx/theme-provider";
 import * as Brightness from "expo-brightness";
 import * as NavigationBar from "expo-navigation-bar";
 import { DownloadManagerProvider } from "@/ctx/download-manager";
+import "../global.css";
 
 NavigationBar.setPositionAsync("absolute");
 NavigationBar.setBackgroundColorAsync("#ffffff01");

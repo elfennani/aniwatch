@@ -3,6 +3,7 @@ import theme from "./theme"
 
 const darkTheme = {
   ...theme,
+  dark: true,
   colors: {
     ...theme.colors,
     background: palette.zinc["900"],

@@ -37,6 +37,7 @@ const MediaListingGrid = ({ local, ...props }: Props) => {
       ListEmptyComponent={EmptyListing}
       ItemSeparatorComponent={separator}
       renderItem={renderItem}
+      nestedScrollEnabled
     />
   );
 };

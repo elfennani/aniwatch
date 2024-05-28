@@ -1,28 +1,16 @@
 import theme from "@/constants/theme";
 import { useTheme } from "@/ctx/theme-provider";
+import cn from "@/utils/cn";
 import { Text as TextBase, TextProps } from "react-native";
 
-interface Props extends TextProps {
-  variant?: keyof typeof theme.textVariants;
-  color?: keyof typeof theme.colors;
-  flex?: boolean;
-}
+interface Props extends TextProps {}
 
-export default function Text({
-  variant = "body",
-  color = "foreground",
-  flex = false,
-  ...props
-}: Props) {
+export default function Text({ className, ...props }: Props) {
   const theme = useTheme();
   return (
     <TextBase
       {...props}
-      style={[
-        theme.textVariants[variant],
-        { color: theme.colors[color], flex: flex ? 1 : 0 },
-        props.style,
-      ]}
+      className={cn("text-zinc-900 font-regular dark:text-zinc-50", className)}
     />
   );
 }

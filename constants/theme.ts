@@ -2,6 +2,7 @@ import { TextStyle } from "react-native";
 import palette from "./palette";
 
 const theme = {
+  dark: false,
   colors: {
     background: palette.white,
     foreground: palette.zinc["900"],

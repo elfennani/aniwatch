@@ -5,7 +5,10 @@ import {
   ToastAndroid,
 } from "react-native";
 import React, { useMemo } from "react";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import useViewerQuery from "@/api/use-viewer-query";
 import MediaListingGrid from "@/components/media-listing-grid";
 import SectionTitle from "@/components/section-title";
@@ -24,6 +27,8 @@ import { storage } from "@/utils/mmkv";
 import * as FileSystem from "expo-file-system";
 import { SHOWS_DIR, TEMP_DIR } from "@/constants/values";
 import { router } from "expo-router";
+import Tabs from "@/components/tabs";
+import Text from "@/components/text";
 
 const status: MediaStatus[] = ["COMPLETED", "CURRENT"];
 
@@ -125,50 +130,65 @@ const HomePage = () => {
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={{ paddingTop: top + 16 }}
-      refreshControl={refreshControl}
-    >
-      <HomeHeader viewer={viewer} />
+    <SafeAreaView style={{ flex: 1 }}>
+      <Tabs>
+        <Tabs.Screen name="Home">
+          <ScrollView
+            // contentContainerStyle={{ paddingTop: top + 16 }}
+            refreshControl={refreshControl}
+          >
+            <HomeHeader viewer={viewer} />
 
-      {process.env.NODE_ENV == "development" && (
-        <>
-          <Button
-            label="Check Files"
-            onPress={() =>
-              router.push({
-                pathname: "/file-browser/[path]",
-                params: { path: FileSystem.documentDirectory },
-              })
-            }
-          />
-          <Button label="Delete All" onPress={deleteAll} />
-        </>
-      )}
+            {process.env.NODE_ENV == "development" && (
+              <>
+                <Button
+                  label="Check Files"
+                  onPress={() =>
+                    router.push({
+                      pathname: "/file-browser/[path]",
+                      params: { path: FileSystem.documentDirectory },
+                    })
+                  }
+                />
+                <Button label="Delete All" onPress={deleteAll} />
+              </>
+            )}
 
-      <SectionTitle style={styles.section}>Currently Watching</SectionTitle>
-      <MediaListingList
-        data={media.CURRENT}
-        contentContainerStyle={{ padding: 16 }}
-      />
+            <SectionTitle style={styles.section}>
+              Currently Watching
+            </SectionTitle>
+            <MediaListingList
+              data={media.CURRENT}
+              contentContainerStyle={{ padding: 16 }}
+            />
 
-      <SectionTitle style={styles.section}>Recently Completed</SectionTitle>
-      <MediaListingGrid
-        data={media.COMPLETED}
-        contentContainerStyle={{ padding: 16 }}
-      />
+            <SectionTitle style={styles.section}>
+              Recently Completed
+            </SectionTitle>
+            <MediaListingGrid
+              data={media.COMPLETED}
+              contentContainerStyle={{ padding: 16 }}
+            />
 
-      {!!saved.length && (
-        <>
-          <SectionTitle style={styles.section}>Downloaded Shows</SectionTitle>
-          <MediaListingGrid
-            data={saved}
-            contentContainerStyle={{ padding: 16 }}
-            local
-          />
-        </>
-      )}
-    </ScrollView>
+            {!!saved.length && (
+              <>
+                <SectionTitle style={styles.section}>
+                  Downloaded Shows
+                </SectionTitle>
+                <MediaListingGrid
+                  data={saved}
+                  contentContainerStyle={{ padding: 16 }}
+                  local
+                />
+              </>
+            )}
+          </ScrollView>
+        </Tabs.Screen>
+        <Tabs.Screen name="Completed">
+          <Text>Will be Added</Text>
+        </Tabs.Screen>
+      </Tabs>
+    </SafeAreaView>
   );
 };
 
