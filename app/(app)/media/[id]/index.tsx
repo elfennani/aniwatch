@@ -21,16 +21,9 @@ const MediaById = () => {
   );
 
   if (isPending) return <MediaDetailsSkeleton />;
-  if (isError && !media) return <Text color="failure">Error</Text>;
+  if (isError && !media) return <Text className="!text-red-500">Error</Text>;
 
-  return (
-    <MediaEpisodesScreen
-      episodes={episodes ?? []}
-      media={media}
-      onRefresh={refetch}
-      refreshing={isRefetching}
-    />
-  );
+  return <Text>{media.title.default}</Text>;
 };
 
 export default MediaById;

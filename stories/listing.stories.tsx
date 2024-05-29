@@ -1,5 +1,4 @@
 import ListingItem from "@/components/listing-item";
-import Tabs from "@/components/tabs";
 import Text from "@/components/text";
 import MediaStatus from "@/interfaces/MediaStatus";
 import { Meta, StoryObj, Parameters } from "@storybook/react/*";

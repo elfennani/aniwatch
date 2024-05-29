@@ -3,6 +3,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
+  ViewProps,
   useColorScheme,
 } from "react-native";
 import React, { ReactNode, useState } from "react";
@@ -24,7 +25,8 @@ type Props = {
   onSecondaryPress?: () => void;
   className?: string;
   listAltTailing?: ReactNode;
-};
+  carouselWidth?: number;
+} & ViewProps;
 
 const ListingItem: React.FC<Props> = (props: Props) => {
   const scheme = useColorScheme();
@@ -77,8 +79,9 @@ const ListingItem: React.FC<Props> = (props: Props) => {
         onPress={() => props.onPrimaryPress?.()}
       >
         <View
+          {...props}
           className={cn(
-            "self-stretch flex-row gap-4 h-[80] relative rounded-lg overflow-hidden",
+            "flex-row gap-4 h-[80] relative rounded-lg overflow-hidden",
             props.className
           )}
         >
@@ -162,12 +165,13 @@ const ListingItem: React.FC<Props> = (props: Props) => {
       </TouchableOpacity>
     );
 
-  if (props.type == "carousel")
+  if (props.type == "carousel") {
     return (
       <TouchableOpacity
+        {...props}
         onPress={() => props.onPrimaryPress?.()}
         className={cn(
-          "w-full rounded-2xl overflow-hidden dark:bg-zinc-900 bg-zinc-100",
+          "rounded-2xl overflow-hidden dark:bg-zinc-900 bg-zinc-100",
           props.className
         )}
         activeOpacity={activeOpacity}
@@ -211,6 +215,7 @@ const ListingItem: React.FC<Props> = (props: Props) => {
         </View>
       </TouchableOpacity>
     );
+  }
 
   return (
     <TouchableOpacity

@@ -26,6 +26,7 @@ import * as Brightness from "expo-brightness";
 import * as NavigationBar from "expo-navigation-bar";
 import { DownloadManagerProvider } from "@/ctx/download-manager";
 import "../global.css";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 NavigationBar.setPositionAsync("absolute");
 NavigationBar.setBackgroundColorAsync("#ffffff01");
@@ -74,8 +75,7 @@ export default function RootLayout() {
     if (error) throw error;
   }, [error]);
 
-  const backgroundColor =
-    scheme == "light" ? theme.colors.background : darkTheme.colors.background;
+  const backgroundColor = scheme == "light" ? "white" : "black";
 
   if (!loaded) {
     return (
@@ -100,19 +100,19 @@ const RootLayoutNav = () => {
   const pathname = usePathname();
   const isRestoring = useIsRestoring();
   const currentTheme = scheme == "light" ? theme : darkTheme;
-  const stackTheme = scheme == "light" ? DefaultTheme : DarkTheme;
   const backgroundColor =
     scheme == "light" ? theme.colors.background : darkTheme.colors.background;
 
   const darkThemeOverrides: Theme = {
-    ...stackTheme,
+    ...DarkTheme,
     colors: {
-      ...stackTheme.colors,
-      background: currentTheme.colors.background,
+      ...DarkTheme.colors,
+      background: "black",
       card: currentTheme.colors.card,
     },
     dark: scheme == "dark",
   };
+  const stackTheme = scheme == "light" ? DefaultTheme : darkThemeOverrides;
 
   useEffect(() => {
     if (!pathname.includes("/watch")) {
@@ -135,8 +135,10 @@ const RootLayoutNav = () => {
   }
 
   return (
-    <View style={[StyleSheet.absoluteFill, { backgroundColor }]}>
-      <StackThemeProvider value={darkThemeOverrides}>
+    <GestureHandlerRootView
+      style={[StyleSheet.absoluteFill, { backgroundColor }]}
+    >
+      <StackThemeProvider value={stackTheme}>
         <ThemeProvider>
           <SessionProvider>
             <DownloadManagerProvider>
@@ -149,7 +151,7 @@ const RootLayoutNav = () => {
           </SessionProvider>
         </ThemeProvider>
       </StackThemeProvider>
-    </View>
+    </GestureHandlerRootView>
   );
 };
 
