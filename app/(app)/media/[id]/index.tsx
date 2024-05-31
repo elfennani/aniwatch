@@ -1,9 +1,25 @@
-import React, { useMemo } from "react";
+import {
+  View,
+  useWindowDimensions,
+  useColorScheme,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
+import React, { useEffect, useMemo, useRef } from "react";
+import MediaHeading from "@/components/media-heading";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import useShowQuery from "@/api/use-show-query";
-import { useLocalSearchParams } from "expo-router";
+import { CollapsibleRef, Tabs } from "react-native-collapsible-tab-view";
+import { Iconify } from "react-native-iconify";
+import { purple } from "tailwindcss/colors";
+import ListingItem from "@/components/listing-item";
+import TagsGrid from "@/components/tags-grid";
 import Text from "@/components/text";
-import MediaDetailsSkeleton from "@/components/skeletons/media-details";
-import MediaEpisodesScreen from "@/components/screens/media-episodes-screen";
+import MediaCharacters from "@/components/media-characters";
+import MediaRelations from "@/components/media-relations";
+import MediaSynopsis from "@/components/media-synopsis";
+import MediaActions from "@/components/media-actions";
+import MediaStats from "@/components/media-stats";
 
 const MediaById = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -15,15 +31,28 @@ const MediaById = () => {
     isError,
   } = useShowQuery({ id: Number(id) });
 
-  const episodes = useMemo(
-    () => media?.episodes?.sort((a, b) => a.number - b.number),
-    [media]
+  if (!media) return <Text>Loading...</Text>;
+
+  return (
+    <ScrollView className="bg-white dark:bg-black">
+      <MediaHeading media={media!} />
+      <View className="py-6 gap-8">
+        <MediaStats
+          score={media.score}
+          season={media.season}
+          year={media.year}
+        />
+        <MediaActions
+          onWatch={() => router.push(`/media/${id}/episodes`)}
+          onSetStatus={() => {}}
+        />
+        <MediaSynopsis description={media.description} />
+        <MediaCharacters characters={media.mainCharacters} />
+        <MediaRelations relations={media.relations} />
+        <TagsGrid tags={media.tags ?? []} />
+      </View>
+    </ScrollView>
   );
-
-  if (isPending) return <MediaDetailsSkeleton />;
-  if (isError && !media) return <Text className="!text-red-500">Error</Text>;
-
-  return <Text>{media.title.default}</Text>;
 };
 
 export default MediaById;

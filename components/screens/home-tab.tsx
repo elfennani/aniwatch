@@ -88,6 +88,7 @@ const HomeTab = (props: Props) => {
               subtitle={item.title}
               type="carousel"
               title={`Episode ${item.progress + 1}`}
+              recyclingKey={`cover-${item.id}`}
             />
           )}
         />
@@ -129,9 +130,13 @@ const HomeTab = (props: Props) => {
           <ListingItem
             style={{ width: cardWidth }}
             thumbnail={item.cover}
-            onPrimaryPress={() => router.push(`/media/${item.id}`)}
+            onPrimaryPress={() => {
+              console.time("push");
+              router.push(`/media/${item.id}`);
+            }}
             type="grid"
             title={item.title}
+            recyclingKey={`cover-${item.id}`}
           />
         )}
       />
@@ -163,6 +168,7 @@ const HomeTab = (props: Props) => {
             onPrimaryPress={() => router.push(`/media/${item.id}`)}
             type="grid"
             title={item.title}
+            recyclingKey={`cover-${item.id}`}
           />
         )}
       />

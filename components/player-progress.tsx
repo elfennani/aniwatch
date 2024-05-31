@@ -1,35 +1,33 @@
-import {
-  DimensionValue,
-  GestureResponderEvent,
-  Pressable,
-  StyleSheet,
-  View,
-} from "react-native";
-import React, { useRef, useState } from "react";
+import { DimensionValue, StyleSheet, View } from "react-native";
+import React, { useState } from "react";
 import { AVPlaybackStatusSuccess } from "expo-av";
-import Box from "./box";
-import Text from "./text";
-import secondsToHms from "@/utils/seconds-to-hms";
-import { useTheme } from "@/ctx/theme-provider";
 import chroma from "chroma-js";
-import { TOUCH_CANCEL_DISTANCE } from "@/constants/values";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  runOnJS,
+} from "react-native-reanimated";
 
 type Props = {
   status: AVPlaybackStatusSuccess;
   onProgress: (progressMillis: number) => void;
+  onTouch: (isTouching: boolean) => void;
 };
 
-const PlayerProgress = ({ status, onProgress }: Props) => {
-  const [bulletPosition, setBulletPosition] = useState<number>();
-  const initialPosition = useRef(0);
-  const initialPageX = useRef<number>();
-  const shouldMove = useRef(false);
-  const width = useRef<number>();
-  const [bulletWidth, setBulletWidth] = useState<number>();
-  const {
-    colors: { primary: backgroundColor },
-    spacing: { md },
-  } = useTheme();
+const PlayerProgress = ({ status, onProgress, onTouch }: Props) => {
+  const [width, setWidth] = useState<number>();
+  const position = useSharedValue(0);
+  const visible = useSharedValue(0);
+
+  const derivedStyle = useAnimatedStyle(
+    () => ({
+      left: `${position.value}%`,
+      transform: [{ scale: visible.value }],
+    }),
+    [position, visible]
+  );
 
   const progressPercent = status.durationMillis
     ? (status.positionMillis / status.durationMillis) * 100
@@ -43,109 +41,66 @@ const PlayerProgress = ({ status, onProgress }: Props) => {
   const progress: DimensionValue = `${progressPercent}%`;
   const playable: DimensionValue = `${playablePercent}%`;
 
-  const minmax = (number: number) => Math.min(Math.max(number, 0), 1);
-
-  type TouchEvent = (e: GestureResponderEvent) => void;
-
-  const handleTouchStart: TouchEvent = ({ nativeEvent: { pageX } }) =>
-    (initialPosition.current = pageX);
-
-  const handleTouchMove: TouchEvent = ({ nativeEvent: { pageX } }) => {
-    if (Math.abs(pageX - initialPosition.current) > TOUCH_CANCEL_DISTANCE) {
-      shouldMove.current = true;
-    }
-
-    if (
-      !initialPageX.current ||
-      !width.current ||
-      !shouldMove.current ||
-      !bulletWidth
-    )
-      return;
-    setBulletPosition(minmax((pageX - initialPageX.current) / width.current));
+  const update = (percentage: number) => {
+    if (!status.durationMillis) return;
+    onProgress(status.durationMillis * (percentage / 100));
   };
 
-  const handleTouchEnd: TouchEvent = ({ nativeEvent: { pageX } }) => {
-    setTimeout(() => setBulletPosition(undefined), 200);
-    shouldMove.current = false;
+  const gesture = Gesture.Pan()
+    .hitSlop(16)
+    .onBegin((e) => {
+      if (!width) return;
+      const percentage = Math.max(0, Math.min(100, (e.x / width) * 100));
+      position.value = percentage;
 
-    if (!initialPageX.current || !width.current || !status.durationMillis)
-      return;
-
-    onProgress(
-      ((pageX - initialPageX.current) / width.current) * status.durationMillis
-    );
-  };
-
-  const handlePress: TouchEvent = ({ nativeEvent: { pageX } }) => {
-    if (!initialPageX.current || !width.current || !status.durationMillis)
-      return;
-
-    onProgress(
-      ((pageX - initialPageX.current) / width.current) * status.durationMillis
-    );
-  };
+      visible.value = withTiming(1, { duration: 100 });
+      runOnJS(onTouch)(true);
+    })
+    .onUpdate((e) => {
+      if (width) {
+        const percentage = Math.max(0, Math.min(100, (e.x / width) * 100));
+        position.value = percentage;
+      }
+    })
+    .onFinalize((e) => {
+      visible.value = withTiming(0, { duration: 100 });
+      if (!width) return;
+      const percentage = Math.max(0, Math.min(100, (e.x / width) * 100));
+      runOnJS(update)(percentage);
+      runOnJS(onTouch)(false);
+    });
 
   return (
-    <Box
-      style={{ position: "relative", justifyContent: "center" }}
+    <View
+      className="relative justify-center flex-1"
       onLayout={(e) => {
-        width.current = e.nativeEvent.layout.width;
-        initialPageX.current = e.nativeEvent.layout.x;
+        if (width == undefined) setWidth(e.nativeEvent.layout.width);
       }}
     >
-      <Pressable
-        onPress={handlePress}
-        hitSlop={md}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        <Box rounding="full" style={styles.progressContainer}>
-          <Box
+      <GestureDetector gesture={gesture}>
+        <View className="rounded-full h-[2] justify-center bg-[rgba(255,255,255,0.25)]">
+          <View
             hitSlop={16}
-            style={[styles.progress, { backgroundColor, width: progress }]}
+            style={{ width: progress }}
+            className="bg-white rounded-full h-[2] absolute top-0 left-0"
           />
-          <Box style={[styles.load, { width: playable }]} />
-        </Box>
-      </Pressable>
-      <Pressable
-        style={{
-          position: "absolute",
-          marginLeft: -(bulletWidth ?? 0) / 2,
-          left:
-            bulletPosition != undefined ? `${bulletPosition * 100}%` : progress,
-        }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        hitSlop={16}
-      >
-        <Box
-          width="md"
-          height="md"
-          rounding="full"
-          background="primary"
-          onLayout={(e) => setBulletWidth(e.nativeEvent.layout.width)}
-        />
-      </Pressable>
-    </Box>
+          <View
+            className="rounded-full h-[2] bg-[rgba(255,255,255,0.25)]"
+            style={{ width: playable }}
+          />
+          <Animated.View
+            className="rounded-full size-2 bg-white absolute -ml-1"
+            style={derivedStyle}
+          />
+        </View>
+      </GestureDetector>
+    </View>
   );
 };
 
 export default PlayerProgress;
 
 const styles = StyleSheet.create({
-  progressContainer: {
-    height: 2,
-    backgroundColor: chroma("#fff").alpha(0.25).css(),
-  },
-  progress: {
-    height: 2,
-    position: "absolute",
-    top: 0,
-    left: 0,
-  },
   load: {
     height: 2,
     backgroundColor: chroma("#fff").alpha(0.25).css(),

@@ -16,4 +16,4 @@ if (Constants.expoConfig?.extra?.storybookEnabled === "true") {
   AppEntryPoint = require("./.storybook").default;
 }
 
-registerRootComponent(AppEntryPoint);
+registerRootComponent(App);

@@ -1,5 +1,5 @@
 import { StyleSheet, ToastAndroid, TouchableOpacity, View } from "react-native";
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
 import Tag from "@/interfaces/Tag";
 import Section from "./section";
 import Text from "./text";
@@ -9,11 +9,8 @@ type Props = {
   tags: Tag[];
 };
 
-const TagsGrid = ({ tags }: Props) => {
+const TagsGrid = memo(({ tags }: Props) => {
   const [spoilers, setSpoilers] = useState(false);
-  const {
-    colors: { primary },
-  } = useTheme();
 
   function toggleSpoilers() {
     setSpoilers((spoiler) => !spoiler);
@@ -24,46 +21,34 @@ const TagsGrid = ({ tags }: Props) => {
   }
 
   return (
-    <Section
-      title="Tags"
-      style={{ flexWrap: "wrap", flexDirection: "row", marginHorizontal: -8 }}
-      tailing={
-        tags.some((tag) => tag.spoiler) && (
-          <TouchableOpacity
-            activeOpacity={0.75}
-            onPress={toggleSpoilers}
-            hitSlop={16}
-          >
-            <Text style={{ color: primary, fontSize: 12 }}>
-              {spoilers ? "hide" : "show"} spoilers
-            </Text>
-          </TouchableOpacity>
-        )
-      }
-    >
+    <View className="px-6 gap-4">
+      <View className="flex-row items-center justify-between">
+        <Text className="!font-medium text-2xl">Tags</Text>
+        <TouchableOpacity onPress={toggleSpoilers} hitSlop={16}>
+          <Text className="text-sm text-zinc-400 dark:text-zinc-600">
+            {spoilers ? "hide" : "show"} spoilers
+          </Text>
+        </TouchableOpacity>
+      </View>
       {tags
         .filter((tag) => !tag.spoiler || spoilers)
-        .map((tag, i) => (
-          <TouchableOpacity
-            disabled={!tag.description}
-            onLongPress={() => notify(tag.description!)}
-            key={tag.id}
-            style={[styles.tag, tag.spoiler && styles.spoiler]}
-            activeOpacity={0.8}
-          >
-            <Text
-              numberOfLines={1}
-              ellipsizeMode="tail"
-              style={{ flex: 1, fontSize: 12 }}
-            >
-              {tag.name}
+        .map((tag) => (
+          <View key={tag.id} className="flex-row items-baseline gap-2">
+            <Text className="font-medium">{tag.name}</Text>
+            {tag.spoiler && (
+              <Text className="font-medium text-xs text-purple-500 dark:text-purple-400">
+                (Spoiler)
+              </Text>
+            )}
+            <View className="flex-1 border-b border-dashed border-zinc-300" />
+            <Text className="font-medium text-purple-500 dark:text-purple-400">
+              {tag.rank}%
             </Text>
-            <Text style={{ fontSize: 12, color: primary }}>{tag.rank}%</Text>
-          </TouchableOpacity>
+          </View>
         ))}
-    </Section>
+    </View>
   );
-};
+});
 
 export default TagsGrid;
 

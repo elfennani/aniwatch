@@ -2,7 +2,7 @@ export default ({ config }) => ({
   expo: {
     name: "AniWatch",
     slug: "aniwatch",
-    version: "1.4.0",
+    version: "1.4.1",
     icon: "./assets/images/icon.png",
     scheme: "aniwatch",
     userInterfaceStyle: "automatic",
@@ -27,7 +27,7 @@ export default ({ config }) => ({
         foregroundImage: "./assets/images/adaptive-icon.png",
         backgroundColor: "#18181b",
       },
-      runtimeVersion: "1.4.0",
+      runtimeVersion: "1.4.1",
     },
     web: {
       bundler: "metro",
@@ -50,7 +50,6 @@ export default ({ config }) => ({
     extra: {
       router: { origin: false },
       eas: { projectId: "21ec2229-aea9-4ec3-99cc-91dda263fdf4" },
-      storybookEnabled: process.env.STORYBOOK_ENABLED,
     },
     updates: {
       requestHeaders: {

@@ -29,7 +29,7 @@ const PlayerLoader = ({
   media,
 }: Props) => {
   const [translation, setTranslation] = useMMKVString(keys.translationKey);
-  const [quality, setQuality] = useMMKVString(keys.qualityKey, undefined);
+  const [quality, setQuality] = useMMKVString(keys.qualityKey);
   const updateEntry = useUpdateEntry(episode, aniListId, media);
   const saved = useSavedShow(aniListId, episode);
 

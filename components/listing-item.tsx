@@ -6,7 +6,7 @@ import {
   ViewProps,
   useColorScheme,
 } from "react-native";
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, memo, useState } from "react";
 import MediaStatus from "@/interfaces/MediaStatus";
 import Text from "./text";
 import { Image, ImageBackground } from "expo-image";
@@ -26,9 +26,10 @@ type Props = {
   className?: string;
   listAltTailing?: ReactNode;
   carouselWidth?: number;
+  recyclingKey?: string | null;
 } & ViewProps;
 
-const ListingItem: React.FC<Props> = (props: Props) => {
+const ListingItem: React.FC<Props> = memo((props: Props) => {
   const scheme = useColorScheme();
   const [isPressed, setIsPressed] = useState(false);
   const dark = scheme == "dark";
@@ -90,6 +91,7 @@ const ListingItem: React.FC<Props> = (props: Props) => {
             style={{ opacity: isPressed ? activeOpacity : 1 }}
           >
             <Image
+              recyclingKey={props.recyclingKey}
               transition={150}
               source={{ uri: props.thumbnail }}
               style={{ width: "100%", height: "100%" }}
@@ -137,6 +139,7 @@ const ListingItem: React.FC<Props> = (props: Props) => {
       >
         <View className="dark:bg-zinc-700 bg-zinc-200 w-[96] aspect-[0.69] rounded-2xl overflow-hidden">
           <ImageBackground
+            recyclingKey={props.recyclingKey}
             transition={150}
             source={{ uri: props.thumbnail }}
             style={{ width: "100%", height: "100%", position: "relative" }}
@@ -155,10 +158,7 @@ const ListingItem: React.FC<Props> = (props: Props) => {
           >
             {props.title}
           </Text>
-          <Text
-            className="text-xs text-zinc-600 dark:text-zinc-400 text-center w-full"
-            numberOfLines={1}
-          >
+          <Text className="text-xs text-zinc-600 dark:text-zinc-400 text-center w-full">
             {props.subtitle}
           </Text>
         </View>
@@ -178,6 +178,7 @@ const ListingItem: React.FC<Props> = (props: Props) => {
       >
         <View className="dark:bg-zinc-700 bg-zinc-200 aspect-video">
           <ImageBackground
+            recyclingKey={props.recyclingKey}
             transition={150}
             source={{ uri: props.thumbnail }}
             style={{ width: "100%", height: "100%" }}
@@ -225,6 +226,7 @@ const ListingItem: React.FC<Props> = (props: Props) => {
     >
       <View className="dark:bg-zinc-700 bg-zinc-200 w-[96] aspect-[0.69] rounded-2xl overflow-hidden">
         <Image
+          recyclingKey={props.recyclingKey}
           transition={150}
           source={{ uri: props.thumbnail }}
           style={{ width: "100%", height: "100%" }}
@@ -250,7 +252,7 @@ const ListingItem: React.FC<Props> = (props: Props) => {
       </View>
     </TouchableOpacity>
   );
-};
+});
 
 export default ListingItem;
 

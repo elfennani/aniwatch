@@ -27,6 +27,7 @@ import * as NavigationBar from "expo-navigation-bar";
 import { DownloadManagerProvider } from "@/ctx/download-manager";
 import "../global.css";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { PortalProvider } from "@gorhom/portal";
 
 NavigationBar.setPositionAsync("absolute");
 NavigationBar.setBackgroundColorAsync("#ffffff01");
@@ -100,8 +101,7 @@ const RootLayoutNav = () => {
   const pathname = usePathname();
   const isRestoring = useIsRestoring();
   const currentTheme = scheme == "light" ? theme : darkTheme;
-  const backgroundColor =
-    scheme == "light" ? theme.colors.background : darkTheme.colors.background;
+  const backgroundColor = scheme == "light" ? "white" : "black";
 
   const darkThemeOverrides: Theme = {
     ...DarkTheme,
@@ -142,11 +142,13 @@ const RootLayoutNav = () => {
         <ThemeProvider>
           <SessionProvider>
             <DownloadManagerProvider>
-              <StatusBar
-                hidden={false}
-                style={scheme == "light" ? "dark" : "light"}
-              />
-              <Slot />
+              <PortalProvider>
+                <StatusBar
+                  hidden={false}
+                  style={scheme == "light" ? "dark" : "light"}
+                />
+                <Slot />
+              </PortalProvider>
             </DownloadManagerProvider>
           </SessionProvider>
         </ThemeProvider>

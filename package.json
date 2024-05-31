@@ -15,6 +15,7 @@
   "dependencies": {
     "@expo-google-fonts/manrope": "^0.2.3",
     "@expo/vector-icons": "^14.0.0",
+    "@gorhom/portal": "^1.0.14",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-native-community/datetimepicker": "8.0.1",
     "@react-navigation/native": "^6.0.2",
@@ -63,9 +64,12 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.74.1",
+    "react-native-collapsible-tab-view": "^7.0.1",
+    "react-native-gesture-handler": "~2.16.1",
     "react-native-iconify": "^1.0.1",
     "react-native-mmkv": "^2.12.2",
     "react-native-music-control": "^1.4.1",
+    "react-native-pager-view": "^6.3.0",
     "react-native-reanimated": "~3.10.1",
     "react-native-render-html": "^6.3.4",
     "react-native-safe-area-context": "4.10.1",
@@ -79,9 +83,7 @@
     "string-to-color": "^2.2.2",
     "tailwind-merge": "^2.3.0",
     "tailwindcss": "^3.4.3",
-    "ts-retry-promise": "^0.8.0",
-    "react-native-pager-view": "6.3.0",
-    "react-native-gesture-handler": "~2.16.1"
+    "ts-retry-promise": "^0.8.0"
   },
   "devDependencies": {
     "@0no-co/graphqlsp": "^1.10.1",

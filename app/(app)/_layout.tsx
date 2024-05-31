@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, useColorScheme } from "react-native";
 import React, { useEffect } from "react";
 import { Redirect, SplashScreen, Stack } from "expo-router";
 import { useSession } from "@/ctx/session";
@@ -9,9 +9,8 @@ SplashScreen.preventAutoHideAsync();
 
 const AppLayout = () => {
   const { session } = useSession();
-  const {
-    colors: { background },
-  } = useTheme();
+  const scheme = useColorScheme();
+  const background = scheme == "dark" ? "black" : "white";
 
   if (!session) {
     return <Redirect href={"/signin" as any} />;
@@ -23,6 +22,7 @@ const AppLayout = () => {
         orientation: "portrait",
         headerShown: false,
         navigationBarColor: chroma(background).alpha(0).css(),
+        contentStyle: { backgroundColor: background },
       }}
     >
       <Stack.Screen

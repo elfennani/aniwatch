@@ -1,86 +1,46 @@
-import {
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  useWindowDimensions,
-} from "react-native";
-import React, { useCallback } from "react";
+import { StyleSheet, View } from "react-native";
+import React, { memo } from "react";
 import ShowRelation from "@/interfaces/ShowRelation";
-import Section from "./section";
-import { FlashList, ListRenderItem } from "@shopify/flash-list";
-import { Link } from "expo-router";
-import { ImageBackground } from "expo-image";
+import { FlashList } from "@shopify/flash-list";
+import { router } from "expo-router";
 import Text from "./text";
-import { useTheme } from "@/ctx/theme-provider";
+import ListingItem from "./listing-item";
 
 type Props = {
   relations: ShowRelation[];
 };
 
-const MediaRelations = ({ relations }: Props) => {
-  const { width } = useWindowDimensions();
-
-  const renderItem: ListRenderItem<ShowRelation> = useCallback(
-    ({ item }) => <MediaRelationItem relation={item} />,
-    []
-  );
-
-  const separator = useCallback(
-    () => <View style={{ width: 16, height: 16 }} />,
-    []
-  );
-
+const MediaRelations = memo(({ relations }: Props) => {
   return (
-    <Section title="Relations" titlePaddingOnly>
+    <View className="gap-4">
+      <View className="flex-row items-center justify-between px-6">
+        <Text className="!font-medium text-2xl">Relations</Text>
+      </View>
       <FlashList
         data={relations}
-        horizontal
-        contentContainerStyle={{ paddingHorizontal: 32 }}
-        fadingEdgeLength={75}
-        estimatedItemSize={132.48}
-        estimatedListSize={{ height: 192, width }}
-        ItemSeparatorComponent={separator}
-        renderItem={renderItem}
+        pagingEnabled
+        snapToInterval={96 + 16}
+        estimatedItemSize={96}
+        nestedScrollEnabled
+        decelerationRate="normal"
         showsHorizontalScrollIndicator={false}
+        horizontal
+        contentContainerClassName="p-6"
+        ItemSeparatorComponent={() => <View style={{ width: 16 }} />}
+        renderItem={({ item }) => (
+          <ListingItem
+            thumbnail={item.cover}
+            onPrimaryPress={() => router.push(`/media/${item.id}`)}
+            type="grid"
+            title={item.title}
+            subtitle={`${item.relationType} • ${item.type}`}
+            recyclingKey={`cover-${item.id}`}
+          />
+        )}
       />
-    </Section>
+    </View>
   );
-};
-
-const MediaRelationItem = ({
-  relation: { title, cover, id, relationType, type },
-}: {
-  relation: ShowRelation;
-}) => {
-  const {
-    colors: { card },
-  } = useTheme();
-  return (
-    <Link href={`/media/${id}` as any} asChild>
-      <TouchableOpacity activeOpacity={0.8}>
-        <ImageBackground
-          cachePolicy="memory-disk"
-          recyclingKey={id.toString()}
-          source={{ uri: cover }}
-          style={[styles.gridThumbnail, { backgroundColor: card }]}
-          contentFit="cover"
-        >
-          <View style={styles.gridInfo}>
-            <Text numberOfLines={3} variant="label" style={{ color: "white" }}>
-              {title}
-            </Text>
-            <Text variant="small" color="primary">
-              {type}
-            </Text>
-            <Text variant="small" color="primary">
-              {relationType}
-            </Text>
-          </View>
-        </ImageBackground>
-      </TouchableOpacity>
-    </Link>
-  );
-};
+});
 
 export default MediaRelations;
 

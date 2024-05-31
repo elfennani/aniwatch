@@ -105,6 +105,7 @@ const fetchShowById = async ({ id }: Params, anilist: GraphQLClient, allanime: G
     chapters: media?.chapters ?? undefined,
     type: media?.type!,
     year: media?.seasonYear!,
+    season: media?.season ?? undefined,
     episodes,
     mainCharacters: media?.characters?.edges?.map(ch => ({
       id: ch?.id ?? 0!,

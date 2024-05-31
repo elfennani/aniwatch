@@ -2,6 +2,7 @@ import Character from './Character';
 import { Episode } from './Episode'
 import MediaDate from './MediaDate';
 import MediaFormat from './MediaFormat';
+import MediaSeason from './MediaSeason';
 import MediaSource from './MediaSource';
 import MediaStatus from './MediaStatus';
 import ShowRelation from './ShowRelation';
@@ -37,5 +38,6 @@ export interface ShowDetails {
   showEndDate?: MediaDate,
   source?: MediaSource
   mainCharacters: Character[];
+  season?: MediaSeason
 }
 

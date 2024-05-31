@@ -1,23 +1,20 @@
-import {
-  GestureResponderEvent,
-  Pressable,
-  StyleSheet,
-  View,
-  useWindowDimensions,
-} from "react-native";
+import { StyleSheet, View, useWindowDimensions } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { AVPlaybackStatus, ResizeMode, Video } from "expo-av";
 import PlayerControls from "./player-controls";
 import {
   BACKWARD_DURATION,
   CONTROLS_TIMEOUT,
-  DOUBLE_PRESS_DELAY,
   FORWARD_DURATION,
-  TOUCH_CANCEL_DISTANCE,
 } from "@/constants/values";
 import { storage } from "@/utils/mmkv";
 import * as keys from "@/constants/keys";
-import Stats from "./stats";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Options from "./options";
+import { Iconify } from "react-native-iconify";
+import { zinc } from "tailwindcss/colors";
+import { usePlayerData } from "@/ctx/player-data";
+import { useMMKVString } from "react-native-mmkv";
 
 type Props = {
   url: string;
@@ -30,14 +27,15 @@ type TO = NodeJS.Timeout | null;
 
 const Player = ({ url, threshold, onOverThreshold }: Props) => {
   const video = useRef<Video>(null);
-  const isFirstPress = useRef(false);
-  const doublePressTimeout = useRef<TO>(null);
-  const initialPress = useRef({ x: 0, y: 0 });
-  const canceled = useRef(false);
   const [status, setStatus, initial] = useStatus(url);
+  const [settings, setSettings] = useState(false);
+  const [qualityOverlay, setQualityOverlay] = useState(false);
   const [isTouchingControls, setIsTouchingControls] = useState(false);
+  const [quality, setQuality] = useMMKVString(keys.qualityKey);
+  const [translation, setTranslation] = useMMKVString(keys.translationKey);
   const [controls, setControls] = useControlsStatus(status, isTouchingControls);
   const { width } = useWindowDimensions();
+  const { qualities, dubbed } = usePlayerData();
 
   useEffect(() => {
     if (!status?.isLoaded || !status.durationMillis) return;
@@ -46,21 +44,26 @@ const Player = ({ url, threshold, onOverThreshold }: Props) => {
     }
   }, [status]);
 
-  function handler({
-    nativeEvent: { locationX, ...ev },
-  }: GestureResponderEvent) {
-    if (canceled.current) {
-      canceled.current = false;
-      return;
-    }
-    if (!status?.isLoaded) return;
+  const tapGesture = Gesture.Tap()
+    .runOnJS(true)
+    .maxDelay(150)
+    .numberOfTaps(1)
+    .onEnd((e) => {
+      console.log("first");
+      setControls((c) => !c);
+    });
 
-    if (isFirstPress.current) {
-      if (locationX < width / 3) {
+  const doubleTapGesture = Gesture.Tap()
+    .maxDelay(150)
+    .numberOfTaps(2)
+    .runOnJS(true)
+    .onEnd(({ x }) => {
+      if (!status?.isLoaded) return;
+      if (x < width / 3) {
         video.current?.setPositionAsync(
           status.positionMillis - BACKWARD_DURATION
         );
-      } else if (locationX > (2 * width) / 3) {
+      } else if (x > (2 * width) / 3) {
         video.current?.setPositionAsync(
           status.positionMillis + FORWARD_DURATION
         );
@@ -68,56 +71,93 @@ const Player = ({ url, threshold, onOverThreshold }: Props) => {
         if (status.isPlaying) video.current?.pauseAsync();
         else video.current?.playAsync();
       }
+    });
 
-      clearTimeout(doublePressTimeout.current!);
-      doublePressTimeout.current = null;
-      isFirstPress.current = false;
-      return;
-    }
+  const gesture = Gesture.Exclusive(doubleTapGesture, tapGesture);
 
-    isFirstPress.current = true;
-    doublePressTimeout.current = setTimeout(() => {
-      isFirstPress.current = false;
-      doublePressTimeout.current = null;
-      setControls((c) => !c);
-    }, DOUBLE_PRESS_DELAY);
-  }
+  const hdIcon = (
+    <Iconify
+      icon="material-symbols-light:high-quality-outline-sharp"
+      size={24}
+      color={zinc[300]}
+    />
+  );
 
-  function handleTouchStart(e: GestureResponderEvent) {
-    initialPress.current = { x: e.nativeEvent.pageX, y: e.nativeEvent.pageY };
-  }
+  const sdIcon = (
+    <Iconify
+      icon="material-symbols-light:sd-outline-sharp"
+      size={24}
+      color={zinc[300]}
+    />
+  );
 
-  function handleTouchMove(e: GestureResponderEvent) {
-    const { x: x1, y: y1 } = initialPress.current;
-    const { pageX: x2, pageY: y2 } = e.nativeEvent;
-    const distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-
-    if (distance > TOUCH_CANCEL_DISTANCE) {
-      setIsTouchingControls(true);
-      canceled.current = true;
-    }
-  }
+  const voiceIcon = (
+    <Iconify
+      icon="material-symbols-light:record-voice-over-outline"
+      size={24}
+      color={zinc[300]}
+    />
+  );
 
   return (
-    <Pressable
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={() => setIsTouchingControls(false)}
-      onPress={handler}
-    >
-      <View style={styles.container}>
-        <Video
-          ref={video}
-          style={{ width: "100%", height: "100%" }}
-          resizeMode={ResizeMode.CONTAIN}
-          shouldPlay
-          onPlaybackStatusUpdate={setStatus}
-          source={{ uri: url }}
-          status={initial}
+    <>
+      <Options visible={settings} onClose={() => setSettings(false)}>
+        <Options.Option
+          icon={hdIcon}
+          title="Change Quality"
+          subtitle={quality ?? "auto"}
+          onPress={() => setQualityOverlay(true)}
+          more
         />
-      </View>
-      <PlayerControls status={status} videoRef={video} visible={controls} />
-    </Pressable>
+        {dubbed && (
+          <Options.Option
+            icon={voiceIcon}
+            title="Switch Language"
+            subtitle={translation == "dub" ? "DUB" : "SUB"}
+            onPress={() =>
+              setTranslation((translation ?? "sub") == "dub" ? "sub" : "dub")
+            }
+          />
+        )}
+      </Options>
+      <Options
+        visible={qualityOverlay}
+        onClose={() => setQualityOverlay(false)}
+      >
+        {qualities?.map((q) => (
+          <Options.Option
+            key={q}
+            disabled={(quality ?? "auto") == q}
+            icon={hdIcon}
+            title={q}
+            onPress={() => setQuality(q)}
+          />
+        ))}
+      </Options>
+      <GestureDetector gesture={gesture}>
+        <View style={{ flex: 1 }}>
+          <View style={styles.container}>
+            <Video
+              ref={video}
+              style={{ width: "100%", height: "100%" }}
+              resizeMode={ResizeMode.CONTAIN}
+              shouldPlay
+              onPlaybackStatusUpdate={setStatus}
+              source={{ uri: url }}
+              status={initial}
+              progressUpdateIntervalMillis={300}
+            />
+          </View>
+          <PlayerControls
+            status={status}
+            videoRef={video}
+            visible={controls}
+            onTouch={setIsTouchingControls}
+            onSettings={() => setSettings(true)}
+          />
+        </View>
+      </GestureDetector>
+    </>
   );
 };
 

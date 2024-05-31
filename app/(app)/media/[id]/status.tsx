@@ -21,6 +21,7 @@ import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import MediaDate from "@/interfaces/MediaDate";
 import Heading from "@/components/heading";
 import useStatusMutation from "@/api/use-status-mutation";
+import Animated, { FadeInLeft, FadeInRight } from "react-native-reanimated";
 
 type Props = {};
 
@@ -143,7 +144,7 @@ const Status = (props: Props) => {
   );
 
   return (
-    <>
+    <Animated.View entering={FadeInRight}>
       <Box>
         <StatusSelectBottomSheet
           status={state.status}
@@ -229,7 +230,7 @@ const Status = (props: Props) => {
           </Box>
         </Box>
       </TouchableOpacity>
-    </>
+    </Animated.View>
   );
 };
 
