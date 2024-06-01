@@ -1,5 +1,6 @@
 import {
   Animated,
+  BackHandler,
   FlatList,
   StyleSheet,
   TouchableOpacity,
@@ -16,11 +17,11 @@ import {
   TabView,
 } from "react-native-tab-view";
 import { useEffect, useMemo, useRef, useState } from "react";
-import Text from "@/components/text";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import HomeTab from "@/components/screens/home-tab";
 import useViewerQuery from "@/api/use-viewer-query";
 import MediaByStatus from "@/components/screens/media-by-status-tab";
+import { usePathname } from "expo-router";
 
 const status: MediaStatus[] = ["COMPLETED", "CURRENT"];
 const routes: Route[] = [
@@ -104,8 +105,22 @@ const HomePage = () => {
   const { width } = useWindowDimensions();
   const scheme = useColorScheme();
   const backgroundColor = scheme == "dark" ? "black" : "white";
+  const pathname = usePathname();
 
   const { data: viewer } = useViewerQuery();
+
+  useEffect(() => {
+    const { remove } = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (index != 0 && pathname == "/") {
+        setIndex(0);
+        return true;
+      }
+
+      return false;
+    });
+
+    return () => remove();
+  }, [index, pathname]);
 
   const renderScene = useMemo(
     () =>
