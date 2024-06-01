@@ -11,39 +11,32 @@ import Animated, {
 } from "react-native-reanimated";
 
 type Props = {
-  status: AVPlaybackStatusSuccess;
   onProgress: (progressMillis: number) => void;
   onTouch: (isTouching: boolean) => void;
+  position: number;
+  duration?: number;
 };
 
-const PlayerProgress = ({ status, onProgress, onTouch }: Props) => {
+const PlayerProgress = ({ position, duration, onProgress, onTouch }: Props) => {
   const [width, setWidth] = useState<number>();
-  const position = useSharedValue(0);
+  const left = useSharedValue(0);
   const visible = useSharedValue(0);
 
   const derivedStyle = useAnimatedStyle(
     () => ({
-      left: `${position.value}%`,
+      left: `${left.value}%`,
       transform: [{ scale: visible.value }],
     }),
-    [position, visible]
+    [left, visible]
   );
 
-  const progressPercent = status.durationMillis
-    ? (status.positionMillis / status.durationMillis) * 100
-    : 0;
-
-  const playablePercent =
-    status.durationMillis && status.playableDurationMillis
-      ? (status?.playableDurationMillis / status.durationMillis) * 100
-      : 0;
+  const progressPercent = duration ? (position / duration) * 100 : 0;
 
   const progress: DimensionValue = `${progressPercent}%`;
-  const playable: DimensionValue = `${playablePercent}%`;
 
   const update = (percentage: number) => {
-    if (!status.durationMillis) return;
-    onProgress(status.durationMillis * (percentage / 100));
+    if (!duration) return;
+    onProgress(duration * (percentage / 100));
   };
 
   const gesture = Gesture.Pan()
@@ -51,7 +44,7 @@ const PlayerProgress = ({ status, onProgress, onTouch }: Props) => {
     .onBegin((e) => {
       if (!width) return;
       const percentage = Math.max(0, Math.min(100, (e.x / width) * 100));
-      position.value = percentage;
+      left.value = percentage;
 
       visible.value = withTiming(1, { duration: 100 });
       runOnJS(onTouch)(true);
@@ -59,7 +52,7 @@ const PlayerProgress = ({ status, onProgress, onTouch }: Props) => {
     .onUpdate((e) => {
       if (width) {
         const percentage = Math.max(0, Math.min(100, (e.x / width) * 100));
-        position.value = percentage;
+        left.value = percentage;
       }
     })
     .onFinalize((e) => {
@@ -83,10 +76,6 @@ const PlayerProgress = ({ status, onProgress, onTouch }: Props) => {
             hitSlop={16}
             style={{ width: progress }}
             className="bg-white rounded-full h-[2] absolute top-0 left-0"
-          />
-          <View
-            className="rounded-full h-[2] bg-[rgba(255,255,255,0.25)]"
-            style={{ width: playable }}
           />
           <Animated.View
             className="rounded-full size-2 bg-white absolute -ml-1"

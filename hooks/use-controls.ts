@@ -1,33 +1,25 @@
 import { BACKWARD_DURATION, FORWARD_DURATION, LONG_BACKWARD_DURATION, LONG_FORWARD_DURATION } from "@/constants/values";
 import { AVPlaybackStatus, Video } from "expo-av";
+import { VideoPlayer } from 'expo-video'
+
 
 const useControls = (
-  status: AVPlaybackStatus | undefined,
-  video: React.RefObject<Video>
+  player: VideoPlayer
 ) => ({
-  backward: (intro = false) => {
-    if (!status?.isLoaded) return;
-    if (status.positionMillis < 10000) {
-      video.current?.setPositionAsync(0);
+  backward: () => {
+    if (player.currentTime < 10) {
+      player.currentTime = 0
       return;
     }
 
-    video.current?.setPositionAsync(
-      status.positionMillis -
-      (intro ? LONG_BACKWARD_DURATION : BACKWARD_DURATION)
-    );
+    player.currentTime = player.currentTime - (BACKWARD_DURATION / 1000)
   },
   togglePlayback: () => {
-    if (!status?.isLoaded) return;
-
-    if (status.isPlaying) video.current?.pauseAsync();
-    else video.current?.playAsync();
+    if (player.playing) player.pause();
+    else player.play();
   },
-  forward: (intro: boolean = false) => {
-    if (!status?.isLoaded) return;
-    video.current?.setPositionAsync(
-      status.positionMillis + (intro ? LONG_FORWARD_DURATION : FORWARD_DURATION)
-    );
+  forward: () => {
+    player.currentTime = player.currentTime + (FORWARD_DURATION / 1000)
   },
 });
 

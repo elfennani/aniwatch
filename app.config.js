@@ -2,7 +2,7 @@ export default ({ config }) => ({
   expo: {
     name: "AniWatch",
     slug: "aniwatch",
-    version: "1.4.1",
+    version: "2.0.0",
     icon: "./assets/images/icon.png",
     scheme: "aniwatch",
     userInterfaceStyle: "automatic",
@@ -27,7 +27,7 @@ export default ({ config }) => ({
         foregroundImage: "./assets/images/adaptive-icon.png",
         backgroundColor: "#18181b",
       },
-      runtimeVersion: "1.4.1",
+      runtimeVersion: "2.0.0",
     },
     web: {
       bundler: "metro",

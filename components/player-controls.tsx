@@ -22,26 +22,31 @@ import { router } from "expo-router";
 import { Portal } from "@gorhom/portal";
 import { zinc } from "tailwindcss/colors";
 import Options from "./options";
+import { VideoPlayer } from "expo-video";
+import { duration } from "moment";
 
 type Props = {
   visible: boolean;
-  videoRef: React.RefObject<Video>;
-  status: AVPlaybackStatus | undefined;
+  player: VideoPlayer;
+  duration?: number;
+  position: number;
+  isPlaying: boolean;
   onTouch: (isTouching: boolean) => void;
   onSettings?: () => void;
 };
 
 const PlayerControls = ({
-  status,
-  videoRef: video,
+  player,
   visible,
   onTouch,
   onSettings,
+  isPlaying,
+  duration,
+  position,
 }: Props) => {
-  const { togglePlayback } = useControls(status, video);
-  if (!status?.isLoaded) return;
+  const { togglePlayback } = useControls(player);
 
-  const playbackIcon = status.isPlaying ? (
+  const playbackIcon = isPlaying ? (
     <Iconify
       icon="material-symbols-light:pause-outline"
       size={32}
@@ -55,9 +60,8 @@ const PlayerControls = ({
     />
   );
 
-  const duration =
-    status.durationMillis && secondsToHms(status.durationMillis / 1000);
-  const position = secondsToHms(status.positionMillis / 1000);
+  const durationString = duration && secondsToHms(duration);
+  const positionString = secondsToHms(position);
 
   if (!visible) return;
 
@@ -91,15 +95,16 @@ const PlayerControls = ({
               style={{ width: 50 }}
               adjustsFontSizeToFit
             >
-              {position}
+              {positionString}
             </Text>
             <PlayerProgress
               onTouch={onTouch}
-              status={status}
-              onProgress={(pos) => video.current?.setPositionAsync(pos)}
+              position={position}
+              duration={duration}
+              onProgress={(pos) => (player.currentTime = pos)}
             />
             <Text className="!text-white text-sm font-semibold">
-              {duration}
+              {durationString}
             </Text>
           </View>
           <TapGestureHandler>

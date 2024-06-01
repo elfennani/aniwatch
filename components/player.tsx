@@ -1,6 +1,5 @@
 import { StyleSheet, View, useWindowDimensions } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
-import { AVPlaybackStatus, ResizeMode, Video } from "expo-av";
 import PlayerControls from "./player-controls";
 import {
   BACKWARD_DURATION,
@@ -12,9 +11,10 @@ import * as keys from "@/constants/keys";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Options from "./options";
 import { Iconify } from "react-native-iconify";
-import { zinc } from "tailwindcss/colors";
+import { trueGray, zinc } from "tailwindcss/colors";
 import { usePlayerData } from "@/ctx/player-data";
 import { useMMKVString } from "react-native-mmkv";
+import { useVideoPlayer, VideoView } from "expo-video";
 
 type Props = {
   url: string;
@@ -26,30 +26,87 @@ type Props = {
 type TO = NodeJS.Timeout | null;
 
 const Player = ({ url, threshold, onOverThreshold }: Props) => {
-  const video = useRef<Video>(null);
-  const [status, setStatus, initial] = useStatus(url);
+  const initialUrl = useRef(url);
   const [settings, setSettings] = useState(false);
   const [qualityOverlay, setQualityOverlay] = useState(false);
   const [isTouchingControls, setIsTouchingControls] = useState(false);
   const [quality, setQuality] = useMMKVString(keys.qualityKey);
   const [translation, setTranslation] = useMMKVString(keys.translationKey);
-  const [controls, setControls] = useControlsStatus(status, isTouchingControls);
   const { width } = useWindowDimensions();
   const { qualities, dubbed, title, episode } = usePlayerData();
+  const [positionSeconds, setPositionSeconds] = useState(0);
+  const positionRef = useRef(positionSeconds);
+  const [durationSeconds, setDurationSeconds] = useState<number>();
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [controls, setControls] = useControlsStatus(
+    isPlaying,
+    isTouchingControls
+  );
+  const player = useVideoPlayer(
+    {
+      uri: initialUrl.current,
+      metadata: { title: `Episode ${episode}`, artist: title },
+    },
+    (player) => {
+      player.play();
+      player.showNowPlayingNotification = true;
+    }
+  );
 
   useEffect(() => {
-    if (!status?.isLoaded || !status.durationMillis) return;
-    if (status.positionMillis / status.durationMillis > (threshold ?? 0.8)) {
+    if (!durationSeconds) return;
+    if (positionSeconds / durationSeconds > (threshold ?? 0.8)) {
       onOverThreshold?.();
     }
-  }, [status]);
+  }, [positionSeconds, durationSeconds]);
+
+  useEffect(() => {
+    player.replace({
+      uri: url,
+      metadata: { title: `Episode ${episode}`, artist: title },
+    });
+
+    return () => {};
+  }, [url]);
+
+  useEffect(() => {
+    const unsubStatus = player.addListener("statusChange", (status) => {
+      console.log(status);
+      if (status == "readyToPlay" || status == "idle") {
+        setDurationSeconds(player.duration);
+      }
+    });
+
+    const unsubSource = player.addListener("sourceChange", (source) => {
+      console.log(positionRef.current);
+      player.currentTime = positionRef.current;
+    });
+
+    const unsubPlayback = player.addListener("playingChange", (isPlaying) =>
+      setIsPlaying(isPlaying)
+    );
+
+    return () => {
+      unsubPlayback.remove();
+      unsubSource.remove();
+      unsubStatus.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPositionSeconds(player.currentTime);
+      positionRef.current = player.currentTime;
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [player]);
 
   const tapGesture = Gesture.Tap()
     .runOnJS(true)
     .maxDelay(150)
     .numberOfTaps(1)
     .onEnd((e) => {
-      console.log("first");
       setControls((c) => !c);
     });
 
@@ -58,18 +115,13 @@ const Player = ({ url, threshold, onOverThreshold }: Props) => {
     .numberOfTaps(2)
     .runOnJS(true)
     .onEnd(({ x }) => {
-      if (!status?.isLoaded) return;
       if (x < width / 3) {
-        video.current?.setPositionAsync(
-          status.positionMillis - BACKWARD_DURATION
-        );
+        player.seekBy(-BACKWARD_DURATION / 1000);
       } else if (x > (2 * width) / 3) {
-        video.current?.setPositionAsync(
-          status.positionMillis + FORWARD_DURATION
-        );
+        player.seekBy(FORWARD_DURATION / 1000);
       } else {
-        if (status.isPlaying) video.current?.pauseAsync();
-        else video.current?.playAsync();
+        if (player.playing) player.pause();
+        else player.play();
       }
     });
 
@@ -137,20 +189,18 @@ const Player = ({ url, threshold, onOverThreshold }: Props) => {
       <GestureDetector gesture={gesture}>
         <View style={{ flex: 1 }}>
           <View style={styles.container}>
-            <Video
-              ref={video}
+            <VideoView
               style={{ width: "100%", height: "100%" }}
-              resizeMode={ResizeMode.CONTAIN}
-              shouldPlay
-              onPlaybackStatusUpdate={setStatus}
-              source={{ uri: url }}
-              status={initial}
-              progressUpdateIntervalMillis={300}
+              contentFit="contain"
+              player={player}
+              nativeControls={false}
             />
           </View>
           <PlayerControls
-            status={status}
-            videoRef={video}
+            player={player}
+            isPlaying={isPlaying}
+            position={positionSeconds}
+            duration={durationSeconds}
             visible={controls}
             onTouch={setIsTouchingControls}
             onSettings={() => setSettings(true)}
@@ -161,34 +211,29 @@ const Player = ({ url, threshold, onOverThreshold }: Props) => {
   );
 };
 
-const useStatus = (url: string) => {
-  const [initialStatus, setInitialStatus] = useState<AVPlaybackStatus>();
-  const [status, setStatus] = useState<AVPlaybackStatus>();
+// const useStatus = (url: string) => {
+//   const [initialStatus, setInitialStatus] = useState<AVPlaybackStatus>();
+//   const [status, setStatus] = useState<AVPlaybackStatus>();
 
-  useEffect(() => {
-    const listener = storage.addOnValueChangedListener((key) => {
-      if ([keys.qualityKey, keys.translationKey].includes(key)) {
-        setInitialStatus(status);
-      }
-    });
+//   useEffect(() => {
+//     const listener = storage.addOnValueChangedListener((key) => {
+//       if ([keys.qualityKey, keys.translationKey].includes(key)) {
+//         setInitialStatus(status);
+//       }
+//     });
 
-    return () => listener.remove();
-  }, [status]);
+//     return () => listener.remove();
+//   }, [status]);
 
-  return [status, setStatus, initialStatus] as const;
-};
+//   return [status, setStatus, initialStatus] as const;
+// };
 
-const useControlsStatus = (
-  status: AVPlaybackStatus | undefined,
-  disableTimeout = false
-) => {
+const useControlsStatus = (isPlaying: boolean, disableTimeout = false) => {
   const [controls, setControls] = useState(false);
   const timeoutControls = useRef<TO>(null);
 
   useEffect(() => {
-    if (!status?.isLoaded) return;
-
-    if (status.isPlaying && controls && !timeoutControls.current) {
+    if (isPlaying && controls && !timeoutControls.current) {
       timeoutControls.current = setTimeout(() => {
         setControls(false);
         timeoutControls.current = null;
@@ -196,13 +241,13 @@ const useControlsStatus = (
     }
 
     if (
-      (!status.isPlaying || disableTimeout || !controls) &&
+      (!isPlaying || disableTimeout || !controls) &&
       !!timeoutControls.current
     ) {
       clearTimeout(timeoutControls.current);
       timeoutControls.current = null;
     }
-  }, [status, controls, disableTimeout]);
+  }, [isPlaying, controls, disableTimeout]);
 
   return [controls, setControls] as const;
 };
