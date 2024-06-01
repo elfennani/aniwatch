@@ -47,7 +47,7 @@ const home_query = graphql(`
     }
 
     Completed: Page(perPage: 10){
-      mediaList(userId: $userId, type: ANIME, status: COMPLETED, sort: [FINISHED_ON,UPDATED_TIME_DESC]){
+      mediaList(userId: $userId, type: ANIME, status: COMPLETED, sort: [FINISHED_ON_DESC,UPDATED_TIME_DESC]){
         media {
           ...SimpleMedia
         }
