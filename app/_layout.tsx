@@ -11,9 +11,9 @@ import { Slot, SplashScreen, usePathname } from "expo-router";
 import { SessionProvider } from "@/ctx/session";
 import {
   useFonts,
-  Manrope_400Regular,
-  Manrope_500Medium,
-  Manrope_600SemiBold,
+  Manrope_400Regular as Regular,
+  Manrope_500Medium as Medium,
+  Manrope_600SemiBold as SemiBold,
 } from "@expo-google-fonts/manrope";
 import { StatusBar } from "expo-status-bar";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
@@ -66,9 +66,9 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const scheme = useColorScheme();
   const [loaded, error] = useFonts({
-    regular: Manrope_400Regular,
-    medium: Manrope_500Medium,
-    semibold: Manrope_600SemiBold,
+    regular: Regular,
+    medium: Medium,
+    semibold: SemiBold,
   });
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.

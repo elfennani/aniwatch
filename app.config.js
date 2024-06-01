@@ -43,6 +43,7 @@ export default ({ config }) => ({
       ],
       "expo-font",
       "expo-router",
+      "expo-video",
     ],
     experiments: {
       typedRoutes: true,

@@ -131,7 +131,6 @@ const HomeTab = (props: Props) => {
             style={{ width: cardWidth }}
             thumbnail={item.cover}
             onPrimaryPress={() => {
-              console.time("push");
               router.push(`/media/${item.id}`);
             }}
             type="grid"

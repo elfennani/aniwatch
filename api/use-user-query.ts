@@ -1,7 +1,6 @@
 import useAniListClient from "@/hooks/use-anilist-client"
 import User from "@/interfaces/User";
 import { useQuery } from "@tanstack/react-query";
-import { setStringAsync } from "expo-clipboard";
 import { graphql } from "gql.tada"
 import { GraphQLClient } from "graphql-request";
 

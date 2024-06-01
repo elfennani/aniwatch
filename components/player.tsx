@@ -35,7 +35,7 @@ const Player = ({ url, threshold, onOverThreshold }: Props) => {
   const [translation, setTranslation] = useMMKVString(keys.translationKey);
   const [controls, setControls] = useControlsStatus(status, isTouchingControls);
   const { width } = useWindowDimensions();
-  const { qualities, dubbed } = usePlayerData();
+  const { qualities, dubbed, title, episode } = usePlayerData();
 
   useEffect(() => {
     if (!status?.isLoaded || !status.durationMillis) return;

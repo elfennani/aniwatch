@@ -1,6 +1,5 @@
 import { StyleSheet, View, useColorScheme } from "react-native";
 import React, { useMemo } from "react";
-import stc from "string-to-color";
 import Text from "@/components/text";
 import { LinearGradient } from "expo-linear-gradient";
 import { Image, ImageBackground } from "expo-image";

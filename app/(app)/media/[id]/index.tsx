@@ -9,7 +9,6 @@ import React, { useEffect, useMemo, useRef } from "react";
 import MediaHeading from "@/components/media-heading";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import useShowQuery from "@/api/use-show-query";
-import { CollapsibleRef, Tabs } from "react-native-collapsible-tab-view";
 import { Iconify } from "react-native-iconify";
 import { purple } from "tailwindcss/colors";
 import ListingItem from "@/components/listing-item";
