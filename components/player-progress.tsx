@@ -76,10 +76,10 @@ const PlayerProgress = ({ position, duration, onProgress, onTouch }: Props) => {
       }}
     >
       <Animated.View
-        className="absolute -top-12 !text-white bg-[rgba(0,0,0,0.15)] rounded-full px-2 py-1 items-center"
+        className="absolute -top-12 bg-[rgba(0,0,0,0.15)] rounded-full px-2 py-1 items-center"
         style={[{ minWidth: 48, marginLeft: -24 }, derivedStyle]}
       >
-        <Text className="text-xs">
+        <Text className="text-xs !text-white">
           {secondsToHms((positionPan * (duration ?? 0)) / 100)}
         </Text>
       </Animated.View>
