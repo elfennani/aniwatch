@@ -3,5 +3,6 @@ export default interface Media {
   title: string,
   progress: number;
   episodes: number
-  cover: string
+  cover: string;
+  hdCover?: string;
 }

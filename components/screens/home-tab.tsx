@@ -1,4 +1,5 @@
 import {
+  RefreshControl,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -7,13 +8,14 @@ import {
 } from "react-native";
 import React, { useCallback, useState } from "react";
 import useViewerQuery from "@/api/use-viewer-query";
-import useMediaByStatusQuery from "@/api/use-media-by-status-query";
 import MediaStatus from "@/interfaces/MediaStatus";
 import Text from "../text";
 import { FlashList, ViewToken } from "@shopify/flash-list";
 import ListingItem from "../listing-item";
 import cn from "@/utils/cn";
 import { useRouter } from "expo-router";
+import useMediaListing from "@/api/use-media-listing";
+import useHomeMedia from "@/api/use-home-media";
 
 type Props = {};
 
@@ -43,8 +45,10 @@ const HomeTab = (props: Props) => {
     isRefetching: isMediaRefetching,
     refetch: refetchMedia,
     error: mediaError,
-  } = useMediaByStatusQuery(
-    { viewer: viewer?.id!, status, infinite: false, max: 10 },
+  } = useHomeMedia(
+    {
+      userId: viewer?.id!,
+    },
     !viewer
   );
 
@@ -62,10 +66,18 @@ const HomeTab = (props: Props) => {
   if (!viewer || !media) return <Text>Loading...</Text>;
 
   return (
-    <ScrollView contentContainerClassName="py-4 gap-6">
+    <ScrollView
+      contentContainerClassName="py-4 gap-6"
+      refreshControl={
+        <RefreshControl
+          refreshing={isMediaRefetching}
+          onRefresh={refetchMedia}
+        />
+      }
+    >
       <View>
         <FlashList
-          data={media.CURRENT}
+          data={media.Watching}
           pagingEnabled
           snapToInterval={cardWidth + 24}
           estimatedItemSize={cardWidth}
@@ -82,9 +94,12 @@ const HomeTab = (props: Props) => {
           ItemSeparatorComponent={() => <View style={{ width: 24 }} />}
           renderItem={({ item }) => (
             <ListingItem
+              onPrimaryPress={() =>
+                router.push(`/watch/${item.id}/${item.progress + 1}`)
+              }
               onSecondaryPress={() => router.push(`/media/${item.id}`)}
               style={{ width: cardWidth }}
-              thumbnail={item.cover}
+              thumbnail={item.hdCover || item.cover}
               subtitle={item.title}
               type="carousel"
               title={`Episode ${item.progress + 1}`}
@@ -93,7 +108,7 @@ const HomeTab = (props: Props) => {
           )}
         />
         <View className="py-3 pt-6 flex-row gap-2 items-center justify-center">
-          {Array(media.CURRENT?.length)
+          {Array(media.Watching.length)
             .fill(0)
             .map((_, i) => (
               <View
@@ -116,7 +131,7 @@ const HomeTab = (props: Props) => {
       </View>
 
       <FlashList
-        data={media.COMPLETED}
+        data={media.Completed}
         pagingEnabled
         snapToInterval={96 + 16}
         estimatedItemSize={96}
@@ -150,7 +165,7 @@ const HomeTab = (props: Props) => {
       </View>
 
       <FlashList
-        data={media.PLANNING}
+        data={media.Planned}
         pagingEnabled
         snapToInterval={96 + 16}
         estimatedItemSize={96}
