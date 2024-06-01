@@ -1,5 +1,5 @@
 import { DimensionValue, StyleSheet, View } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AVPlaybackStatusSuccess } from "expo-av";
 import chroma from "chroma-js";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
@@ -9,6 +9,8 @@ import Animated, {
   withTiming,
   runOnJS,
 } from "react-native-reanimated";
+import Text from "./text";
+import secondsToHms from "@/utils/seconds-to-hms";
 
 type Props = {
   onProgress: (progressMillis: number) => void;
@@ -21,6 +23,7 @@ const PlayerProgress = ({ position, duration, onProgress, onTouch }: Props) => {
   const [width, setWidth] = useState<number>();
   const left = useSharedValue(0);
   const visible = useSharedValue(0);
+  const [positionPan, setPositionPan] = useState(0);
 
   const derivedStyle = useAnimatedStyle(
     () => ({
@@ -48,11 +51,13 @@ const PlayerProgress = ({ position, duration, onProgress, onTouch }: Props) => {
 
       visible.value = withTiming(1, { duration: 100 });
       runOnJS(onTouch)(true);
+      runOnJS(setPositionPan)(percentage);
     })
     .onUpdate((e) => {
       if (width) {
         const percentage = Math.max(0, Math.min(100, (e.x / width) * 100));
         left.value = percentage;
+        runOnJS(setPositionPan)(percentage);
       }
     })
     .onFinalize((e) => {
@@ -70,6 +75,14 @@ const PlayerProgress = ({ position, duration, onProgress, onTouch }: Props) => {
         if (width == undefined) setWidth(e.nativeEvent.layout.width);
       }}
     >
+      <Animated.View
+        className="absolute -top-12 !text-white bg-[rgba(0,0,0,0.15)] rounded-full px-2 py-1 items-center"
+        style={[{ minWidth: 48, marginLeft: -24 }, derivedStyle]}
+      >
+        <Text className="text-xs">
+          {secondsToHms((positionPan * (duration ?? 0)) / 100)}
+        </Text>
+      </Animated.View>
       <GestureDetector gesture={gesture}>
         <View className="rounded-full h-[2] justify-center bg-[rgba(255,255,255,0.25)]">
           <View
