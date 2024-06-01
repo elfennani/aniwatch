@@ -17,7 +17,9 @@ import { useRouter } from "expo-router";
 import useMediaListing from "@/api/use-media-listing";
 import useHomeMedia from "@/api/use-home-media";
 
-type Props = {};
+type Props = {
+  viewerId: number;
+};
 
 const status: MediaStatus[] = ["CURRENT", "COMPLETED", "PLANNING"];
 
@@ -26,18 +28,11 @@ type ViewablityChangeCallback = (info: {
   changed: ViewToken[];
 }) => void;
 
-const HomeTab = (props: Props) => {
+const HomeTab = ({ viewerId }: Props) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const {
-    data: viewer,
-    isError: isViewerError,
-    isPending: isViewerPending,
-    isRefetching: isViewerRefetching,
-    refetch: refetchViewer,
-    error: viewerError,
-  } = useViewerQuery();
+
   const {
     data: media,
     isError: isMediaError,
@@ -45,12 +40,9 @@ const HomeTab = (props: Props) => {
     isRefetching: isMediaRefetching,
     refetch: refetchMedia,
     error: mediaError,
-  } = useHomeMedia(
-    {
-      userId: viewer?.id!,
-    },
-    !viewer
-  );
+  } = useHomeMedia({
+    userId: viewerId,
+  });
 
   const cardWidth = width > 320 ? 320 : width - 52;
 
@@ -63,7 +55,7 @@ const HomeTab = (props: Props) => {
     [activeIndex]
   );
 
-  if (!viewer || !media) return <Text>Loading...</Text>;
+  if (!media) return <Text>Loading...</Text>;
 
   return (
     <ScrollView

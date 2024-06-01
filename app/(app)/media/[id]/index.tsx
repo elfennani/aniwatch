@@ -1,17 +1,8 @@
-import {
-  View,
-  useWindowDimensions,
-  useColorScheme,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
-import React, { useEffect, useMemo, useRef } from "react";
+import { View, ScrollView } from "react-native";
+import React from "react";
 import MediaHeading from "@/components/media-heading";
-import { router, useLocalSearchParams, useNavigation } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import useShowQuery from "@/api/use-show-query";
-import { Iconify } from "react-native-iconify";
-import { purple } from "tailwindcss/colors";
-import ListingItem from "@/components/listing-item";
 import TagsGrid from "@/components/tags-grid";
 import Text from "@/components/text";
 import MediaCharacters from "@/components/media-characters";
@@ -22,13 +13,7 @@ import MediaStats from "@/components/media-stats";
 
 const MediaById = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const {
-    data: media,
-    refetch,
-    isRefetching,
-    isPending,
-    isError,
-  } = useShowQuery({ id: Number(id) });
+  const { data: media } = useShowQuery({ id: Number(id) });
 
   if (!media) return <Text>Loading...</Text>;
 
@@ -42,8 +27,9 @@ const MediaById = () => {
           year={media.year}
         />
         <MediaActions
+          status={media.status!}
           onWatch={() => router.push(`/media/${id}/episodes`)}
-          onSetStatus={() => {}}
+          onSetStatus={() => router.push(`/media/${id}/status`)}
         />
         <MediaSynopsis description={media.description} />
         <MediaCharacters characters={media.mainCharacters} />

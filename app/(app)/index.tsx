@@ -15,10 +15,12 @@ import {
   SceneRendererProps,
   TabView,
 } from "react-native-tab-view";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Text from "@/components/text";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import HomeTab from "@/components/screens/home-tab";
+import useViewerQuery from "@/api/use-viewer-query";
+import MediaByStatus from "@/components/screens/media-by-status-tab";
 
 const status: MediaStatus[] = ["COMPLETED", "CURRENT"];
 const routes: Route[] = [
@@ -27,12 +29,6 @@ const routes: Route[] = [
   { key: "planned", title: "Planned" },
   { key: "dropped", title: "Dropped" },
 ];
-const renderScene = SceneMap({
-  home: () => <HomeTab />,
-  completed: () => <Text>Completed</Text>,
-  planned: () => <Text>Planned</Text>,
-  dropped: () => <Text>Dropped</Text>,
-});
 
 type RenderTabBar = (
   props: SceneRendererProps & {
@@ -108,6 +104,27 @@ const HomePage = () => {
   const { width } = useWindowDimensions();
   const scheme = useColorScheme();
   const backgroundColor = scheme == "dark" ? "black" : "white";
+
+  const { data: viewer } = useViewerQuery();
+
+  const renderScene = useMemo(
+    () =>
+      SceneMap({
+        home: () => <HomeTab viewerId={viewer?.id!} />,
+        completed: () => (
+          <MediaByStatus status="COMPLETED" viewerId={viewer?.id!} />
+        ),
+        planned: () => (
+          <MediaByStatus status="PLANNING" viewerId={viewer?.id!} />
+        ),
+        dropped: () => (
+          <MediaByStatus status="DROPPED" viewerId={viewer?.id!} />
+        ),
+      }),
+    [viewer]
+  );
+
+  if (!viewer) return null;
 
   return (
     <TabView

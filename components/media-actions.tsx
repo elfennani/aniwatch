@@ -9,13 +9,17 @@ import { Iconify } from "react-native-iconify";
 import { purple } from "tailwindcss/colors";
 import chroma from "chroma-js";
 import Text from "./text";
+import StatusIcon from "./status-icon";
+import MediaStatus from "@/interfaces/MediaStatus";
+import statusToString from "@/utils/status-to-string";
 
 type Props = {
+  status?: MediaStatus;
   onWatch: () => void;
   onSetStatus: () => void;
 };
 
-const MediaActions = memo(({ onSetStatus, onWatch }: Props) => {
+const MediaActions = memo(({ onSetStatus, onWatch, status }: Props) => {
   const scheme = useColorScheme();
 
   return (
@@ -43,12 +47,22 @@ const MediaActions = memo(({ onSetStatus, onWatch }: Props) => {
         onPress={() => onSetStatus()}
       >
         <>
-          <Iconify
-            icon="material-symbols-light:add"
-            size={24}
-            color={scheme == "dark" ? "white" : "black"}
-          />
-          <Text className="font-medium text-sm">Add Status</Text>
+          {status ? (
+            <StatusIcon
+              status={status}
+              size={24}
+              color={scheme == "dark" ? "white" : "black"}
+            />
+          ) : (
+            <Iconify
+              icon="material-symbols-light:add"
+              size={24}
+              color={scheme == "dark" ? "white" : "black"}
+            />
+          )}
+          <Text className="font-medium text-sm capitalize">
+            {status ? statusToString(status) : "Add Status"}
+          </Text>
         </>
       </TouchableHighlight>
     </View>

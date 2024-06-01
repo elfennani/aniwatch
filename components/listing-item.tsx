@@ -14,6 +14,7 @@ import { purple, zinc } from "tailwindcss/colors";
 import { Iconify } from "react-native-iconify";
 import cn from "@/utils/cn";
 import { LinearGradient } from "expo-linear-gradient";
+import StatusIcon from "./status-icon";
 
 type Props = {
   thumbnail: string;
@@ -34,43 +35,6 @@ const ListingItem: React.FC<Props> = memo((props: Props) => {
   const [isPressed, setIsPressed] = useState(false);
   const dark = scheme == "dark";
   const activeOpacity = dark ? 0.8 : 0.66;
-
-  const statusToIcon = (status: MediaStatus, color?: string, size?: number) => {
-    const iconProps = {
-      size: size || 18,
-      color: color || (dark ? purple[400] : purple[500]),
-    };
-
-    const mapping: Partial<Record<MediaStatus, ReactNode>> = {
-      COMPLETED: <Iconify icon="material-symbols-light:check" {...iconProps} />,
-      CURRENT: (
-        <Iconify
-          icon="material-symbols-light:smart-display-outline-sharp"
-          {...iconProps}
-        />
-      ),
-      DROPPED: (
-        <Iconify icon="material-symbols-light:remove-done" {...iconProps} />
-      ),
-      PAUSED: (
-        <Iconify
-          icon="material-symbols-light:pause-presentation-outline-sharp"
-          {...iconProps}
-        />
-      ),
-      PLANNING: (
-        <Iconify
-          icon="material-symbols-light:playlist-add-check"
-          {...iconProps}
-        />
-      ),
-      REPEATING: (
-        <Iconify icon="material-symbols-light:autoplay" {...iconProps} />
-      ),
-    };
-
-    return mapping[status];
-  };
 
   if (props.type == "list-alt")
     return (
@@ -146,7 +110,7 @@ const ListingItem: React.FC<Props> = memo((props: Props) => {
           >
             {props.status && (
               <View className="p-1 rounded-full bg-purple-500 absolute top-2 left-2">
-                {statusToIcon(props.status, "white", 16)}
+                <StatusIcon status={props.status} color="white" size={16} />
               </View>
             )}
           </ImageBackground>
@@ -232,7 +196,7 @@ const ListingItem: React.FC<Props> = memo((props: Props) => {
           style={{ width: "100%", height: "100%" }}
         />
       </View>
-      <View className="py-4 gap-2">
+      <View className="py-4 gap-2 flex-1">
         <View>
           <Text numberOfLines={2} className="text-lg !font-semibold">
             {props.title}
@@ -243,7 +207,11 @@ const ListingItem: React.FC<Props> = memo((props: Props) => {
         </View>
         {props.status && (
           <View className="flex-row items-center gap-2">
-            {statusToIcon(props.status)}
+            <StatusIcon
+              status={props.status}
+              color={dark ? purple[400] : purple[500]}
+              size={18}
+            />
             <Text className="text-purple-500 dark:text-purple-400 capitalize">
               {props.status}
             </Text>
