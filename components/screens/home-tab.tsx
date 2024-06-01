@@ -19,6 +19,7 @@ import useHomeMedia from "@/api/use-home-media";
 
 type Props = {
   viewerId: number;
+  onPushTab: (tab: string) => void;
 };
 
 const status: MediaStatus[] = ["CURRENT", "COMPLETED", "PLANNING"];
@@ -28,7 +29,7 @@ type ViewablityChangeCallback = (info: {
   changed: ViewToken[];
 }) => void;
 
-const HomeTab = ({ viewerId }: Props) => {
+const HomeTab = ({ viewerId, onPushTab }: Props) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const router = useRouter();
   const { width } = useWindowDimensions();
@@ -115,7 +116,7 @@ const HomeTab = ({ viewerId }: Props) => {
       </View>
       <View className="flex-row items-center justify-between px-6">
         <Text className="!font-medium text-2xl">Recently Completed</Text>
-        <TouchableOpacity hitSlop={16}>
+        <TouchableOpacity hitSlop={16} onPress={() => onPushTab("completed")}>
           <Text className="text-sm text-zinc-400 dark:text-zinc-600">
             See all
           </Text>
@@ -149,7 +150,7 @@ const HomeTab = ({ viewerId }: Props) => {
 
       <View className="flex-row items-center justify-between px-6">
         <Text className="!font-medium text-2xl">Planned to Watch</Text>
-        <TouchableOpacity hitSlop={16}>
+        <TouchableOpacity hitSlop={16} onPress={() => onPushTab("planned")}>
           <Text className="text-sm text-zinc-400 dark:text-zinc-600">
             See all
           </Text>

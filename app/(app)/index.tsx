@@ -110,7 +110,14 @@ const HomePage = () => {
   const renderScene = useMemo(
     () =>
       SceneMap({
-        home: () => <HomeTab viewerId={viewer?.id!} />,
+        home: () => (
+          <HomeTab
+            viewerId={viewer?.id!}
+            onPushTab={(key) =>
+              setIndex(routes.findIndex((route) => route.key == key))
+            }
+          />
+        ),
         completed: () => (
           <MediaByStatus status="COMPLETED" viewerId={viewer?.id!} />
         ),
