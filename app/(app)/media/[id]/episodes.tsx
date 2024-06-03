@@ -30,7 +30,7 @@ const MediaEpisodesScreen = (props: Props) => {
   const downloadEpisode = (episode: Episode, audio: "sub" | "dub") => () => {
     push({
       allAnimeId: media?.allanimeId!,
-      audio: "sub",
+      audio,
       episode: episode.number,
       mediaId: media?.id!,
       title: media?.title.default!,
