@@ -33,7 +33,7 @@ const MediaEpisodesScreen = (props: Props) => {
           subtitle={`${Math.round((episode.duration ?? 0) / 60)}min ${
             (episode.dub && `• DUB`) || ""
           }`}
-          listAltTailing={
+          trailing={
             <TouchableOpacity hitSlop={16}>
               <Iconify
                 icon="material-symbols-light:download"

@@ -10,7 +10,7 @@ const useHomeMedia = (params: Params, disabled = false) => {
   const client = useAniListClient();
 
   return useQuery({
-    queryKey: ["home", "media", params],
+    queryKey: ["home", "show", "media", params],
     queryFn: ({ pageParam }) => fetchHomeMedia(params, client),
     enabled: !disabled,
   })

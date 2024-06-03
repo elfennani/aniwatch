@@ -33,8 +33,15 @@ const MediaRelations = memo(({ relations }: Props) => {
             onPrimaryPress={() => router.push(`/media/${item.id}`)}
             type="grid"
             title={item.title}
-            subtitle={`${item.relationType} • ${item.type}`}
+            subtitle={`${item.relationType.replaceAll("_", " ")}`}
             recyclingKey={`cover-${item.id}`}
+            trailing={
+              <View className="absolute top-2 left-2 px-2 py-1 bg-[rgba(0,0,0,0.5)] rounded-full">
+                <Text className="!text-white text-xs font-semibold">
+                  {item.type}
+                </Text>
+              </View>
+            }
           />
         )}
       />

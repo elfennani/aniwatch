@@ -4,15 +4,9 @@ import Text from "@/components/text";
 import { LinearGradient } from "expo-linear-gradient";
 import { Image, ImageBackground } from "expo-image";
 import chroma from "chroma-js";
-import Box from "@/components/box";
 import { ShowDetails } from "@/interfaces/ShowDetails";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useTheme } from "@react-navigation/native";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { Iconify } from "react-native-iconify";
 import MediaFormat from "@/interfaces/MediaFormat";
-import { router } from "expo-router";
-import Animated from "react-native-reanimated";
 
 type Props = {
   media: ShowDetails;
@@ -93,7 +87,7 @@ const MediaHeading = ({ media }: Props) => {
           {mapMediaType[media.type]}{" "}
           {media.format && <>• {mapFormat[media.format]}</>}
         </Text>
-        <View className="flex-row gap-2 flex-wrap pt-1">
+        <View className="flex-row gap-2 flex-wrap pt-1 px-6 justify-center">
           {media.genres?.map((genre) => (
             <View
               key={genre}

@@ -25,7 +25,7 @@ type Props = {
   onPrimaryPress?: () => void;
   onSecondaryPress?: () => void;
   className?: string;
-  listAltTailing?: ReactNode;
+  trailing?: ReactNode;
   carouselWidth?: number;
   recyclingKey?: string | null;
 } & ViewProps;
@@ -88,7 +88,7 @@ const ListingItem: React.FC<Props> = memo((props: Props) => {
                 </View>
               </View>
             </View>
-            {props.listAltTailing}
+            {props.trailing}
           </View>
         </View>
       </TouchableWithoutFeedback>
@@ -108,6 +108,7 @@ const ListingItem: React.FC<Props> = memo((props: Props) => {
             source={{ uri: props.thumbnail }}
             style={{ width: "100%", height: "100%", position: "relative" }}
           >
+            {props.trailing}
             {props.status && (
               <View className="p-1 rounded-full bg-purple-500 absolute top-2 left-2">
                 <StatusIcon status={props.status} color="white" size={16} />
