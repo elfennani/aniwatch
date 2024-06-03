@@ -154,13 +154,15 @@ const Player = ({ url, threshold, onOverThreshold }: Props) => {
   return (
     <>
       <Options visible={settings} onClose={() => setSettings(false)}>
-        <Options.Option
-          icon={hdIcon}
-          title="Change Quality"
-          subtitle={quality ?? "auto"}
-          onPress={() => setQualityOverlay(true)}
-          more
-        />
+        {qualities && !!qualities.length && (
+          <Options.Option
+            icon={hdIcon}
+            title="Change Quality"
+            subtitle={quality ?? "auto"}
+            onPress={() => setQualityOverlay(true)}
+            more
+          />
+        )}
         {dubbed && (
           <Options.Option
             icon={voiceIcon}

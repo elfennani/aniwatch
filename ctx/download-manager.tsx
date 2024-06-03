@@ -48,6 +48,8 @@ export const DownloadManagerProvider = ({ children }: any) => {
     if (initialized.current) setSavedQueue(queue);
   }, [queue]);
 
+  console.log(savedShows);
+
   useEffect(() => {
     if (!initialized.current) {
       let newQueue: DownloadItem[] = [];
@@ -64,13 +66,6 @@ export const DownloadManagerProvider = ({ children }: any) => {
       }
     }
   }, []);
-
-  const downloadNext = useCallback(() => {
-    if (first) {
-      const current = { ...first, progress: 0 };
-      download(current);
-    }
-  }, [first]);
 
   const download = async (current: DownloadItemProgress) => {
     const savedShows = getSavedShows();
@@ -114,29 +109,42 @@ export const DownloadManagerProvider = ({ children }: any) => {
     const { exists: showDirExists } = await FileSystem.getInfoAsync(SHOWS_DIR);
     if (!showDirExists) await FileSystem.makeDirectoryAsync(SHOWS_DIR);
 
+    const { exists: imagesDirExists } = await FileSystem.getInfoAsync(
+      IMAGES_DIR
+    );
+    if (!imagesDirExists) await FileSystem.makeDirectoryAsync(IMAGES_DIR);
+
     const newUri = SHOWS_DIR + filename;
     await FileSystem.moveAsync({ from: fileUri, to: newUri });
 
-    let thumbnail = current.thumbnail;
+    let newThumbnail = current.thumbnail;
     if (current.thumbnail) {
       try {
-        const filename = `thumbnail-${mediaId}-${episode}.jpg`;
+        const filename = `thumbnail-${mediaId}-${episode}.jpeg`;
         const fileUri = IMAGES_DIR + filename;
         await FileSystem.downloadAsync(current.thumbnail, fileUri);
-        thumbnail = current.thumbnail;
-      } catch (error) {}
+        newThumbnail = fileUri;
+      } catch (error) {
+        console.error(error);
+      }
     }
 
     setSavedShows((saved) => [
       ...(saved ?? []),
-      { ...current, filename, uri: newUri, thumbnail },
+      { ...current, filename, uri: newUri, thumbnail: newThumbnail },
     ]);
 
     currentDownload.current = undefined;
     setSavedCurrent(undefined);
-    remove();
+    onUpdate.cancel();
 
-    downloadNext();
+    if (queue.length > 1) {
+      const first = queue[1];
+      const current = { ...first, progress: 0 };
+      download(current);
+    }
+
+    remove();
   };
 
   const onUpdateProgress: OnUpdateCallback = ({

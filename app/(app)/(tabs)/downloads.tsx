@@ -16,11 +16,10 @@ import { FlashList, ListRenderItem } from "@shopify/flash-list";
 import ListingItem from "@/components/listing-item";
 import { Iconify } from "react-native-iconify";
 import { TouchableOpacity } from "react-native";
-import { red } from "tailwindcss/colors";
-
-// type Download = (DownloadItem |
-//   DownloadItemProgress |
-//   SavedShow ) & { type: "downloaded" | "queue-item" | "current-download" };
+import { red, zinc } from "tailwindcss/colors";
+import { router } from "expo-router";
+import * as FileSystem from "expo-file-system";
+import { useMutation } from "@tanstack/react-query";
 
 type Download =
   | (DownloadItem & { type: "queue-item" })
@@ -31,7 +30,7 @@ const DownloadScreen = () => {
   const { spacing } = useTheme();
   const [queue] = useSavedQueue();
   const [current] = useSavedCurrent();
-  const [saved] = useSavedShows();
+  const [saved, setSavedShows] = useSavedShows();
   const { top } = useSafeAreaInsets();
 
   let downloads: Download[] = [];
@@ -67,18 +66,49 @@ const DownloadScreen = () => {
     return [...allShows, title, ...episodes];
   }, [] as (string | Download)[]);
 
+  const { mutate: deleteEpisode, isPending } = useMutation({
+    mutationKey: ["show", "delete", "episode"],
+    mutationFn: async (item: SavedShow) => {
+      await FileSystem.deleteAsync(item.uri, { idempotent: true });
+      if (item.thumbnail && item.thumbnail.startsWith("file")) {
+        await FileSystem.deleteAsync(item.thumbnail, { idempotent: true });
+      }
+
+      setSavedShows((savedShows) => {
+        return savedShows?.filter((show) => show.uri != item.uri);
+      });
+    },
+  });
+
+  // console.log(saved);
+
   const renderItem: ListRenderItem<string | Download> = useCallback(
     ({ item }) => {
       if (typeof item == "string") {
-        return <Text className="font-semibold">{item}</Text>;
+        return (
+          <View className="flex-row items-center justify-between">
+            <Text className="!font-medium text-2xl">{item}</Text>
+            <TouchableOpacity
+              onPress={() => {
+                const id = downloads.find(({ title }) => title == item)
+                  ?.mediaId!;
+                router.push(`/media/${id}`);
+              }}
+              hitSlop={16}
+            >
+              <Text className="text-sm text-zinc-400 dark:text-zinc-600">
+                Show Details
+              </Text>
+            </TouchableOpacity>
+          </View>
+        );
       }
 
       let status = `${item.audio.toUpperCase()}`;
 
       if (item.type == "downloading") {
-        status = `${item.audio.toUpperCase()} • Downloading (${(
-          item.progress * 100
-        ).toFixed(2)}%)`;
+        const progress = (item.progress * 100).toFixed(2);
+        status = `${item.audio.toUpperCase()} • Downloading (${progress}%)`;
       }
 
       if (item.type == "queue-item") {
@@ -87,19 +117,35 @@ const DownloadScreen = () => {
 
       return (
         <ListingItem
-          // onPrimaryPress={() => router.push(`/watch/${id}/${episode.number}`)}
+          onPrimaryPress={() => {
+            if (item.type == "saved")
+              router.push({
+                pathname: "/offline/watch/[id]/[ep]/[uri]",
+                params: {
+                  id: item.mediaId,
+                  ep: item.episode,
+                  uri: item.uri,
+                },
+              });
+          }}
           thumbnail={item.thumbnail!}
           title={`Episode ${item.episode}`}
           type="list-alt"
           subtitle={status}
           trailing={
-            <TouchableOpacity hitSlop={16}>
-              <Iconify
-                icon="material-symbols-light:delete-forever-sharp"
-                size={24}
-                color={red[500]}
-              />
-            </TouchableOpacity>
+            item.type == "saved" && (
+              <TouchableOpacity
+                hitSlop={16}
+                onPress={() => deleteEpisode(item)}
+                disabled={isPending}
+              >
+                <Iconify
+                  icon="material-symbols-light:delete-forever-sharp"
+                  size={24}
+                  color={isPending ? zinc[500] : red[500]}
+                />
+              </TouchableOpacity>
+            )
           }
         />
       );
