@@ -2,16 +2,22 @@ import { View, Text, useColorScheme } from "react-native";
 import React from "react";
 import { Tabs } from "expo-router";
 import { Iconify } from "react-native-iconify";
+import { purple } from "tailwindcss/colors";
 
 type Props = {};
 
 const TabsLayout = (props: Props) => {
   const scheme = useColorScheme();
   const backgroundColor = scheme == "dark" ? "black" : "white";
+  const primary = scheme == "dark" ? purple[400] : purple[500];
 
   return (
     <Tabs
-      screenOptions={{ headerShown: false, tabBarLabel: () => null }}
+      screenOptions={{
+        headerShown: false,
+        tabBarLabel: () => null,
+        tabBarActiveTintColor: primary,
+      }}
       sceneContainerStyle={{ backgroundColor }}
     >
       <Tabs.Screen

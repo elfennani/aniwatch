@@ -36,7 +36,10 @@ const MediaRelations = memo(({ relations }: Props) => {
             subtitle={`${item.relationType.replaceAll("_", " ")}`}
             recyclingKey={`cover-${item.id}`}
             trailing={
-              <View className="absolute top-2 left-2 px-2 py-1 bg-[rgba(0,0,0,0.5)] rounded-full">
+              <View
+                className="absolute top-2 left-2 px-2 py-1 rounded-full"
+                style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+              >
                 <Text className="!text-white text-xs font-semibold">
                   {item.type}
                 </Text>
