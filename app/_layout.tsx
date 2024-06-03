@@ -24,7 +24,6 @@ import darkTheme from "@/constants/dark-theme";
 import { ThemeProvider } from "@/ctx/theme-provider";
 import * as Brightness from "expo-brightness";
 import * as NavigationBar from "expo-navigation-bar";
-import { DownloadManagerProvider } from "@/ctx/download-manager";
 import "../global.css";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PortalProvider } from "@gorhom/portal";
@@ -141,15 +140,13 @@ const RootLayoutNav = () => {
       <StackThemeProvider value={stackTheme}>
         <ThemeProvider>
           <SessionProvider>
-            <DownloadManagerProvider>
-              <PortalProvider>
-                <StatusBar
-                  hidden={false}
-                  style={scheme == "light" ? "dark" : "light"}
-                />
-                <Slot />
-              </PortalProvider>
-            </DownloadManagerProvider>
+            <PortalProvider>
+              <StatusBar
+                hidden={false}
+                style={scheme == "light" ? "dark" : "light"}
+              />
+              <Slot />
+            </PortalProvider>
           </SessionProvider>
         </ThemeProvider>
       </StackThemeProvider>

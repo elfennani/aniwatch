@@ -7,7 +7,6 @@ import Player from "./player";
 import { PlayerData, PlayerDataContext } from "@/ctx/player-data";
 import * as keys from "@/constants/keys";
 import useUpdateEntry from "@/hooks/use-update-entry";
-import useSavedShow from "@/hooks/use-saved-show";
 
 type Props = {
   aniListId: number;
@@ -31,20 +30,14 @@ const PlayerLoader = ({
   const [translation, setTranslation] = useMMKVString(keys.translationKey);
   const [quality, setQuality] = useMMKVString(keys.qualityKey);
   const updateEntry = useUpdateEntry(episode, aniListId, media);
-  const saved = useSavedShow(aniListId, episode);
 
   const type = dubbed ? (translation as Translation) ?? "sub" : "sub";
   const params = { episode: "" + episode, allAnimeId, type };
-  const { data } = useLinkQuery(params, !Boolean(saved));
+  const { data } = useLinkQuery(params);
 
-  let uri: string;
-  if (saved) {
-    uri = saved.uri;
-  } else {
-    uri =
-      data?.find((level) => level.name == (quality ?? "auto"))?.url ||
-      data?.find((level) => level.name == "auto")?.url;
-  }
+  let uri =
+    data?.find((level) => level.name == (quality ?? "auto"))?.url ||
+    data?.find((level) => level.name == "auto")?.url;
 
   const metadata: PlayerData = {
     title: media.title.default!,
