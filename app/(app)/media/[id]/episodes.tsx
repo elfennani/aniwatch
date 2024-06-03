@@ -27,7 +27,7 @@ const MediaEpisodesScreen = (props: Props) => {
     isError,
   } = useShowQuery({ id: Number(id) });
 
-  const downloadEpisode = (episode: Episode, audio: "sub" | "dub") => () => {
+  const downloadEpisode = (episode: Episode, audio: "sub" | "dub") => {
     push({
       allAnimeId: media?.allanimeId!,
       audio,
