@@ -1,14 +1,16 @@
 import { View, TouchableOpacity, useWindowDimensions } from "react-native";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { FlashList, ListRenderItem } from "@shopify/flash-list";
 import ListingItem from "@/components/listing-item";
 import { router, useLocalSearchParams } from "expo-router";
 import { Iconify } from "react-native-iconify";
-import { purple } from "tailwindcss/colors";
+import { purple, zinc } from "tailwindcss/colors";
 import useShowQuery from "@/api/use-show-query";
 import MediaHeading from "@/components/media-heading";
 import { Episode } from "@/interfaces/Episode";
 import { useDownloadManager } from "@/ctx/download-manager";
+import Options from "@/components/options";
+import DownloadIconButton from "@/components/download-icon-button";
 
 type Props = {};
 
@@ -16,6 +18,7 @@ const MediaEpisodesScreen = (props: Props) => {
   const { id } = useLocalSearchParams();
   const dimensions = useWindowDimensions();
   const { push } = useDownloadManager();
+  const [episode, setEpisode] = useState<Episode>();
   const {
     data: media,
     refetch,
@@ -24,7 +27,7 @@ const MediaEpisodesScreen = (props: Props) => {
     isError,
   } = useShowQuery({ id: Number(id) });
 
-  const downloadEpisode = (episode: Episode) => () => {
+  const downloadEpisode = (episode: Episode, audio: "sub" | "dub") => () => {
     push({
       allAnimeId: media?.allanimeId!,
       audio: "sub",
@@ -47,13 +50,17 @@ const MediaEpisodesScreen = (props: Props) => {
             (episode.dub && `• DUB`) || ""
           }`}
           trailing={
-            <TouchableOpacity hitSlop={16} onPress={downloadEpisode(episode)}>
-              <Iconify
-                icon="material-symbols-light:download"
-                size={24}
-                color={purple[400]}
-              />
-            </TouchableOpacity>
+            <DownloadIconButton
+              episode={episode}
+              mediaId={media?.id!}
+              onPress={() => {
+                if (episode.dub) {
+                  setEpisode(episode);
+                  return;
+                }
+                downloadEpisode(episode, "sub");
+              }}
+            />
           }
         />
       </View>
@@ -63,16 +70,46 @@ const MediaEpisodesScreen = (props: Props) => {
 
   const listHeader = useMemo(() => <MediaHeading media={media!} />, [media]);
 
-  return (
-    <FlashList
-      data={media?.episodes?.sort((a, b) => a.number - b.number)}
-      contentContainerStyle={{ paddingBottom: 24 }}
-      estimatedItemSize={79}
-      estimatedListSize={dimensions}
-      ItemSeparatorComponent={() => <View className="h-4" />}
-      ListHeaderComponent={listHeader}
-      renderItem={renderItem}
+  const subIcon = (
+    <Iconify
+      icon="material-symbols-light:language-japanese-kana"
+      size={24}
+      color={zinc[300]}
     />
+  );
+
+  const dubIcon = (
+    <Iconify
+      icon="material-symbols-light:language-us-sharp"
+      size={24}
+      color={zinc[300]}
+    />
+  );
+
+  return (
+    <>
+      <Options visible={!!episode} onClose={() => setEpisode(undefined)}>
+        <Options.Option
+          title="Download Sub"
+          icon={subIcon}
+          onPress={() => downloadEpisode(episode!, "sub")}
+        />
+        <Options.Option
+          title="Download Dub"
+          icon={dubIcon}
+          onPress={() => downloadEpisode(episode!, "dub")}
+        />
+      </Options>
+      <FlashList
+        data={media?.episodes?.sort((a, b) => a.number - b.number)}
+        contentContainerStyle={{ paddingBottom: 24 }}
+        estimatedItemSize={79}
+        estimatedListSize={dimensions}
+        ItemSeparatorComponent={() => <View className="h-4" />}
+        ListHeaderComponent={listHeader}
+        renderItem={renderItem}
+      />
+    </>
   );
 };
 
