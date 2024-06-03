@@ -8,12 +8,14 @@ import { purple } from "tailwindcss/colors";
 import useShowQuery from "@/api/use-show-query";
 import MediaHeading from "@/components/media-heading";
 import { Episode } from "@/interfaces/Episode";
+import { useDownloadManager } from "@/ctx/download-manager";
 
 type Props = {};
 
 const MediaEpisodesScreen = (props: Props) => {
   const { id } = useLocalSearchParams();
   const dimensions = useWindowDimensions();
+  const { push } = useDownloadManager();
   const {
     data: media,
     refetch,
@@ -21,6 +23,17 @@ const MediaEpisodesScreen = (props: Props) => {
     isPending,
     isError,
   } = useShowQuery({ id: Number(id) });
+
+  const downloadEpisode = (episode: Episode) => () => {
+    push({
+      allAnimeId: media?.allanimeId!,
+      audio: "sub",
+      episode: episode.number,
+      mediaId: media?.id!,
+      title: media?.title.default!,
+      thumbnail: episode.thumbnail,
+    });
+  };
 
   const renderItem: ListRenderItem<Episode> = useCallback(
     ({ item: episode }) => (
@@ -34,7 +47,7 @@ const MediaEpisodesScreen = (props: Props) => {
             (episode.dub && `• DUB`) || ""
           }`}
           trailing={
-            <TouchableOpacity hitSlop={16}>
+            <TouchableOpacity hitSlop={16} onPress={downloadEpisode(episode)}>
               <Iconify
                 icon="material-symbols-light:download"
                 size={24}

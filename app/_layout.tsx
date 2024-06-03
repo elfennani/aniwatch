@@ -27,6 +27,7 @@ import * as NavigationBar from "expo-navigation-bar";
 import "../global.css";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PortalProvider } from "@gorhom/portal";
+import { DownloadManagerProvider } from "@/ctx/download-manager";
 
 NavigationBar.setPositionAsync("absolute");
 NavigationBar.setBackgroundColorAsync("#ffffff01");
@@ -140,13 +141,15 @@ const RootLayoutNav = () => {
       <StackThemeProvider value={stackTheme}>
         <ThemeProvider>
           <SessionProvider>
-            <PortalProvider>
-              <StatusBar
-                hidden={false}
-                style={scheme == "light" ? "dark" : "light"}
-              />
-              <Slot />
-            </PortalProvider>
+            <DownloadManagerProvider>
+              <PortalProvider>
+                <StatusBar
+                  hidden={false}
+                  style={scheme == "light" ? "dark" : "light"}
+                />
+                <Slot />
+              </PortalProvider>
+            </DownloadManagerProvider>
           </SessionProvider>
         </ThemeProvider>
       </StackThemeProvider>

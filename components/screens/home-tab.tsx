@@ -16,6 +16,8 @@ import cn from "@/utils/cn";
 import { useRouter } from "expo-router";
 import useMediaListing from "@/api/use-media-listing";
 import useHomeMedia from "@/api/use-home-media";
+import { Button } from "react-native";
+import { documentDirectory } from "expo-file-system";
 
 type Props = {
   viewerId: number;
@@ -68,6 +70,20 @@ const HomeTab = ({ viewerId, onPushTab }: Props) => {
         />
       }
     >
+      {__DEV__ && (
+        <Button
+          title="files"
+          onPress={() =>
+            router.push({
+              pathname: "/file-browser/[path]",
+              params: {
+                path: documentDirectory,
+              },
+            })
+          }
+        />
+      )}
+
       <View>
         <FlashList
           data={media.Watching}
