@@ -61,10 +61,8 @@ export default function NotificationsScreen() {
             style={{ height: 128, aspectRatio: 0.69, borderRadius: spacing.xs }}
           />
           <Box flex padding="sm" gap="xs">
-            <Text color="secondary" variant="label">
-              {moment(item.createdAt * 1000).fromNow()}
-            </Text>
-            <Text flex>{item.content}</Text>
+            <Text>{moment(item.createdAt * 1000).fromNow()}</Text>
+            <Text>{item.content}</Text>
           </Box>
         </Box>
       </TouchableOpacity>

@@ -21,7 +21,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import HomeTab from "@/components/screens/home-tab";
 import useViewerQuery from "@/api/use-viewer-query";
 import MediaByStatus from "@/components/screens/media-by-status-tab";
-import { usePathname } from "expo-router";
+import { usePathname, useSegments } from "expo-router";
 
 const status: MediaStatus[] = ["COMPLETED", "CURRENT"];
 const routes: Route[] = [
@@ -99,7 +99,7 @@ const renderTabBar: RenderTabBar = ({
   );
 };
 
-const HomePage = () => {
+const HomePage = (props: any) => {
   useBackgroundNotifications();
   const [index, setIndex] = useState(0);
   const { width } = useWindowDimensions();

@@ -21,9 +21,7 @@ const DownloadScreen = () => {
             Download Queue
           </SectionTitle>
         </Box>
-        <Text style={{ paddingVertical: 8 }} variant="label">
-          Currently Downloading
-        </Text>
+        <Text style={{ paddingVertical: 8 }}>Currently Downloading</Text>
         {currentDownload ? (
           <Box background="card" padding="md" rounding="md">
             <Text>{currentDownload.downloadable.show.title.default}</Text>
@@ -33,13 +31,11 @@ const DownloadScreen = () => {
             </Text>
           </Box>
         ) : (
-          <Text color="secondary" style={{ padding: 32, textAlign: "center" }}>
+          <Text style={{ padding: 32, textAlign: "center" }}>
             Nothing is downloading
           </Text>
         )}
-        <Text style={{ paddingVertical: 8, paddingTop: 32 }} variant="label">
-          Queue
-        </Text>
+        <Text style={{ paddingVertical: 8, paddingTop: 32 }}>Queue</Text>
         {downloads &&
           downloads.map((download) => (
             <Box

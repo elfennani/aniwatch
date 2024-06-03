@@ -8,12 +8,13 @@ interface Params {
   id: number
 }
 
-const useUserQuery = (params: Params) => {
+const useUserQuery = (params: Params, enabled = true) => {
   const client = useAniListClient();
 
   return useQuery({
     queryKey: ["user", params],
     queryFn: () => fetchUser(params, client),
+    enabled
   })
 }
 

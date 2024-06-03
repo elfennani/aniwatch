@@ -24,15 +24,7 @@ const AppLayout = () => {
         navigationBarColor: chroma(background).alpha(0).css(),
         contentStyle: { backgroundColor: background },
       }}
-    >
-      <Stack.Screen
-        name="index"
-        options={{
-          title: "Home",
-          headerShown: false,
-        }}
-      />
-    </Stack>
+    ></Stack>
   );
 };
 
