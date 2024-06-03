@@ -25,7 +25,7 @@ const DownloadIconButton = ({ onPress, episode, mediaId }: Props) => {
   const inQueue = queue?.some(compare);
   const isCurrent = current ? compare(current) : false;
   const inSaved = saved?.some(compare);
-  if (inQueue || isCurrent || inSaved)
+  if (inQueue || isCurrent)
     return (
       <Iconify
         icon="material-symbols-light:downloading"
