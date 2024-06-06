@@ -4,6 +4,7 @@ import { Redirect, SplashScreen, Stack } from "expo-router";
 import { useSession } from "@/ctx/session";
 import { useTheme } from "@/ctx/theme-provider";
 import chroma from "chroma-js";
+import { NativeStack } from "@/components/native-stack";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -17,14 +18,14 @@ const AppLayout = () => {
   }
 
   return (
-    <Stack
+    <NativeStack
       screenOptions={{
         orientation: "portrait",
         headerShown: false,
         navigationBarColor: chroma(background).alpha(0).css(),
         contentStyle: { backgroundColor: background },
       }}
-    ></Stack>
+    ></NativeStack>
   );
 };
 

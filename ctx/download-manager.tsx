@@ -34,7 +34,7 @@ export const DownloadManagerProvider = ({ children }: any) => {
   const [savedCurrent, setSavedCurrent] = useSavedCurrent();
   const currentDownload = useRef<DownloadItemProgress>();
   const [savedQueue, setSavedQueue] = useSavedQueue();
-  const { add, first, queue, remove } = useQueue<DownloadItem>();
+  const { add, first, queue, remove, } = useQueue<DownloadItem>();
   const client = useAllAnimeClient();
 
   useEffect(() => {

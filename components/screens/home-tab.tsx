@@ -106,7 +106,11 @@ const HomeTab = ({ viewerId, onPushTab }: Props) => {
               onPrimaryPress={() =>
                 router.push(`/watch/${item.id}/${item.progress + 1}`)
               }
-              onSecondaryPress={() => router.push(`/media/${item.id}`)}
+              onSecondaryPress={() => {
+                requestAnimationFrame(() => {
+                  router.push(`/media/${item.id}`);
+                });
+              }}
               style={{ width: cardWidth }}
               thumbnail={item.hdCover || item.cover}
               subtitle={item.title}
@@ -155,7 +159,9 @@ const HomeTab = ({ viewerId, onPushTab }: Props) => {
             style={{ width: cardWidth }}
             thumbnail={item.cover}
             onPrimaryPress={() => {
-              router.push(`/media/${item.id}`);
+              requestAnimationFrame(() => {
+                router.push(`/media/${item.id}`);
+              });
             }}
             type="grid"
             title={item.title}
@@ -188,7 +194,11 @@ const HomeTab = ({ viewerId, onPushTab }: Props) => {
           <ListingItem
             style={{ width: cardWidth }}
             thumbnail={item.cover}
-            onPrimaryPress={() => router.push(`/media/${item.id}`)}
+            onPrimaryPress={() => {
+              requestAnimationFrame(() => {
+                router.push(`/media/${item.id}`);
+              });
+            }}
             type="grid"
             title={item.title}
             recyclingKey={`cover-${item.id}`}
