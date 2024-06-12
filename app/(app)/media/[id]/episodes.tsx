@@ -40,7 +40,7 @@ const MediaEpisodesScreen = (props: Props) => {
 
   const renderItem: ListRenderItem<Episode> = useCallback(
     ({ item: episode }) => (
-      <View className="px-6">
+      <View className="px-6 web:container web:mx-auto">
         <ListingItem
           onPrimaryPress={() => router.push(`/watch/${id}/${episode.number}`)}
           thumbnail={episode.thumbnail!}
@@ -87,7 +87,7 @@ const MediaEpisodesScreen = (props: Props) => {
   );
 
   return (
-    <>
+    <View className="native:flex-1">
       <Options visible={!!episode} onClose={() => setEpisode(undefined)}>
         <Options.Option
           title="Download Sub"
@@ -109,7 +109,7 @@ const MediaEpisodesScreen = (props: Props) => {
         ListHeaderComponent={listHeader}
         renderItem={renderItem}
       />
-    </>
+    </View>
   );
 };
 

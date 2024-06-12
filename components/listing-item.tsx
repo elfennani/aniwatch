@@ -1,4 +1,5 @@
 import {
+  Platform,
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -35,6 +36,50 @@ const ListingItem: React.FC<Props> = memo((props: Props) => {
   const [isPressed, setIsPressed] = useState(false);
   const dark = scheme == "dark";
   const activeOpacity = dark ? 0.8 : 0.66;
+
+  if (props.type == "list-alt" && Platform.OS == "web")
+    return (
+      <TouchableWithoutFeedback
+        onPressIn={() => setIsPressed(true)}
+        onPressOut={() => setIsPressed(false)}
+        onPress={() => props.onPrimaryPress?.()}
+      >
+        <View
+          {...props}
+          className={cn(
+            "flex-row gap-4 h-[80px] relative rounded-lg overflow-hidden cursor-pointer",
+            props.className
+          )}
+        >
+          <View className="rounded-lg overflow-hidden">
+            <Image
+              recyclingKey={props.recyclingKey}
+              transition={150}
+              source={{ uri: props.thumbnail }}
+              style={{ aspectRatio: 16 / 9, height: 80 }}
+            />
+          </View>
+
+          <View
+            className="flex-row w-full items-center pr-4 gap-4"
+            style={{ opacity: isPressed ? activeOpacity : 1 }}
+          >
+            <View className="flex-row flex-1 items-center">
+              <View className="gap-2 flex-1">
+                <View className="gap-1">
+                  <Text numberOfLines={1} className="text-lg !font-semibold">
+                    {props.title}
+                  </Text>
+                  <Text className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {props.subtitle}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
+    );
 
   if (props.type == "list-alt")
     return (
@@ -98,7 +143,7 @@ const ListingItem: React.FC<Props> = memo((props: Props) => {
     return (
       <TouchableOpacity
         onPress={() => props.onPrimaryPress?.()}
-        className={cn("w-[96] gap-2", props.className)}
+        className={cn("w-[96] web:w-[96px] gap-2", props.className)}
         activeOpacity={activeOpacity}
       >
         <View className="dark:bg-zinc-700 bg-zinc-200 w-[96] aspect-[0.69] rounded-2xl overflow-hidden">

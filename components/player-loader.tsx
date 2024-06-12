@@ -8,7 +8,7 @@ import { PlayerData, PlayerDataContext } from "@/ctx/player-data";
 import * as keys from "@/constants/keys";
 import useUpdateEntry from "@/hooks/use-update-entry";
 
-type Props = {
+export type PlayerLoaderProps = {
   aniListId: number;
   allAnimeId: string;
   episode: number;
@@ -26,7 +26,7 @@ const PlayerLoader = ({
   watched,
   aniListId,
   media,
-}: Props) => {
+}: PlayerLoaderProps) => {
   const [translation, setTranslation] = useMMKVString(keys.translationKey);
   const [quality, setQuality] = useMMKVString(keys.qualityKey);
   const updateEntry = useUpdateEntry(episode, aniListId, media);

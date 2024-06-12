@@ -1,4 +1,5 @@
 import {
+  Platform,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -70,7 +71,7 @@ const HomeTab = ({ viewerId, onPushTab }: Props) => {
         />
       }
     >
-      {__DEV__ && (
+      {__DEV__ && Platform.OS !== "web" && (
         <Button
           title="files"
           onPress={() =>
@@ -94,7 +95,7 @@ const HomeTab = ({ viewerId, onPushTab }: Props) => {
           decelerationRate="normal"
           showsHorizontalScrollIndicator={false}
           horizontal
-          contentContainerClassName="p-6"
+          contentContainerClassName="native:p-6"
           onViewableItemsChanged={onChangeViewable}
           viewabilityConfig={{
             itemVisiblePercentThreshold: 50,
@@ -120,7 +121,7 @@ const HomeTab = ({ viewerId, onPushTab }: Props) => {
             />
           )}
         />
-        <View className="py-3 pt-6 flex-row gap-2 items-center justify-center">
+        <View className="py-3 pt-6 flex-row gap-2 items-center justify-center web:hidden">
           {Array(media.Watching.length)
             .fill(0)
             .map((_, i) => (
@@ -134,7 +135,7 @@ const HomeTab = ({ viewerId, onPushTab }: Props) => {
             ))}
         </View>
       </View>
-      <View className="flex-row items-center justify-between px-6">
+      <View className="flex-row items-center justify-between native:px-6">
         <Text className="!font-medium text-2xl">Recently Completed</Text>
         <TouchableOpacity hitSlop={16} onPress={() => onPushTab("completed")}>
           <Text className="text-sm text-zinc-400 dark:text-zinc-600">
@@ -170,7 +171,7 @@ const HomeTab = ({ viewerId, onPushTab }: Props) => {
         )}
       />
 
-      <View className="flex-row items-center justify-between px-6">
+      <View className="flex-row items-center justify-between native:px-6">
         <Text className="!font-medium text-2xl">Planned to Watch</Text>
         <TouchableOpacity hitSlop={16} onPress={() => onPushTab("planned")}>
           <Text className="text-sm text-zinc-400 dark:text-zinc-600">

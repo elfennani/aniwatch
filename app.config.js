@@ -6,7 +6,7 @@ export default ({ config }) => ({
     icon: "./assets/images/icon.png",
     scheme: "aniwatch",
     userInterfaceStyle: "automatic",
-    platforms: ["android"],
+    platforms: ["android", "web"],
     primaryColor: "#a855f7",
     backgroundColor: "#18181b",
     splash: {

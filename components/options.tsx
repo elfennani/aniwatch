@@ -29,7 +29,7 @@ const Options = ({ visible, onClose, children }: Props) => {
       <CloseContext.Provider value={{ onClose }}>
         <View
           style={StyleSheet.absoluteFill}
-          className="relative items-center justify-end"
+          className="relative items-center justify-end web:w-screen web:h-screen"
         >
           <TouchableWithoutFeedback onPress={() => onClose()}>
             <Animated.View
@@ -42,7 +42,7 @@ const Options = ({ visible, onClose, children }: Props) => {
           <Animated.View
             entering={FadeInDown.duration(150)}
             exiting={FadeOutDown.duration(150)}
-            className="bg-zinc-950 py-3 m-4 w-full max-w-[380] min-h-52 rounded-2xl"
+            className="bg-zinc-950 py-3 m-4 w-full native:max-w-[380] web:max-w-[380px] min-h-52 rounded-2xl"
           >
             <View className="h-1 w-8 mb-3 bg-zinc-700 rounded-lg self-center" />
             {children}

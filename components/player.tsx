@@ -15,6 +15,7 @@ import { trueGray, zinc } from "tailwindcss/colors";
 import { usePlayerData } from "@/ctx/player-data";
 import { useMMKVString } from "react-native-mmkv";
 import { useVideoPlayer, VideoView } from "expo-video";
+import useControls from "@/hooks/use-controls";
 
 type Props = {
   url: string;
@@ -52,6 +53,7 @@ const Player = ({ url, threshold, onOverThreshold }: Props) => {
       player.showNowPlayingNotification = true;
     }
   );
+  const playerControls = useControls(player);
 
   useEffect(() => {
     if (!durationSeconds) return;
@@ -199,7 +201,7 @@ const Player = ({ url, threshold, onOverThreshold }: Props) => {
             />
           </View>
           <PlayerControls
-            player={player}
+            controls={playerControls}
             isPlaying={isPlaying}
             position={positionSeconds}
             duration={durationSeconds}

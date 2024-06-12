@@ -1,4 +1,4 @@
-import { StyleSheet, View, useColorScheme } from "react-native";
+import { Platform, StyleSheet, View, useColorScheme } from "react-native";
 import {
   DarkTheme,
   DefaultTheme,
@@ -24,13 +24,15 @@ import darkTheme from "@/constants/dark-theme";
 import { ThemeProvider } from "@/ctx/theme-provider";
 import * as Brightness from "expo-brightness";
 import * as NavigationBar from "expo-navigation-bar";
-import "../global.css";
+import "./global.css";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PortalProvider } from "@gorhom/portal";
 import { DownloadManagerProvider } from "@/ctx/download-manager";
 
-NavigationBar.setPositionAsync("absolute");
-NavigationBar.setBackgroundColorAsync("#ffffff01");
+if (Platform.OS == "android") {
+  NavigationBar.setPositionAsync("absolute");
+  NavigationBar.setBackgroundColorAsync("#ffffff01");
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {

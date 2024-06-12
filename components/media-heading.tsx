@@ -56,7 +56,7 @@ const MediaHeading = ({ media }: Props) => {
         <LinearGradient
           colors={headerGradient}
           locations={[0.25, 0.95]}
-          className="h-[380] justify-end"
+          className="native:h-[380] web:h-[380px] justify-end"
           style={{
             paddingTop: top,
             backgroundColor: chroma(scheme == "light" ? "white" : "black")
@@ -65,7 +65,7 @@ const MediaHeading = ({ media }: Props) => {
           }}
         >
           <View className="gap-4 items-center">
-            <View className="dark:bg-zinc-700 bg-zinc-200 w-[128] aspect-[0.69] rounded-2xl overflow-hidden">
+            <View className="dark:bg-zinc-700 bg-zinc-200 native:w-[128] web:w-[128px] aspect-[0.69] rounded-2xl overflow-hidden">
               <Image
                 recyclingKey={`cover-${media.id}`}
                 transition={150}

@@ -1,8 +1,8 @@
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Platform, StyleSheet, View } from "react-native";
 import React from "react";
 import useShowQuery from "@/api/use-show-query";
 import { Stack, useLocalSearchParams } from "expo-router";
-import PlayerLoader from "@/components/player-loader";
+import PlayerLoader from "../../../../components/player-loader";
 import { StatusBar } from "expo-status-bar";
 import { useKeepAwake } from "expo-keep-awake";
 import ErrorScreen from "@/components/error-screen";

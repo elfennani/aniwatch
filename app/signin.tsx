@@ -1,30 +1,36 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React from "react";
-import { Redirect, router } from "expo-router";
-import config from "@/config.json";
+import { Link, Redirect, router } from "expo-router";
+import config from "@/config";
 import { useSession } from "@/ctx/session";
 
 type Props = {};
 
 const SignInPage = (props: Props) => {
   const { session } = useSession();
-
-  function handleLogin() {
-    const { client_id, redirect_uri } = config;
-    router.push(
-      `https://anilist.co/api/v2/oauth/authorize?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=code`
-    );
-  }
+  let { client_id, redirect_uri } = config;
+  console.log(config);
 
   if (session) return <Redirect href="/" />;
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={handleLogin} activeOpacity={0.8}>
-        <View style={styles.button}>
-          <Text style={styles.buttonLabel}>Login with AniList</Text>
-        </View>
-      </TouchableOpacity>
+      <Link
+        href={`https://anilist.co/api/v2/oauth/authorize?client_id=${client_id}&response_type=token`}
+        asChild
+      >
+        <TouchableOpacity activeOpacity={0.8}>
+          <View style={styles.button}>
+            <Text style={styles.buttonLabel}>Login with AniList</Text>
+          </View>
+        </TouchableOpacity>
+      </Link>
     </View>
   );
 };

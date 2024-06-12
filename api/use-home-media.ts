@@ -46,7 +46,7 @@ const home_query = graphql(`
       }
     }
 
-    Completed: Page(perPage: 10){
+    Completed: Page(perPage: 20){
       mediaList(userId: $userId, type: ANIME, status: COMPLETED, sort: [FINISHED_ON_DESC,UPDATED_TIME_DESC]){
         media {
           ...SimpleMedia
@@ -54,7 +54,7 @@ const home_query = graphql(`
       }
     }
     
-    Planned: Page(perPage: 10){
+    Planned: Page(perPage: 20){
       mediaList(userId: $userId, type: ANIME, status: PLANNING, sort: ADDED_TIME_DESC){
         media {
           ...SimpleMedia

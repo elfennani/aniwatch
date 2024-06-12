@@ -9,7 +9,6 @@ module.exports = {
   presets: [require("nativewind/preset")],
 
   theme: {
-    fontWeight: {},
     fontFamily: {
       regular: ["regular"],
       medium: ["medium"],

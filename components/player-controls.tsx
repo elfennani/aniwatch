@@ -4,7 +4,7 @@ import { AVPlaybackStatus, Video } from "expo-av";
 import Text from "./text";
 import { Iconify } from "react-native-iconify";
 import secondsToHms from "@/utils/seconds-to-hms";
-import useControls from "@/hooks/use-controls";
+import useControls, { Controls } from "@/hooks/use-controls";
 import PlayerProgress from "./player-progress";
 import { View } from "react-native";
 import Animated, {
@@ -26,8 +26,8 @@ import { VideoPlayer } from "expo-video";
 import { duration } from "moment";
 
 type Props = {
+  controls: Controls;
   visible: boolean;
-  player: VideoPlayer;
   duration?: number;
   position: number;
   isPlaying: boolean;
@@ -36,15 +36,15 @@ type Props = {
 };
 
 const PlayerControls = ({
-  player,
   visible,
   onTouch,
   onSettings,
   isPlaying,
   duration,
   position,
+  controls,
 }: Props) => {
-  const { togglePlayback } = useControls(player);
+  const { togglePlayback, seek } = controls;
 
   const playbackIcon = isPlaying ? (
     <Iconify
@@ -101,7 +101,7 @@ const PlayerControls = ({
               onTouch={onTouch}
               position={position}
               duration={duration}
-              onProgress={(pos) => (player.currentTime = pos)}
+              onProgress={seek}
             />
             <Text className="!text-white text-sm font-semibold">
               {durationString}

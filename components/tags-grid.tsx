@@ -1,4 +1,10 @@
-import { StyleSheet, ToastAndroid, TouchableOpacity, View } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  ToastAndroid,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React, { memo, useState } from "react";
 import Tag from "@/interfaces/Tag";
 import Section from "./section";
@@ -7,6 +13,7 @@ import { useTheme } from "@/ctx/theme-provider";
 
 type Props = {
   tags: Tag[];
+  spoilers?: boolean;
 };
 
 const TagsGrid = memo(({ tags }: Props) => {
@@ -30,25 +37,40 @@ const TagsGrid = memo(({ tags }: Props) => {
           </Text>
         </TouchableOpacity>
       </View>
-      {tags
-        .filter((tag) => !tag.spoiler || spoilers)
-        .map((tag) => (
-          <View key={tag.id} className="flex-row items-baseline gap-2">
-            <Text className="font-medium">{tag.name}</Text>
-            {tag.spoiler && (
-              <Text className="font-medium text-xs text-purple-500 dark:text-purple-400">
-                (Spoiler)
-              </Text>
-            )}
-            <View className="flex-1 border-b border-dashed border-zinc-300" />
-            <Text className="font-medium text-purple-500 dark:text-purple-400">
-              {tag.rank}%
-            </Text>
-          </View>
-        ))}
+      <TagsContent tags={tags} spoilers={spoilers} />
     </View>
   );
 });
+
+const TagsContent = (props: Props) => {
+  if (Platform.OS == "web")
+    return (
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-2">
+        <Tags {...props} />
+      </div>
+    );
+
+  return <Tags {...props} />;
+};
+
+const Tags = ({ tags, spoilers }: Props) => {
+  return tags
+    .filter((tag) => !tag.spoiler || spoilers)
+    .map((tag) => (
+      <View key={tag.id} className="flex-row items-baseline gap-2">
+        <Text className="font-medium">{tag.name}</Text>
+        {tag.spoiler && (
+          <Text className="font-medium text-xs text-purple-500 dark:text-purple-400">
+            (Spoiler)
+          </Text>
+        )}
+        <View className="flex-1 border-b border-dashed border-zinc-300" />
+        <Text className="font-medium text-purple-500 dark:text-purple-400">
+          {tag.rank}%
+        </Text>
+      </View>
+    ));
+};
 
 export default TagsGrid;
 

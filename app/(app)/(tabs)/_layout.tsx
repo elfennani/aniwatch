@@ -11,6 +11,8 @@ const TabsLayout = (props: Props) => {
   const backgroundColor = scheme == "dark" ? "black" : "white";
   const primary = scheme == "dark" ? purple[400] : purple[500];
 
+  const hiddenRoutes = ["completed", "dropped", "planned"];
+
   return (
     <Tabs
       screenOptions={{
@@ -72,6 +74,15 @@ const TabsLayout = (props: Props) => {
           ),
         }}
       />
+      {hiddenRoutes.map((route) => (
+        <Tabs.Screen
+          key={route}
+          name={route}
+          options={{
+            tabBarButton: () => null,
+          }}
+        />
+      ))}
     </Tabs>
   );
 };
