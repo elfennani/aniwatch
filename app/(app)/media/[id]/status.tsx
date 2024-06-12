@@ -4,6 +4,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   TouchableOpacityProps,
+  View,
 } from "react-native";
 import React, { ReactNode, useMemo, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
@@ -144,7 +145,7 @@ const Status = (props: Props) => {
   );
 
   return (
-    <Animated.View entering={FadeInRight}>
+    <View>
       <Box>
         <StatusSelectBottomSheet
           status={state.status}
@@ -171,7 +172,7 @@ const Status = (props: Props) => {
       <ScrollView refreshControl={refreshControl}>
         <SafeAreaView>
           <Box padding="xl" gap="xl">
-            <Heading name={media.status ? "Edit Status" : "Set Status"} back />
+            <Heading name={media.status ? "Edit Status" : "Set Status"} />
 
             <Field
               label="Status"
@@ -220,17 +221,13 @@ const Status = (props: Props) => {
             gap="sm"
             background={saveDisabled ? "secondary" : "primary"}
           >
-            <Text
-              variant="label"
-              color="white"
-              style={{ textTransform: "capitalize" }}
-            >
+            <Text style={{ textTransform: "capitalize" }}>
               {statusMutation.isPending ? "Saving" : "Save"}
             </Text>
           </Box>
         </Box>
       </TouchableOpacity>
-    </Animated.View>
+    </View>
   );
 };
 
@@ -242,7 +239,7 @@ interface FieldProps extends TouchableOpacityProps {
 
 const Field = ({ content, tailing, label, ...props }: FieldProps) => (
   <Box gap="xs">
-    <Text variant="label">{label}</Text>
+    <Text>{label}</Text>
     <TouchableOpacity activeOpacity={0.8} {...props}>
       <Box
         row
@@ -252,9 +249,7 @@ const Field = ({ content, tailing, label, ...props }: FieldProps) => (
         background="card"
         style={{ alignItems: "center", height: 40 }}
       >
-        <Text style={{ flex: 1 }} color="secondary">
-          {content}
-        </Text>
+        <Text style={{ flex: 1 }}>{content}</Text>
         {tailing}
       </Box>
     </TouchableOpacity>

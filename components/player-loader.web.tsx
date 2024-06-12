@@ -72,6 +72,8 @@ const PlayerLoader = ({
   };
 
   useEffect(() => {
+    if (!uri) return;
+
     if (!hlsRef.current) {
       hlsRef.current = new Hls();
     }

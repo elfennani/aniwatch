@@ -1,6 +1,7 @@
 import { View, Text } from "react-native";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
+import Head from "expo-router/head";
 import useShowQuery from "@/api/use-show-query";
 import MediaHeading from "@/components/media-heading";
 import MediaStats from "@/components/media-stats";
@@ -9,6 +10,18 @@ import MediaSynopsis from "@/components/media-synopsis";
 import MediaCharacters from "@/components/media-characters";
 import MediaRelations from "@/components/media-relations";
 import TagsGrid from "@/components/tags-grid";
+import Animated, {
+  FadeIn,
+  FadeInDown,
+  FadeOut,
+  FadeOutDown,
+  SlideInDown,
+  SlideOutDown,
+} from "react-native-reanimated";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import WebModal from "@/components/web-modal";
+import MediaEpisodesScreen from "./episodes";
+import Status from "./status";
 
 type Props = {};
 
@@ -18,6 +31,8 @@ type MetaData = Record<string, MetaDataValue | MetaDataValue[]>;
 const MediaWeb = (props: Props) => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: media } = useShowQuery({ id: Number(id) });
+  const [visible, setVisible] = useState(false);
+  const [statusVisible, setStatusVisible] = useState(false);
 
   if (!media) return <Text>Loading...</Text>;
 
@@ -46,9 +61,21 @@ const MediaWeb = (props: Props) => {
     chapters: media.chapters,
     year: media.year,
   };
+
+  const gesture = Gesture.Tap().onFinalize(() => setVisible((v) => !v));
+
   return (
     <div className="bg-zinc-50 dark:bg-zinc-900">
-      <header className="relative w-full bg-white dark:bg-black">
+      <Head>
+        <title>{media.title.default}</title>
+      </Head>
+      <WebModal visible={visible} onClose={() => setVisible(false)}>
+        <MediaEpisodesScreen />
+      </WebModal>
+      <WebModal visible={statusVisible} onClose={() => setStatusVisible(false)}>
+        <Status />
+      </WebModal>
+      <header className="relative w-full bg-white dark:bg-black pb-8">
         <img className="w-full" src={media.banner} alt={media.title.default} />
 
         <div className="relative z-10 container w-full mx-auto flex items-start">
@@ -60,8 +87,8 @@ const MediaWeb = (props: Props) => {
             />
             <MediaActions
               status={media.status!}
-              onWatch={() => {}}
-              onSetStatus={() => {}}
+              onWatch={() => setVisible(true)}
+              onSetStatus={() => setStatusVisible(true)}
             />
           </div>
           <div className="p-8 flex-1">

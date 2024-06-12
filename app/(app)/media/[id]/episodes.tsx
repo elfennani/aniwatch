@@ -11,6 +11,7 @@ import { Episode } from "@/interfaces/Episode";
 import { useDownloadManager } from "@/ctx/download-manager";
 import Options from "@/components/options";
 import DownloadIconButton from "@/components/download-icon-button";
+import { Platform } from "react-native";
 
 type Props = {};
 
@@ -106,7 +107,7 @@ const MediaEpisodesScreen = (props: Props) => {
         estimatedItemSize={79}
         estimatedListSize={dimensions}
         ItemSeparatorComponent={() => <View className="h-4" />}
-        ListHeaderComponent={listHeader}
+        ListHeaderComponent={(Platform.OS !== "web" && listHeader) || undefined}
         renderItem={renderItem}
       />
     </View>
