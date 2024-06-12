@@ -76,7 +76,11 @@ const MediaWeb = (props: Props) => {
         <Status />
       </WebModal>
       <header className="relative w-full bg-white dark:bg-black pb-8">
-        <img className="w-full" src={media.banner} alt={media.title.default} />
+        <img
+          className="w-full max-h-[33vh] object-cover"
+          src={media.banner}
+          alt={media.title.default}
+        />
 
         <div className="relative z-10 container w-full mx-auto flex items-start">
           <div className="flex flex-col gap-4 relative -mt-28">
