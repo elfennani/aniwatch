@@ -24,7 +24,7 @@ import darkTheme from "@/constants/dark-theme";
 import { ThemeProvider } from "@/ctx/theme-provider";
 import * as Brightness from "expo-brightness";
 import * as NavigationBar from "expo-navigation-bar";
-import "./global.css";
+import "../global.css";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PortalProvider } from "@gorhom/portal";
 import { DownloadManagerProvider } from "@/ctx/download-manager";
