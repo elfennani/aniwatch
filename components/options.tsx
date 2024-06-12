@@ -1,4 +1,9 @@
-import { View, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import {
+  View,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Platform,
+} from "react-native";
 import React, { ReactNode, createContext, useContext } from "react";
 import { TouchableHighlight } from "react-native-gesture-handler";
 import Animated, {
@@ -21,35 +26,49 @@ type Props = {
 
 const CloseContext = createContext({ onClose: () => {} });
 
-const Options = ({ visible, onClose, children }: Props) => {
-  if (!visible) return;
+const Options = (props: Props) => {
+  if (!props.visible) return;
+
+  if (Platform.OS == "web") {
+    return (
+      <div className="absolute top-0 left-0 right-0 bottom-0 z-30">
+        <OptionsContent {...props} />
+      </div>
+    );
+  }
 
   return (
     <Portal>
-      <CloseContext.Provider value={{ onClose }}>
-        <View
-          style={StyleSheet.absoluteFill}
-          className="relative items-center justify-end web:w-screen web:h-screen"
-        >
-          <TouchableWithoutFeedback onPress={() => onClose()}>
-            <Animated.View
-              entering={FadeIn.duration(200)}
-              exiting={FadeOut.duration(200)}
-              className="absolute top-0 left-0 right-0 bottom-0 w-full h-full bg-[rgba(0,0,0,0.33)]"
-            />
-          </TouchableWithoutFeedback>
-
-          <Animated.View
-            entering={FadeInDown.duration(150)}
-            exiting={FadeOutDown.duration(150)}
-            className="bg-zinc-950 py-3 m-4 w-full native:max-w-[380] web:max-w-[380px] min-h-52 rounded-2xl"
-          >
-            <View className="h-1 w-8 mb-3 bg-zinc-700 rounded-lg self-center" />
-            {children}
-          </Animated.View>
-        </View>
-      </CloseContext.Provider>
+      <OptionsContent {...props} />
     </Portal>
+  );
+};
+
+const OptionsContent = ({ children, onClose }: Props) => {
+  return (
+    <CloseContext.Provider value={{ onClose }}>
+      <View
+        style={StyleSheet.absoluteFill}
+        className="relative items-center justify-end web:w-full web:h-full"
+      >
+        <TouchableWithoutFeedback onPress={() => onClose()}>
+          <Animated.View
+            entering={FadeIn.duration(200)}
+            exiting={FadeOut.duration(200)}
+            className="absolute top-0 left-0 right-0 bottom-0 w-full h-full bg-[rgba(0,0,0,0.33)]"
+          />
+        </TouchableWithoutFeedback>
+
+        <Animated.View
+          entering={FadeInDown.duration(150)}
+          exiting={FadeOutDown.duration(150)}
+          className="bg-zinc-950 py-3 m-4 w-full native:max-w-[380] web:max-w-[380px] min-h-52 rounded-2xl"
+        >
+          <View className="h-1 w-8 mb-3 bg-zinc-700 rounded-lg self-center" />
+          {children}
+        </Animated.View>
+      </View>
+    </CloseContext.Provider>
   );
 };
 

@@ -43,5 +43,8 @@ expo-env.d.ts
 build-*
 retry.sh
 config.json
+config.js
+.env
 
 logs.txt
+.vercel

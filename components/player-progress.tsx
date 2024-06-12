@@ -68,6 +68,32 @@ const PlayerProgress = ({ position, duration, onProgress, onTouch }: Props) => {
       runOnJS(onTouch)(false);
     });
 
+  const hoverGesture = Gesture.Hover()
+    .hitSlop(16)
+    .onBegin((e) => {
+      if (!width) return;
+      const percentage = Math.max(0, Math.min(100, (e.x / width) * 100));
+      left.value = percentage;
+
+      visible.value = withTiming(1, { duration: 100 });
+      runOnJS(onTouch)(true);
+      runOnJS(setPositionPan)(percentage);
+    })
+    .onUpdate((e) => {
+      visible.value = withTiming(1, { duration: 100 });
+
+      if (width) {
+        const percentage = Math.max(0, Math.min(100, (e.x / width) * 100));
+        left.value = percentage;
+        runOnJS(setPositionPan)(percentage);
+      }
+    })
+    .onEnd((e) => {
+      visible.value = withTiming(0, { duration: 100 });
+      runOnJS(onTouch)(false);
+    });
+
+  const fullGesture = Gesture.Race(hoverGesture, gesture);
   return (
     <View
       className="relative justify-center flex-1"
@@ -83,17 +109,19 @@ const PlayerProgress = ({ position, duration, onProgress, onTouch }: Props) => {
           {secondsToHms((positionPan * (duration ?? 0)) / 100)}
         </Text>
       </Animated.View>
-      <GestureDetector gesture={gesture}>
-        <View className="rounded-full h-[2] justify-center bg-[rgba(255,255,255,0.25)]">
-          <View
-            hitSlop={16}
-            style={{ width: progress }}
-            className="bg-white rounded-full h-[2] absolute top-0 left-0"
-          />
-          <Animated.View
-            className="rounded-full size-2 bg-white absolute -ml-1"
-            style={derivedStyle}
-          />
+      <GestureDetector gesture={fullGesture}>
+        <View className="web:h-6 web:flex web:justify-center web:w-full">
+          <View className="rounded-full native:h-[2] web:h-[2px] justify-center bg-[rgba(255,255,255,0.25)]">
+            <View
+              hitSlop={16}
+              style={{ width: progress }}
+              className="bg-white rounded-full native:h-[2] web:h-[2px] absolute top-0 left-0"
+            />
+            <Animated.View
+              className="rounded-full size-2 bg-white absolute -ml-1"
+              style={derivedStyle}
+            />
+          </View>
         </View>
       </GestureDetector>
     </View>

@@ -13,9 +13,9 @@ import Options from "@/components/options";
 import DownloadIconButton from "@/components/download-icon-button";
 import { Platform } from "react-native";
 
-type Props = {};
+type Props = { dynamic?: boolean };
 
-const MediaEpisodesScreen = (props: Props) => {
+const MediaEpisodesScreen = ({ dynamic = false }: Props) => {
   const { id } = useLocalSearchParams();
   const dimensions = useWindowDimensions();
   const { push } = useDownloadManager();
@@ -43,7 +43,13 @@ const MediaEpisodesScreen = (props: Props) => {
     ({ item: episode }) => (
       <View className="px-6 web:container web:mx-auto">
         <ListingItem
-          onPrimaryPress={() => router.push(`/watch/${id}/${episode.number}`)}
+          onPrimaryPress={() => {
+            if (dynamic) {
+              router.setParams({ ep: episode.number.toString() });
+              return;
+            }
+            router.push(`/watch/${id}/${episode.number}`);
+          }}
           thumbnail={episode.thumbnail!}
           title={`Episode ${episode.number}`}
           type="list-alt"

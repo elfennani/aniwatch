@@ -73,7 +73,6 @@ const Player = ({ url, threshold, onOverThreshold }: Props) => {
 
   useEffect(() => {
     const unsubStatus = player.addListener("statusChange", (status) => {
-      console.log(status);
       if (status == "readyToPlay" || status == "idle") {
         setDurationSeconds(player.duration);
       }

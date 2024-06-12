@@ -1,12 +1,5 @@
-import { Pressable, StyleSheet } from "react-native";
-import React, {
-  KeyboardEventHandler,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+OOBOOOOOOOOimport { StyleSheet } from "react-native";
+iOOxnmport React, { useEffect, useMemo, useRef, useState } from "react";
 import useLinkQuery from "@/api/use-link-query";
 import { ShowDetails } from "@/interfaces/ShowDetails";
 import { useMMKVString } from "react-native-mmkv";
@@ -19,7 +12,6 @@ import PlayerControls from "./player-controls";
 import Options from "./options";
 import { Iconify } from "react-native-iconify";
 import { zinc } from "tailwindcss/colors";
-import { Controls } from "@/hooks/use-controls";
 
 type Translation = "sub" | "dub";
 export type PlayerLoaderProps = {
@@ -39,6 +31,7 @@ const PlayerLoader = ({
   aniListId,
   media,
 }: PlayerLoaderProps) => {
+  console.log("first");
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -48,7 +41,6 @@ const PlayerLoader = ({
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  const [controls, setControls] = useState(false);
   const [settings, setSettings] = useState(false);
   const [qualityOverlay, setQualityOverlay] = useState(false);
   const [isTouchingControls, setIsTouchingControls] = useState(false);
@@ -80,8 +72,6 @@ const PlayerLoader = ({
   };
 
   useEffect(() => {
-    if (!uri) return;
-
     if (!hlsRef.current) {
       hlsRef.current = new Hls();
     }
@@ -119,67 +109,9 @@ const PlayerLoader = ({
     }
   };
 
-  const playerControls: Controls = {
-    backward: () => {
-      if (!videoRef.current) return;
-      videoRef.current.currentTime -= 10;
-    },
-    forward() {
-      if (!videoRef.current) return;
-      videoRef.current.currentTime += 10;
-    },
-    togglePlayback,
-    seek(position) {
-      if (!videoRef.current) return;
-      videoRef.current.currentTime = position;
-    },
-  };
-
-  useEffect(() => {
-    if (isPlaying) setControls(true);
-  }, [isPlaying]);
-
-  useEffect(() => {
-    if (!isPlaying || isTouchingControls) {
-      if (!controls) setControls(true);
-      return;
-    }
-    const timeout = setTimeout(() => setControls(false), 3000);
-
-    return () => clearTimeout(timeout);
-  }, [controls, isPlaying, isTouchingControls]);
-
-  const handlePress = useCallback((ev: KeyboardEvent) => {
-    if (!videoRef.current) return;
-    ev.preventDefault();
-    const key = ev.key.toLowerCase();
-
-    if (key == "f") {
-      document.fullscreenElement
-        ? document.exitFullscreen()
-        : videoContainerRef.current?.requestFullscreen();
-    }
-    if (key == "arrowright" && !ev.altKey) playerControls.forward();
-    if (key == "arrowright" && ev.altKey) videoRef.current.currentTime += 87;
-    if (key == "arrowleft" && !ev.altKey) playerControls.backward();
-    if (key == "arrowleft" && ev.altKey) videoRef.current.currentTime -= 90;
-    if (key == " ") playerControls.togglePlayback();
-  }, []);
-
-  useEffect(() => {
-    document.addEventListener("keydown", handlePress);
-
-    return () => document.removeEventListener("keydown", handlePress);
-  }, [handlePress]);
-
-  if (!uri) return;
-
   return (
     <PlayerDataContext.Provider value={metadata}>
-      <div
-        ref={videoContainerRef}
-        className="w-full object-contain h-full bg-black relative"
-      >
+      <div className="w-screen object-contain h-screen bg-black relative">
         <Options visible={settings} onClose={() => setSettings(false)}>
           {qualities && !!qualities.length && (
             <Options.Option
@@ -216,29 +148,37 @@ const PlayerLoader = ({
           ))}
         </Options>
         <video
+          autoFocus
+          // onClick={togglePlaying}
+          // onTouchEnd={handleTouchEnd}
+          // onDoubleClick={handleFullScreen}
+          // onKeyDown={handleKeyDown}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
           onTimeUpdate={(ev) => setPosition(ev.currentTarget.currentTime)}
           onDurationChange={(ev) => setDuration(ev.currentTarget.duration)}
           className="w-full h-full"
           disablePictureInPicture={false}
-          onMouseMove={() => setControls(true)}
+          // onMouseMove={showControls}
           ref={videoRef}
-          autoPlay
+          autoPlay={
+            typeof localStorage != "undefined" &&
+            localStorage.getItem("autoplay") == "1"
+          }
         />
         <PlayerControls
-          controls={playerControls}
+          controls={{
+            backward() {},
+            forward() {},
+            togglePlayback,
+            seek(position) {},
+          }}
           isPlaying={isPlaying}
           position={position}
           duration={duration}
-          visible={controls}
-          onTouch={(t) => setIsTouchingControls(t)}
+          visible={true}
+          onTouch={() => {}}
           onSettings={() => setSettings(true)}
-          onFullScreen={() =>
-            document.fullscreenElement
-              ? document.exitFullscreen()
-              : videoContainerRef.current?.requestFullscreen()
-          }
         />
       </div>
     </PlayerDataContext.Provider>

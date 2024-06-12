@@ -33,6 +33,7 @@ type Props = {
   isPlaying: boolean;
   onTouch: (isTouching: boolean) => void;
   onSettings?: () => void;
+  onFullScreen?(): void;
 };
 
 const PlayerControls = ({
@@ -43,6 +44,7 @@ const PlayerControls = ({
   duration,
   position,
   controls,
+  onFullScreen,
 }: Props) => {
   const { togglePlayback, seek } = controls;
 
@@ -103,7 +105,10 @@ const PlayerControls = ({
               duration={duration}
               onProgress={seek}
             />
-            <Text className="!text-white text-sm font-semibold">
+            <Text
+              style={{ width: 50 }}
+              className="!text-white text-sm font-semibold text-right"
+            >
               {durationString}
             </Text>
           </View>
@@ -121,6 +126,22 @@ const PlayerControls = ({
               </View>
             </TouchableOpacity>
           </TapGestureHandler>
+          {onFullScreen && (
+            <TapGestureHandler>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => onFullScreen?.()}
+              >
+                <View className="w-12 h-12 items-center justify-center pl-6">
+                  <Iconify
+                    icon="material-symbols-light:fullscreen"
+                    size={24}
+                    color="white"
+                  />
+                </View>
+              </TouchableOpacity>
+            </TapGestureHandler>
+          )}
         </View>
       </Animated.View>
     </View>
