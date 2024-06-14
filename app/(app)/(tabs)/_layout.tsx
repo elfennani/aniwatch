@@ -36,6 +36,19 @@ const TabsLayout = (props: Props) => {
         }}
       />
       <Tabs.Screen
+        name="search"
+        options={{
+          title: "Search",
+          tabBarIcon: ({ color, focused, size }) => (
+            <Iconify
+              icon="material-symbols-light:search"
+              size={size}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="downloads"
         options={{
           title: "Downloads",

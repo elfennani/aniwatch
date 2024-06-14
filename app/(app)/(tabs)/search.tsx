@@ -1,14 +1,16 @@
-import { StyleSheet, TextInput, View } from "react-native";
+import { Button, Platform, StyleSheet, TextInput, View } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import useSearchQuery from "@/api/use-search-query";
 import { FlashList, ListRenderItem } from "@shopify/flash-list";
 import MediaItem from "@/components/media-item";
-import { Stack } from "expo-router";
+import { Stack, router } from "expo-router";
 import { useTheme } from "@/ctx/theme-provider";
 import Box from "@/components/box";
 import { Iconify } from "react-native-iconify";
 import Media from "@/interfaces/Media";
+import ListingItem from "@/components/listing-item";
+import { purple } from "tailwindcss/colors";
 
 type Props = {};
 
@@ -17,9 +19,10 @@ const SearchScreen = (props: Props) => {
   const [value, setValue] = useState("");
   const [debouced, setDebouced] = useState("");
   const { colors } = useTheme();
-  const { data, fetchNextPage, refetch, isRefetching } = useSearchQuery({
-    query: debouced,
-  });
+  const { data, fetchNextPage, refetch, isRefetching, isFetchingNextPage } =
+    useSearchQuery({
+      query: debouced,
+    });
 
   useEffect(() => {
     const timeout = setTimeout(() => setDebouced(value), 300);
@@ -28,7 +31,23 @@ const SearchScreen = (props: Props) => {
   }, [value]);
 
   const renderItem: ListRenderItem<Media> = useCallback(
-    ({ item }) => <MediaItem media={item} type="list" />,
+    ({ item: media }) => (
+      <ListingItem
+        thumbnail={media.cover}
+        status={media.status}
+        subtitle={
+          media.status == "DROPPED"
+            ? `Watched ${media.progress} / ${media.episodes}`
+            : `${media.episodes} Episodes`
+        }
+        onPrimaryPress={() => {
+          router.push(`/media/${media.id}`);
+        }}
+        type="list"
+        title={media.title}
+        recyclingKey={`cover-${media.id}`}
+      />
+    ),
     []
   );
 
@@ -57,14 +76,37 @@ const SearchScreen = (props: Props) => {
         />
       </Box>
       <FlashList
+        contentContainerStyle={{ padding: 24 }}
         data={data?.pages.flat()}
-        refreshing={isRefetching}
-        onRefresh={refetch}
-        estimatedItemSize={128}
-        contentContainerStyle={{ padding: 16 }}
-        ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
         renderItem={renderItem}
-        onEndReached={() => fetchNextPage()}
+        ItemSeparatorComponent={() => (
+          <View style={{ height: 16, width: 16 }} />
+        )}
+        estimatedItemSize={151}
+        refreshing={isRefetching}
+        onRefresh={() => refetch()}
+        onEndReachedThreshold={1.5}
+        onEndReached={() => {
+          if (
+            !isFetchingNextPage &&
+            Platform.OS != "web" &&
+            data?.pages.flat().length
+          )
+            fetchNextPage();
+        }}
+        ListFooterComponent={
+          Platform.OS == "web"
+            ? () => (
+                <View className="py-4 w-28 self-center">
+                  <Button
+                    title="More"
+                    onPress={() => fetchNextPage()}
+                    color={purple[500]}
+                  />
+                </View>
+              )
+            : undefined
+        }
       />
     </View>
   );

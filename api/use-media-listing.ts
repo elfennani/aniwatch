@@ -38,6 +38,7 @@ const fetchMediaByStatus = async (params: Params, client: GraphQLClient) => {
     progress: entry?.media?.mediaListEntry?.progress ?? 0,
     cover: entry?.media?.coverImage?.medium!,
     hdCover: entry?.media?.coverImage?.extraLarge ?? undefined,
+    status: entry?.media?.mediaListEntry?.status ?? undefined
   })) ?? []
 }
 
@@ -57,17 +58,18 @@ const media_query = graphql(`
         entries {
           media {
             id
-        title {
-          userPreferred
-        }
-        episodes
-        coverImage {
-          extraLarge
-          medium
-        }
-        mediaListEntry{
-          progress
-        } 
+            title {
+              userPreferred
+            }
+            episodes
+            coverImage {
+              extraLarge
+              medium
+            }
+            mediaListEntry{
+              progress
+              status
+            } 
           }
         }
       }

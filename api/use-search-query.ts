@@ -12,7 +12,7 @@ const useSearchQuery = (params: Params) => {
   const client = useAniListClient();
 
   return useInfiniteQuery({
-    queryKey: ["show", "search", params.query],
+    queryKey: ["media", "search", params.query],
     queryFn: ({ pageParam }) => fetchShowsBySearch(params, pageParam, client),
     initialPageParam: 1,
     getNextPageParam: (_, __, param) => param + 1
@@ -32,7 +32,8 @@ const fetchShowsBySearch = async ({ query }: Params, page: number, client: Graph
       cover: show?.coverImage?.large!,
       episodes: show?.episodes!,
       progress: show?.mediaListEntry?.progress!,
-      title: show?.title?.userPreferred!
+      title: show?.title?.userPreferred!,
+      status: show?.mediaListEntry?.status ?? undefined
     });
   }) ?? []
 
@@ -58,6 +59,7 @@ const search_query = graphql(`
         }
         mediaListEntry{
           progress
+          status
         } 
       }
     }

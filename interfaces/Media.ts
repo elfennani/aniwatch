@@ -1,3 +1,5 @@
+import MediaStatus from "./MediaStatus";
+
 export default interface Media {
   id: number
   title: string,
@@ -5,4 +7,5 @@ export default interface Media {
   episodes: number
   cover: string;
   hdCover?: string;
+  status?: MediaStatus
 }

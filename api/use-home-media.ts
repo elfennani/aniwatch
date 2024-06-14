@@ -31,6 +31,7 @@ const fetchHomeMedia = async (params: Params, client: GraphQLClient) => {
         progress: entry?.media?.mediaListEntry?.progress ?? 0,
         cover: entry?.media?.coverImage?.medium!,
         hdCover: entry?.media?.coverImage?.extraLarge ?? undefined,
+        status: entry?.media?.mediaListEntry?.status ?? undefined
       }))
     }
   }, {} as Record<ResultKey, Media[]>)
@@ -75,6 +76,7 @@ const home_query = graphql(`
     }
     mediaListEntry{
       progress
+      status
     } 
   }
 `);
