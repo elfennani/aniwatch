@@ -22,7 +22,8 @@ import { router } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function NotificationsScreen() {
-  const { data, fetchNextPage, isFetchingNextPage } = useNotificationsQuery();
+  const { data, fetchNextPage, isFetchingNextPage, refetch, isRefetching } =
+    useNotificationsQuery();
   const { spacing } = useTheme();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
@@ -87,8 +88,10 @@ export default function NotificationsScreen() {
         estimatedItemSize={128}
         estimatedListSize={estimatedListSize}
         renderItem={renderItem}
+        onRefresh={() => refetch()}
+        refreshing={isRefetching}
         onEndReached={() => {
-          if (!isFetchingNextPage) fetchNextPage();
+          if (!isFetchingNextPage && data) fetchNextPage();
         }}
         onEndReachedThreshold={1.8}
       />

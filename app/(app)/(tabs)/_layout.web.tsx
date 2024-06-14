@@ -35,6 +35,16 @@ const TabsLayout = (props: Props) => {
       icon: <Iconify icon="material-symbols-light:remove-done" size={size} />,
     },
     {
+      name: "Notifications",
+      path: "/notifications",
+      icon: (
+        <Iconify
+          icon="material-symbols-light:circle-notifications"
+          size={size}
+        />
+      ),
+    },
+    {
       name: "Profile",
       path: "/profile",
       icon: <Iconify icon="material-symbols-light:person" size={size} />,
