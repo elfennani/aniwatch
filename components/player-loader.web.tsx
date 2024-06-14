@@ -172,6 +172,13 @@ const PlayerLoader = ({
     return () => document.removeEventListener("keydown", handlePress);
   }, [handlePress]);
 
+  useEffect(() => {
+    if (!duration || !position) return;
+    if (position / duration > 0.8) {
+      updateEntry();
+    }
+  }, [position, duration]);
+
   if (!uri) return;
 
   return (

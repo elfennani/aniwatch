@@ -39,7 +39,7 @@ const TabsLayout = (props: Props) => {
       path: "/notifications",
       icon: (
         <Iconify
-          icon="material-symbols-light:circle-notifications"
+          icon="material-symbols-light:notifications-outline-sharp"
           size={size}
         />
       ),

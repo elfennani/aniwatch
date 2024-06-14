@@ -15,7 +15,6 @@ type Props = {};
 const SignInPage = (props: Props) => {
   const { session } = useSession();
   let { client_id, redirect_uri } = config;
-  console.log(config);
 
   if (session) return <Redirect href="/" />;
 

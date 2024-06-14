@@ -79,7 +79,6 @@ const Player = ({ url, threshold, onOverThreshold }: Props) => {
     });
 
     const unsubSource = player.addListener("sourceChange", (source) => {
-      console.log(positionRef.current);
       player.currentTime = positionRef.current;
     });
 
